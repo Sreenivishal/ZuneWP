@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ktorExt-jvm">
+    <output-path>$PROJECT_DIR$/core/service/ktorExt/build/libs</output-path>
+    <root id="archive" name="ktorExt-jvm.jar">
+      <element id="module-output" name="Zune.ktorExt.jvmMain" />
+    </root>
+  </artifact>
+</component>

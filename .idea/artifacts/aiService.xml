@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="aiService">
+    <output-path>$PROJECT_DIR$/core/service/aiService/build/libs</output-path>
+    <root id="archive" name="aiService.jar">
+      <element id="module-output" name="Zune.aiService.androidMain" />
+    </root>
+  </artifact>
+</component>

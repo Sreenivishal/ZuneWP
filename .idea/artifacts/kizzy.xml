@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="kizzy">
+    <output-path>$PROJECT_DIR$/core/service/kizzy/build/libs</output-path>
+    <root id="archive" name="kizzy.jar">
+      <element id="module-output" name="Zune.kizzy.androidMain" />
+    </root>
+  </artifact>
+</component>
