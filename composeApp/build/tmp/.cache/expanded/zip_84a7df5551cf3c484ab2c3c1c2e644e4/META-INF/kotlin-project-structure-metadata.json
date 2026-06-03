@@ -1,0 +1,326 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "debugApiElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "commonMain",
+          "javaMain"
+        ]
+      },
+      {
+        "name": "debugRuntimeElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "commonMain",
+          "javaMain"
+        ]
+      },
+      {
+        "name": "releaseApiElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "commonMain",
+          "javaMain"
+        ]
+      },
+      {
+        "name": "releaseRuntimeElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "commonMain",
+          "javaMain"
+        ]
+      },
+      {
+        "name": "desktopApiElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "javaMain",
+          "skikoMain",
+          "desktopNativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "desktopRuntimeElements",
+        "sourceSet": [
+          "jvmNativeMain",
+          "javaMain",
+          "skikoMain",
+          "desktopNativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "jvmNativeMain",
+          "commonMain",
+          "skikoMain",
+          "desktopNativeMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "jvmNativeMain",
+          "skikoMain",
+          "desktopNativeMain"
+        ]
+      },
+      {
+        "name": "iosX64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "jvmNativeMain",
+          "skikoMain",
+          "desktopNativeMain"
+        ]
+      },
+      {
+        "name": "jsApiElements",
+        "sourceSet": [
+          "webMain",
+          "skikoMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsRuntimeElements",
+        "sourceSet": [
+          "webMain",
+          "skikoMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosArm64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "jvmNativeMain",
+          "skikoMain",
+          "desktopNativeMain"
+        ]
+      },
+      {
+        "name": "macosX64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "jvmNativeMain",
+          "skikoMain",
+          "desktopNativeMain"
+        ]
+      },
+      {
+        "name": "wasmJsApiElements",
+        "sourceSet": [
+          "webMain",
+          "commonMain",
+          "skikoMain"
+        ]
+      },
+      {
+        "name": "wasmJsRuntimeElements",
+        "sourceSet": [
+          "webMain",
+          "commonMain",
+          "skikoMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "appleMain",
+        "dependsOn": [
+          "nativeMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "appleMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "desktopNativeMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "iosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "javaMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "jvmNativeMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "macosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "macosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "skikoMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "webMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.github.alexzhirkevich:compottie-core",
+          "com.squareup.okio:okio",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "io.github.alexzhirkevich:compottie-dot",
+          "org.jetbrains.kotlinx:kotlinx-serialization-json",
+          "org.jetbrains.kotlinx:atomicfu",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+        ],
+        "binaryLayout": "klib"
+      }
+    ]
+  }
+}

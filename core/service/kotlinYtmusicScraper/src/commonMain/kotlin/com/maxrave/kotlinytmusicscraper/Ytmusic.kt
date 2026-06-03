@@ -230,6 +230,7 @@ class Ytmusic {
         }
         userAgent(client.userAgent)
         parameter("prettyPrint", false)
+        parameter("key", client.api_key)
     }
 
     @OptIn(ExperimentalTime::class)

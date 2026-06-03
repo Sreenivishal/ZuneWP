@@ -1,0 +1,4 @@
+com.maxrave.simpmusic.composeapp.composeApp-androidMain-0 C:\Users\Sreenivishal\Documents\zune\composeApp\build\generated\updated_navigation_xml\androidMain\res
+com.maxrave.simpmusic.composeapp.composeApp-packageAndroidMainResources-1 C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\incremental\androidMain\packageAndroidMainResources\merged.dir
+com.maxrave.simpmusic.composeapp.composeApp-packageAndroidMainResources-2 C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\incremental\androidMain\packageAndroidMainResources\stripped.dir
+com.maxrave.simpmusic.composeapp.composeApp-androidMain-3 C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\packaged_res\androidMain\packageAndroidMainResources

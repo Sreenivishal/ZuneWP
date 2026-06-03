@@ -1,0 +1,213 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "debugApiElements",
+        "sourceSet": [
+          "nonJsMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "debugRuntimeElements",
+        "sourceSet": [
+          "nonJsMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseApiElements",
+        "sourceSet": [
+          "nonJsMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseRuntimeElements",
+        "sourceSet": [
+          "nonJsMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "iosX64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "jsApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmApiElements",
+        "sourceSet": [
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "jvmRuntimeElements",
+        "sourceSet": [
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "macosArm64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "nonJsMain"
+        ]
+      },
+      {
+        "name": "macosX64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain",
+          "nonJsMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "appleMain",
+        "dependsOn": [
+          "nativeMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:androidx-palette",
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.compose.material3:material3",
+          "org.jetbrains.compose.runtime:runtime",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "dev.drewhamilton.poko:poko-annotations",
+          "androidx.collection:collection"
+        ],
+        "sourceSetCInteropMetadataDirectory": "appleMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "com.kmpalette:androidx-palette",
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "iosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:androidx-palette",
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.compose.material3:material3",
+          "org.jetbrains.compose.runtime:runtime",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "dev.drewhamilton.poko:poko-annotations",
+          "androidx.collection:collection"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "macosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:androidx-palette",
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.compose.material3:material3",
+          "org.jetbrains.compose.runtime:runtime",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "dev.drewhamilton.poko:poko-annotations",
+          "androidx.collection:collection"
+        ],
+        "sourceSetCInteropMetadataDirectory": "macosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "commonMain",
+          "nonJsMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:androidx-palette",
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.compose.material3:material3",
+          "org.jetbrains.compose.runtime:runtime",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "dev.drewhamilton.poko:poko-annotations",
+          "androidx.collection:collection"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nonJsMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [],
+        "binaryLayout": "klib"
+      }
+    ]
+  }
+}

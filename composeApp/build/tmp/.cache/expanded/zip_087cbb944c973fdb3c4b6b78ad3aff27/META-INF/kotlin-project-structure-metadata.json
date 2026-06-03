@@ -1,0 +1,491 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "debugApiElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "debugRuntimeElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseApiElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseRuntimeElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain",
+          "iosMacosMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain",
+          "iosMacosMain"
+        ]
+      },
+      {
+        "name": "iosX64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain",
+          "iosMacosMain"
+        ]
+      },
+      {
+        "name": "jsApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmApiElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmRuntimeElements",
+        "sourceSet": [
+          "jvmAndroidMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "linuxArm64ApiElements",
+        "sourceSet": [
+          "linuxMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "linuxX64ApiElements",
+        "sourceSet": [
+          "linuxMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosArm64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "iosMacosMain",
+          "iosTvosMacosMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosX64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "iosMacosMain",
+          "iosTvosMacosMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "mingwX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "tvosArm64ApiElements",
+        "sourceSet": [
+          "tvosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain"
+        ]
+      },
+      {
+        "name": "tvosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "tvosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain"
+        ]
+      },
+      {
+        "name": "tvosX64ApiElements",
+        "sourceSet": [
+          "tvosMain",
+          "iosTvosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain",
+          "iosTvosMacosMain"
+        ]
+      },
+      {
+        "name": "watchosArm64ApiElements",
+        "sourceSet": [
+          "watchosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "watchosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosX64ApiElements",
+        "sourceSet": [
+          "watchosMain",
+          "darwinMobileMain",
+          "darwinMain",
+          "posixMain",
+          "nativeMain",
+          "concurrentMain",
+          "commonMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "concurrentMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "darwinMain",
+        "dependsOn": [
+          "posixMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "darwinMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "darwinMobileMain",
+        "dependsOn": [
+          "darwinMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "darwinMobileMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "iosMacosMain",
+        "dependsOn": [
+          "iosTvosMacosMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMacosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "iosMain",
+        "dependsOn": [
+          "iosTvosMain",
+          "iosMacosMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "iosTvosMacosMain",
+        "dependsOn": [
+          "darwinMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosTvosMacosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "iosTvosMain",
+        "dependsOn": [
+          "darwinMobileMain",
+          "iosTvosMacosMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosTvosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "jvmAndroidMain",
+        "dependsOn": [
+          "concurrentMain"
+        ],
+        "moduleDependency": [],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "linuxMain",
+        "dependsOn": [
+          "posixMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "linuxMain-cinterop",
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "macosMain",
+        "dependsOn": [
+          "iosMacosMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "macosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "concurrentMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "posixMain",
+        "dependsOn": [
+          "nativeMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "posixMain-cinterop",
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "tvosMain",
+        "dependsOn": [
+          "iosTvosMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "tvosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "watchosMain",
+        "dependsOn": [
+          "darwinMobileMain"
+        ],
+        "moduleDependency": [
+          "com.soywiz.korlibs.korcoutines:korcoutines",
+          "com.soywiz.korlibs.klock:klock",
+          "com.soywiz.korlibs.kds:kds",
+          "com.soywiz.korlibs.kmem:kmem",
+          "com.soywiz.korlibs.krypto:krypto",
+          "com.soywiz.korlibs.klogger:klogger",
+          "org.jetbrains.kotlin:kotlin-stdlib-common"
+        ],
+        "sourceSetCInteropMetadataDirectory": "watchosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      }
+    ]
+  }
+}

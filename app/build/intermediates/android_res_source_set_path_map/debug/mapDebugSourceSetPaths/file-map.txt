@@ -1,0 +1,7 @@
+com.zune.player.app-resValues-0 C:\Users\Sreenivishal\Documents\zune\app\build\generated\res\resValues\debug
+com.zune.player.app-updated_navigation_xml-1 C:\Users\Sreenivishal\Documents\zune\app\build\generated\updated_navigation_xml\debug
+com.zune.player.app-packageDebugResources-2 C:\Users\Sreenivishal\Documents\zune\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.zune.player.app-packageDebugResources-3 C:\Users\Sreenivishal\Documents\zune\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.zune.player.app-debug-4 C:\Users\Sreenivishal\Documents\zune\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.zune.player.app-debug-5 C:\Users\Sreenivishal\Documents\zune\app\src\debug\res
+com.zune.player.app-main-6 C:\Users\Sreenivishal\Documents\zune\app\src\main\res

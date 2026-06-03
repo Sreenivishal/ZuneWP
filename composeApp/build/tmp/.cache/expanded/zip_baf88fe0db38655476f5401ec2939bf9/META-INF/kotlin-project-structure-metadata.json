@@ -1,0 +1,184 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "debugApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "debugRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosX64ApiElements",
+        "sourceSet": [
+          "iosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmApiElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmRuntimeElements",
+        "sourceSet": [
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosArm64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosX64ApiElements",
+        "sourceSet": [
+          "macosMain",
+          "appleMain",
+          "nativeMain",
+          "commonMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "appleMain",
+        "dependsOn": [
+          "nativeMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "com.kmpalette:kmpalette-core",
+          "com.kmpalette:extensions-bytearray",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "io.ktor:ktor-client-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "appleMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "iosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "com.kmpalette:kmpalette-core",
+          "com.kmpalette:extensions-bytearray",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "io.ktor:ktor-client-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "iosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "macosMain",
+        "dependsOn": [
+          "appleMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "com.kmpalette:kmpalette-core",
+          "com.kmpalette:extensions-bytearray",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "io.ktor:ktor-client-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "macosMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "com.kmpalette:kmpalette-bitmap-loader",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "com.kmpalette:kmpalette-core",
+          "com.kmpalette:extensions-bytearray",
+          "org.jetbrains.compose.ui:ui",
+          "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+          "io.ktor:ktor-client-core"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib",
+        "hostSpecific": "true"
+      }
+    ]
+  }
+}

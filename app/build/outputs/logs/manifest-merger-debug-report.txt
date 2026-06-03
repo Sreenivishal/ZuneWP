@@ -1,0 +1,1029 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:2:1-89:12
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:2:1-89:12
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:2:1-89:12
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:2:1-89:12
+MERGED from [:composeApp] C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:data] C:\Users\Sreenivishal\Documents\zune\core\data\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:media3] C:\Users\Sreenivishal\Documents\zune\core\media\media3\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:kotlinYtmusicScraper] C:\Users\Sreenivishal\Documents\zune\core\service\kotlinYtmusicScraper\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:aiService] C:\Users\Sreenivishal\Documents\zune\core\service\aiService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:lyricsService] C:\Users\Sreenivishal\Documents\zune\core\service\lyricsService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:kizzy] C:\Users\Sreenivishal\Documents\zune\core\service\kizzy\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:media3-ui] C:\Users\Sreenivishal\Documents\zune\core\media\media3-ui\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:domain] C:\Users\Sreenivishal\Documents\zune\core\domain\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [:common] C:\Users\Sreenivishal\Documents\zune\core\common\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.media3:media3-ui:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9784081bc8d4833d20e184a2dec6ce98\workspace\transformed\jetified-media3-ui-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-session:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3c9740ceed8e2d41544fca23a6e30b01\workspace\transformed\jetified-media3-session-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-datasource-okhttp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9324c8db34ffac9eda5446fb025b8aec\workspace\transformed\jetified-media3-datasource-okhttp-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-extractor:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d846774a58aa4830cdfdbbdb618efa\workspace\transformed\jetified-media3-extractor-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-container:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6a75987656fbb4a53a111bdc1e9d7ab0\workspace\transformed\jetified-media3-container-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-datasource:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11c3f0ee9f2fe51c51e272d6e01a6b44\workspace\transformed\jetified-media3-datasource-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-decoder:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b1ec09d04a560dd34c9b098ff30967e9\workspace\transformed\jetified-media3-decoder-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-database:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9f6af94d56b1cca4362bf55eb1f496ed\workspace\transformed\jetified-media3-database-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-ui-compose:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ccd3ee9963dab714c706d2b122e0f663\workspace\transformed\jetified-media3-ui-compose-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-common-ktx:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c6dcd81546a9c2c6e0350aa741cf76f9\workspace\transformed\jetified-media3-common-ktx-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-common:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2f0af2af63fd6954f6aa9f2d996bf2b8\workspace\transformed\jetified-media3-common-1.10.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.media3:media3-exoplayer-dash:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dcbe4b6d32fe4a1f65f2ddb5d5faab61\workspace\transformed\jetified-media3-exoplayer-dash-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-exoplayer-hls:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\784814d2a099458200f4dc763c6d6baf\workspace\transformed\jetified-media3-exoplayer-hls-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-exoplayer-rtsp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6c6e7d9f7d66d76afb58171b331ed42e\workspace\transformed\jetified-media3-exoplayer-rtsp-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-exoplayer-smoothstreaming:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\66cd4eb1d2169afb6fac4c613f1b7307\workspace\transformed\jetified-media3-exoplayer-smoothstreaming-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-exoplayer-workmanager:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cfc076dbfe1fec9bbcba7e25b1060e8a\workspace\transformed\jetified-media3-exoplayer-workmanager-1.10.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:17:1-25:12
+MERGED from [io.insert-koin:koin-androidx-compose:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\36f8dec03fa6946e4ea111a86049c6b9\workspace\transformed\jetified-koin-androidx-compose-4.2.1\AndroidManifest.xml:2:1-7:12
+MERGED from [io.insert-koin:koin-compose-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d4f8e8b5c1fe6e1b2a7a3770aa25c551\workspace\transformed\jetified-koin-compose-viewmodel-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.insert-koin:koin-compose-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b903fb78b931cd94247044634550600d\workspace\transformed\jetified-koin-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.insert-koin:koin-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb1095463ff653be56fac9bc7a9d2bf7\workspace\transformed\jetified-koin-android-4.2.1\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe721c4211b2b75988f6dd4bbba0907e\workspace\transformed\jetified-coil-compose-2.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9c306758bcbd0b49f06340d98abb05a\workspace\transformed\jetified-coil-compose-base-2.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b12c2ffb12ef9c2e668da21ad3c6aa14\workspace\transformed\jetified-coil-2.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e7bdaeb8bae3137949ea2acbc8dc76cd\workspace\transformed\jetified-coil-base-2.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-network-okhttp-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ae16366ddaecf72a727b2c964cecacb\workspace\transformed\jetified-coil-network-okhttp\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-compose-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30fef332c0cdd76e7e5c2eca58c98c16\workspace\transformed\jetified-coil-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb2bdae5819f5baaa21f0dca8bfe159d\workspace\transformed\jetified-coil\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-compose-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a58af2bcb0fb616607fa621a643a84b3\workspace\transformed\jetified-coil-compose-core\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-network-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79310511fd568d638515a8784b921908\workspace\transformed\jetified-coil-network-core\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt.coil3:coil-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ad6074e5daebcdbb343698501b5aa0db\workspace\transformed\jetified-coil-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073190db7baa1cdc292a505241333898\workspace\transformed\jetified-appcompat-resources-1.7.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\48697dc06eb453bec67be42a115f298e\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:2:1-7:12
+MERGED from [dev.chrisbanes.haze:haze-materials-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8c6f594f92841f8bd6b48d883b0d12b4\workspace\transformed\jetified-haze-materials-release\AndroidManifest.xml:2:1-7:12
+MERGED from [dev.chrisbanes.haze:haze-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\164fabfc886a06ab160fec0b28309201\workspace\transformed\jetified-haze-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8474418efa98294593d2b5c83e534cc8\workspace\transformed\fragment-1.8.9\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.fragment:fragment-ktx:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dc5a7f8c281b370b7aded95517b17961\workspace\transformed\jetified-fragment-ktx-1.8.9\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-common-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\60720d4f5134dee5f7cbe194d941eced\workspace\transformed\jetified-navigation-common-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-compose-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe2b7a73e71a903f1d772cc6e4e52f32\workspace\transformed\jetified-navigation-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-runtime-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\821a5f9a238544dcbaf21af9064985f6\workspace\transformed\jetified-navigation-runtime-release\AndroidManifest.xml:17:1-22:12
+MERGED from [com.kmpalette:extensions-network-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30da717e4f5cfb214adbd1e0316b5540\workspace\transformed\jetified-extensions-network-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [com.kmpalette:extensions-bytearray-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8ec756f349938c35e8e9032303c9951f\workspace\transformed\jetified-extensions-bytearray-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [com.kmpalette:kmpalette-core-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d20bcee26984750b4a0349a1ce0785e\workspace\transformed\jetified-kmpalette-core-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:2:1-13:12
+MERGED from [com.mikepenz:aboutlibraries-compose-m3-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\13fad4eebd4cdd14d1a2100e1d9152e0\workspace\transformed\jetified-aboutlibraries-compose-m3\AndroidManifest.xml:2:1-7:12
+MERGED from [sh.calvin.reorderable:reorderable-android-debug:2.4.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4b8b8eece4d6ac08cc89a3e1c21780f0\workspace\transformed\jetified-reorderable-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:compottie-resources-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bd6e78ee70f817b39c6e6d597570f721\workspace\transformed\jetified-compottie-resources-release\AndroidManifest.xml:2:1-7:12
+MERGED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:2:1-16:12
+MERGED from [io.github.alexzhirkevich:compottie-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6106093f6eabafc3dbcfc07cb98b3851\workspace\transformed\jetified-compottie-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mohamedrejeb.calf:calf-file-picker-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32f5fdc26b679d39f84c50243471c980\workspace\transformed\jetified-calf-file-picker-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.kyant0:backdrop-android:2.0.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11ae928ff845017566c81eed35ba29fb\workspace\transformed\jetified-backdrop\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:compottie-network-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0a1b71f3431654729c972d6616f6ac3a\workspace\transformed\jetified-compottie-network-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:compottie-network-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\354d7f5c84897aa86e167fcf2f606b0c\workspace\transformed\jetified-compottie-network-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:compottie-dot-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\62beae380168b4cb4e4fb8c0f744fe80\workspace\transformed\jetified-compottie-dot-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:compottie-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\509fca083973222fd9d4f9421df7b87e\workspace\transformed\jetified-compottie-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mikepenz:aboutlibraries-compose-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a15bb789adaceb645117bda7e1d4fafc\workspace\transformed\jetified-aboutlibraries-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mohamedrejeb.calf:calf-io-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d26d2da2311e71dd77ac3924e942b974\workspace\transformed\jetified-calf-io-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mohamedrejeb.calf:calf-core-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c7d891950d22508d92c707b60865da5a\workspace\transformed\jetified-calf-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.kyant0:shapes-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\de2226a50cee9319af8acec5a33ea0be\workspace\transformed\jetified-shapes\AndroidManifest.xml:2:1-7:12
+MERGED from [com.kmpalette:androidx-palette-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b03b940bf01bf2177330c09348f1aa39\workspace\transformed\jetified-androidx-palette-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [com.kmpalette:kmpalette-bitmap-loader-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fa1b8237604f7e63fb8c9bb3ba6ff108\workspace\transformed\jetified-kmpalette-bitmap-loader-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.constraintlayout:constraintlayout-compose-android:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbc9127bd94e5a9919713183945f96c8\workspace\transformed\jetified-constraintlayout-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.paging:paging-common-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\038f6fd5024cad301d76e3007ef98853\workspace\transformed\jetified-paging-common\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.paging:paging-compose-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f019f2f82221408f3f7b76873505f4a1\workspace\transformed\jetified-paging-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-android:1.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\14507cb8b8a240913a4ee12a3bcc1095\workspace\transformed\jetified-material\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material3.adaptive:adaptive-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dabd8e7efdc4a99b4fb403743bac629e\workspace\transformed\jetified-adaptive\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.material:material-ripple-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e020cf53b41bdb92075931728a6c7d2e\workspace\transformed\jetified-material-ripple\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-core-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c916343578017b61ce5251da9acda86b\workspace\transformed\jetified-animation-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\407ff13e72b78ddd5adf3469bf1e826c\workspace\transformed\jetified-animation\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7316f77c67aff7513b9e481a569560d9\workspace\transformed\jetified-foundation-layout\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\db84cf3d7dfbd53f0c2310d2ba90ea71\workspace\transformed\jetified-foundation\AndroidManifest.xml:2:1-7:12
+MERGED from [org.jetbrains.compose.ui:ui-backhandler-android-debug:1.9.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\260a97ab7e3fd22a91615d50bb9dc595\workspace\transformed\jetified-ui-backhandler-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79e5b73855d721c2921551b8c7c278c8\workspace\transformed\jetified-ui-tooling-preview\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\94c7bf2a7c820bd3228711fbf9d7d2bb\workspace\transformed\jetified-ui-tooling-data\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\be62034307d0cc839b0a8b8fe4696f8b\workspace\transformed\jetified-ui-unit\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e557fc9de99c6c0dcc0c27ca5dc97111\workspace\transformed\jetified-ui-graphics\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbe7d7d76cd1c18f5edd3fa315ade892\workspace\transformed\jetified-ui-geometry\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\aa70854155f57d940f602ff356785080\workspace\transformed\jetified-ui-util\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-text-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\058d6433893b4cfcbb86813d68a1705f\workspace\transformed\jetified-ui-text\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:17:1-28:12
+MERGED from [androidx.compose.material3:material3-android:1.5.0-alpha20] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0cd0b01414800027743fc11a24b2ca81\workspace\transformed\jetified-material3\AndroidManifest.xml:17:1-22:12
+MERGED from [io.insert-koin:koin-core-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cc679561152068ec0a5498616d800e66\workspace\transformed\jetified-koin-core-viewmodel-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.work:work-runtime-ktx:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5866661d125e9ac5f554db5c1eccf8c6\workspace\transformed\work-runtime-ktx-2.11.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:17:1-83:12
+MERGED from [androidx.palette:palette-ktx:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3156672e13c62682b1a91e040da1a0e7\workspace\transformed\jetified-palette-ktx-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.palette:palette:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a9426b7db47d5ae40c3995ee59ac6602\workspace\transformed\palette-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8bb17377ef1fbcc72ad6711c1148d70b\workspace\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe6493a63abc444ddcad54d5b027237c\workspace\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c246bb0d5f6dc63a4982c8046cf60bb7\workspace\transformed\jetified-graphics-path-1.0.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.recyclerview:recyclerview:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2dfe5991fbfbf6f0987f1087bc2add0f\workspace\transformed\recyclerview-1.3.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media:media:1.7.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\17c693e4e004ccecb90193a13c3b3fa4\workspace\transformed\media-1.7.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f60f95e2b253eb28d1b2872d7690dd3e\workspace\transformed\drawerlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d19e8f5b60bf5fd8d9fa927acd135149\workspace\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\77982e03942098a6d0adae86095daf7d\workspace\transformed\customview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fb236b4a852a003e2d39477eb18c682c\workspace\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d662d9052523702760005ff03c1115a1\workspace\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.documentfile:documentfile:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\719841f3e03d66fcc7b090c398d7adc7\workspace\transformed\documentfile-1.1.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.window:window-core-android:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e389a308f0956336f98ce7871a4ac94e\workspace\transformed\jetified-window-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ceaffe8b221cbddef78934daad1efe3\workspace\transformed\jetified-autofill-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5909797bfff38739ca2328bb9fd8397a\workspace\transformed\jetified-emoji2-views-helper-1.4.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5af35c69e9648873f6473f99f2437f0f\workspace\transformed\jetified-lifecycle-runtime-ktx\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25b22625d27b9539a6398bf42ccbe8a3\workspace\transformed\jetified-lifecycle-runtime\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b9caeca28f1d7cb23a07972d3f1e8737\workspace\transformed\lifecycle-viewmodel-2.10.0\AndroidManifest.xml:2:1-5:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\082c78c4b164f9e0c1ca4f55c4b043ec\workspace\transformed\jetified-lifecycle-viewmodel\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-service:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b2e8c01ca2e9af408a2855b8eef1289a\workspace\transformed\jetified-lifecycle-service-2.10.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\987443e2365377770d83b3c631d8b058\workspace\transformed\jetified-lifecycle-livedata-core-ktx-2.10.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a0658c4fe92da2b9aa7ca8d289978d9c\workspace\transformed\lifecycle-livedata-core-2.10.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d2e2677251e8d3a29f758cc22f3d42\workspace\transformed\lifecycle-livedata-2.10.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\45bf9840413e8f8eda3e58813333327c\workspace\transformed\jetified-lifecycle-viewmodel-savedstate\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856878d7064ac5fb4c6a16a030d2dbd9\workspace\transformed\jetified-savedstate\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\af210734530f04d02591295ba97bd26c\workspace\transformed\jetified-savedstate-ktx-1.4.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.savedstate:savedstate-compose-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71417a7f7b7862ee4ab357f808f122a0\workspace\transformed\jetified-savedstate-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-retain-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\99d32fd3e6e25624491af4ef5d1f9761\workspace\transformed\jetified-runtime-retain\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigationevent:navigationevent-compose-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fb8535244eff469d53ce26f75d50db0\workspace\transformed\jetified-navigationevent-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigationevent:navigationevent-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ba4ec2b6ce4462b591cdd84c83179e1c\workspace\transformed\jetified-navigationevent\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-annotation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\42f88456553fe6e2a6d23afae7493e76\workspace\transformed\jetified-runtime-annotation\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0e6e3f02d6825f3c077ed9682ca606ff\workspace\transformed\jetified-runtime\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\006a6abc8b6e4fb08d17fc9e62dba694\workspace\transformed\jetified-runtime-saveable\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fd5aa75632adb4e48aa03a52c1beeea3\workspace\transformed\jetified-lifecycle-runtime-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25ad52651ea0d8a7b5ebd01eb3587386\workspace\transformed\jetified-lifecycle-viewmodel-ktx-2.10.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b60e874adee73f069586a31aa832bd60\workspace\transformed\jetified-lifecycle-viewmodel-compose\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d9c709f2221a462513e3296ca9d0298\workspace\transformed\jetified-material-icons-extended-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f4e24d603a9ea18bbfac7e476204a4b0\workspace\transformed\jetified-material-icons-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.37.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7521b52cd8fa444d1498701ae810db17\workspace\transformed\jetified-accompanist-drawablepainter-0.37.3\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.compose.ui:ui-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ffb2eb0bc26cd05243f1cdcc8183aa7e\workspace\transformed\jetified-ui\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-ktx:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\304d99ffae44214ec33029963d5ebde3\workspace\transformed\jetified-activity-ktx-1.13.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b7f19cf9a57f57b7b16cec89a9ace6b3\workspace\transformed\jetified-activity-1.13.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity-compose:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6b57217d72b35b45868eca1bb5a23aac\workspace\transformed\jetified-activity-compose-1.13.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f969805792f9582a61870265905c5659\workspace\transformed\jetified-customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.graphics:graphics-shapes-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\00cd1d7e2702500d3499c24bc34d33bf\workspace\transformed\jetified-graphics-shapes\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-ktx:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e5e62c2f3af8d6e16e8060d7d05c9ec0\workspace\transformed\jetified-core-ktx-1.18.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.room:room-ktx:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\472f9ed6b33df71d1e083ce6d068787a\workspace\transformed\jetified-room-ktx-2.8.4\AndroidManifest.xml:17:1-22:12
+MERGED from [:spotify] C:\Users\Sreenivishal\Documents\zune\core\service\spotify\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b6b018910e88f31734d9904f23162827\workspace\transformed\jetified-datastore-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-preferences-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71671679c80b5d851afbd9f705bb2562\workspace\transformed\jetified-datastore-preferences-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d8a168af80927d71257bc2a59dd04084\workspace\transformed\jetified-datastore\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-preferences-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5dbc7e1da233e527fef3029861e67807\workspace\transformed\jetified-datastore-preferences\AndroidManifest.xml:17:1-22:12
+MERGED from [:ktorExt] C:\Users\Sreenivishal\Documents\zune\core\service\ktorExt\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:2:1-7:12
+MERGED from [com.soywiz.korlibs.korim:korim-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\63e3d8c52145e4a2f1a7131d7b1f30dd\workspace\transformed\jetified-korim-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.korio:korio-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073dc11e7cd7af0f3c3b76b2ca32684a\workspace\transformed\jetified-korio-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:17:1-55:12
+MERGED from [io.github.alexzhirkevich:keight-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fd697a2ef4c916be797b39c5da38cb2\workspace\transformed\jetified-keight-release\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.alexzhirkevich:keight-core-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5153879e971bdc56b2b3d9037e03d6c1\workspace\transformed\jetified-keight-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [com.soywiz.korlibs.korcoutines:korcoutines-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\53f4bc59ae463b6c5920cb3a0e3585e3\workspace\transformed\jetified-korcoutines-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:2:1-22:12
+MERGED from [com.soywiz.korlibs.korma:korma-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bebd31485cd6b5f102ccf013f068dcc7\workspace\transformed\jetified-korma-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.klock:klock-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d84e4f23a041c0fdd6965e10e9c39500\workspace\transformed\jetified-klock-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.kds:kds-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8abef776eb261c0f95c32c477445c85a\workspace\transformed\jetified-kds-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.kmem:kmem-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dfc6340355ef36c58a4502b8f02efc6e\workspace\transformed\jetified-kmem-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.krypto:krypto-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\eae82e4b4ef6cca112d184d29a00f242\workspace\transformed\jetified-krypto-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.soywiz.korlibs.klogger:klogger-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9543183748582d4a9a0f1686dd7e45cf\workspace\transformed\jetified-klogger-debug\AndroidManifest.xml:2:1-9:12
+MERGED from [com.eygraber:uri-kmp-android:0.0.21] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4d583af5c069800d9b81d4acef1b4f9b\workspace\transformed\jetified-uri-release\AndroidManifest.xml:2:1-7:12
+MERGED from [co.touchlab:kermit-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\abfa8858ce61209032ede794170b587f\workspace\transformed\jetified-kermit-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mikepenz:aboutlibraries-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cbebb2ef3cea0bc4c3cf0609015dd3ef\workspace\transformed\jetified-aboutlibraries-core\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.sqlite:sqlite-framework-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6766e43f132446b54b755e482324ed64\workspace\transformed\jetified-sqlite-framework\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3d46d01e65b602911b0ddbca9f3ed3cd\workspace\transformed\jetified-sqlite\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite-bundled-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\836dd0e8592e0e8416b03a24f9bd3396\workspace\transformed\jetified-sqlite-bundled\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-m3-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\78c0f1ff1c12d7aeb0554962c1bed0d2\workspace\transformed\jetified-multiplatform-markdown-renderer-m3\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\268e869acd446efa7cff436cf41c2c33\workspace\transformed\jetified-core-viewtree-1.0.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7e39d23732cabe023158bac92d2f1f24\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1c239d813e3c211a44e9ff5053380943\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\048b1576191dbdf5796ae410342f7e29\workspace\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f5d786db05be1fe4d90c46c3ea12ab7\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\151278d022ea12cd106b70c4e7a5b6f7\workspace\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7b12d3562a08a303f78607b0fc9c3010\workspace\transformed\print-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.exifinterface:exifinterface:1.4.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f410baa083c318ca9dc476f15a52eb4\workspace\transformed\exifinterface-1.4.2\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.tracing:tracing-ktx:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b115a0cb7770dddb65fbb47ee5898cd9\workspace\transformed\jetified-tracing-ktx-1.3.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.tracing:tracing-android:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ee305d05a94855866a72fd211ae9b26\workspace\transformed\jetified-tracing\AndroidManifest.xml:17:1-22:12
+MERGED from [co.touchlab:kermit-core-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\807da82c39eeadb10ea5c01a99ef2b33\workspace\transformed\jetified-kermit-core-debug\AndroidManifest.xml:2:1-7:12
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c06c578a8be83daf4da4c0fde691267d\workspace\transformed\jetified-multiplatform-markdown-renderer\AndroidManifest.xml:2:1-7:12
+MERGED from [com.github.skydoves:compose-stability-runtime-android:0.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\605decaa905751bd6fee2df9bd2388fa\workspace\transformed\jetified-stability-runtime-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.annotation:annotation-experimental:1.5.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b67bc16e9e23fcf3a7fe6a8c02f52e79\workspace\transformed\jetified-annotation-experimental-1.5.1\AndroidManifest.xml:2:1-7:12
+MERGED from [io.github.maxrave-dev:ffmpeg-kit-audio:6.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c40060d4ac873586e94dbcb253c36643\workspace\transformed\jetified-ffmpeg-kit-audio-6.0.1\AndroidManifest.xml:2:1-7:12
+	package
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+	xmlns:tools
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.READ_MEDIA_AUDIO
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:5:5-75
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:5:22-72
+uses-permission#android.permission.READ_MEDIA_IMAGES
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:6:5-76
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:6:22-73
+uses-permission#android.permission.READ_MEDIA_VIDEO
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:7:5-75
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:7:22-72
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:8:5-107
+	android:maxSdkVersion
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:8:78-104
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:8:22-77
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:9:5-77
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:26:5-77
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:26:5-77
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:9:22-74
+uses-permission#android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:10:5-92
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:10:22-89
+uses-permission#android.permission.FOREGROUND_SERVICE_DATA_SYNC
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:11:5-87
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:11:22-84
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:12:5-79
+MERGED from [androidx.media3:media3-common:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2f0af2af63fd6954f6aa9f2d996bf2b8\workspace\transformed\jetified-media3-common-1.10.1\AndroidManifest.xml:22:5-79
+MERGED from [androidx.media3:media3-common:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2f0af2af63fd6954f6aa9f2d996bf2b8\workspace\transformed\jetified-media3-common-1.10.1\AndroidManifest.xml:22:5-79
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:22:5-79
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:22:5-79
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:24:5-79
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:24:5-79
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:12:22-76
+uses-permission#android.permission.WAKE_LOCK
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:13:5-68
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:23:5-68
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:23:5-68
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:23:5-68
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:23:5-68
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:13:22-65
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:14:5-77
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:14:22-74
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:15:5-67
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:8:5-67
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:8:5-67
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:15:22-64
+application
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:17:5-87:19
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:17:5-87:19
+MERGED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:7:5-11:19
+MERGED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:7:5-11:19
+MERGED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:7:5-14:19
+MERGED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:7:5-14:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:22:5-26:19
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:28:5-81:19
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:28:5-81:19
+MERGED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:23:5-53:19
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:10:5-20:19
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:10:5-20:19
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\048b1576191dbdf5796ae410342f7e29\workspace\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\048b1576191dbdf5796ae410342f7e29\workspace\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+	android:extractNativeLibs
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+	android:roundIcon
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:25:9-54
+	android:icon
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:23:9-43
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
+	android:supportsRtl
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:26:9-35
+	android:label
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:24:9-41
+	android:fullBackupContent
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:22:9-54
+	tools:targetApi
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:29:9-29
+	android:allowBackup
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:20:9-35
+	android:theme
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:27:9-48
+	android:dataExtractionRules
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:21:9-65
+	tools:replace
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:19:9-37
+	android:usesCleartextTraffic
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:28:9-44
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:18:9-40
+		REJECTED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:8:9-66
+activity#com.zune.player.MainActivity
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:30:9-40:20
+	android:launchMode
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:33:13-43
+	android:exported
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:32:13-36
+	android:configChanges
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:34:13-87
+	android:theme
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:35:13-52
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:31:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:36:13-39:29
+action#android.intent.action.MAIN
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:37:17-69
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:37:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:38:17-77
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:38:27-74
+service#com.zune.player.player.PlaybackService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:42:9-49:19
+	android:exported
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:44:13-36
+	android:foregroundServiceType
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:45:13-58
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:43:13-51
+intent-filter#action:name:androidx.media3.session.MediaSessionService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:46:13-48:29
+action#androidx.media3.session.MediaSessionService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:47:17-86
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:47:25-83
+service#com.maxrave.media3.service.SimpleMediaService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:51:9-63:19
+	android:exported
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:53:13-36
+	tools:ignore
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:56:13-43
+	android:stopWithTask
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:55:13-41
+	android:foregroundServiceType
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:54:13-58
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:52:13-73
+intent-filter#action:name:android.intent.action.MEDIA_BUTTON+action:name:android.media.browse.MediaBrowserService+action:name:androidx.media3.session.MediaLibraryService+action:name:androidx.media3.session.MediaSessionService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:57:13-62:29
+action#androidx.media3.session.MediaLibraryService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:59:17-86
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:59:25-83
+action#android.media.browse.MediaBrowserService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:60:17-83
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:60:25-80
+action#android.intent.action.MEDIA_BUTTON
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:61:17-77
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:61:25-74
+service#com.maxrave.media3.service.download.MusicDownloadService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:65:9-73:19
+	android:exported
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:67:13-36
+	android:foregroundServiceType
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:68:13-53
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:66:13-84
+intent-filter#action:name:androidx.media3.exoplayer.downloadService.action.RESTART+category:name:android.intent.category.DEFAULT
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:69:13-72:29
+action#androidx.media3.exoplayer.downloadService.action.RESTART
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:70:17-99
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:70:25-96
+category#android.intent.category.DEFAULT
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:71:17-76
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:71:27-73
+receiver#androidx.media3.session.MediaButtonReceiver
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:75:9-81:20
+	android:exported
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:77:13-36
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:76:13-71
+intent-filter#action:name:android.intent.action.MEDIA_BUTTON
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:78:13-80:29
+service#androidx.work.impl.foreground.SystemForegroundService
+ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:83:9-86:34
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:46:9-52:35
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:46:9-52:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:49:13-77
+	tools:node
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:86:13-31
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:50:13-37
+	tools:ignore
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:51:13-60
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:52:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:48:13-44
+	android:foregroundServiceType
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:85:13-53
+	android:name
+		ADDED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:84:13-81
+uses-sdk
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+MERGED from [:composeApp] C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:composeApp] C:\Users\Sreenivishal\Documents\zune\composeApp\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:data] C:\Users\Sreenivishal\Documents\zune\core\data\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:data] C:\Users\Sreenivishal\Documents\zune\core\data\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:media3] C:\Users\Sreenivishal\Documents\zune\core\media\media3\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:media3] C:\Users\Sreenivishal\Documents\zune\core\media\media3\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:kotlinYtmusicScraper] C:\Users\Sreenivishal\Documents\zune\core\service\kotlinYtmusicScraper\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:kotlinYtmusicScraper] C:\Users\Sreenivishal\Documents\zune\core\service\kotlinYtmusicScraper\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:aiService] C:\Users\Sreenivishal\Documents\zune\core\service\aiService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:aiService] C:\Users\Sreenivishal\Documents\zune\core\service\aiService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:lyricsService] C:\Users\Sreenivishal\Documents\zune\core\service\lyricsService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:lyricsService] C:\Users\Sreenivishal\Documents\zune\core\service\lyricsService\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:kizzy] C:\Users\Sreenivishal\Documents\zune\core\service\kizzy\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:kizzy] C:\Users\Sreenivishal\Documents\zune\core\service\kizzy\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:media3-ui] C:\Users\Sreenivishal\Documents\zune\core\media\media3-ui\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:media3-ui] C:\Users\Sreenivishal\Documents\zune\core\media\media3-ui\build\intermediates\merged_manifest\debug\processDebugManifest\AndroidManifest.xml:5:5-44
+MERGED from [:domain] C:\Users\Sreenivishal\Documents\zune\core\domain\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:domain] C:\Users\Sreenivishal\Documents\zune\core\domain\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:common] C:\Users\Sreenivishal\Documents\zune\core\common\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:common] C:\Users\Sreenivishal\Documents\zune\core\common\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [androidx.media3:media3-ui:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9784081bc8d4833d20e184a2dec6ce98\workspace\transformed\jetified-media3-ui-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-ui:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9784081bc8d4833d20e184a2dec6ce98\workspace\transformed\jetified-media3-ui-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-session:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3c9740ceed8e2d41544fca23a6e30b01\workspace\transformed\jetified-media3-session-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-session:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3c9740ceed8e2d41544fca23a6e30b01\workspace\transformed\jetified-media3-session-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-datasource-okhttp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9324c8db34ffac9eda5446fb025b8aec\workspace\transformed\jetified-media3-datasource-okhttp-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-datasource-okhttp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9324c8db34ffac9eda5446fb025b8aec\workspace\transformed\jetified-media3-datasource-okhttp-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-extractor:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d846774a58aa4830cdfdbbdb618efa\workspace\transformed\jetified-media3-extractor-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-extractor:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d846774a58aa4830cdfdbbdb618efa\workspace\transformed\jetified-media3-extractor-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-container:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6a75987656fbb4a53a111bdc1e9d7ab0\workspace\transformed\jetified-media3-container-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-container:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6a75987656fbb4a53a111bdc1e9d7ab0\workspace\transformed\jetified-media3-container-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-datasource:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11c3f0ee9f2fe51c51e272d6e01a6b44\workspace\transformed\jetified-media3-datasource-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-datasource:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11c3f0ee9f2fe51c51e272d6e01a6b44\workspace\transformed\jetified-media3-datasource-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-decoder:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b1ec09d04a560dd34c9b098ff30967e9\workspace\transformed\jetified-media3-decoder-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-decoder:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b1ec09d04a560dd34c9b098ff30967e9\workspace\transformed\jetified-media3-decoder-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-database:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9f6af94d56b1cca4362bf55eb1f496ed\workspace\transformed\jetified-media3-database-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-database:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9f6af94d56b1cca4362bf55eb1f496ed\workspace\transformed\jetified-media3-database-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-ui-compose:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ccd3ee9963dab714c706d2b122e0f663\workspace\transformed\jetified-media3-ui-compose-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-ui-compose:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ccd3ee9963dab714c706d2b122e0f663\workspace\transformed\jetified-media3-ui-compose-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-common-ktx:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c6dcd81546a9c2c6e0350aa741cf76f9\workspace\transformed\jetified-media3-common-ktx-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-common-ktx:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c6dcd81546a9c2c6e0350aa741cf76f9\workspace\transformed\jetified-media3-common-ktx-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-common:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2f0af2af63fd6954f6aa9f2d996bf2b8\workspace\transformed\jetified-media3-common-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-common:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2f0af2af63fd6954f6aa9f2d996bf2b8\workspace\transformed\jetified-media3-common-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-dash:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dcbe4b6d32fe4a1f65f2ddb5d5faab61\workspace\transformed\jetified-media3-exoplayer-dash-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-dash:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dcbe4b6d32fe4a1f65f2ddb5d5faab61\workspace\transformed\jetified-media3-exoplayer-dash-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-hls:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\784814d2a099458200f4dc763c6d6baf\workspace\transformed\jetified-media3-exoplayer-hls-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-hls:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\784814d2a099458200f4dc763c6d6baf\workspace\transformed\jetified-media3-exoplayer-hls-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-rtsp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6c6e7d9f7d66d76afb58171b331ed42e\workspace\transformed\jetified-media3-exoplayer-rtsp-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-rtsp:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6c6e7d9f7d66d76afb58171b331ed42e\workspace\transformed\jetified-media3-exoplayer-rtsp-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-smoothstreaming:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\66cd4eb1d2169afb6fac4c613f1b7307\workspace\transformed\jetified-media3-exoplayer-smoothstreaming-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-smoothstreaming:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\66cd4eb1d2169afb6fac4c613f1b7307\workspace\transformed\jetified-media3-exoplayer-smoothstreaming-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-workmanager:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cfc076dbfe1fec9bbcba7e25b1060e8a\workspace\transformed\jetified-media3-exoplayer-workmanager-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer-workmanager:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cfc076dbfe1fec9bbcba7e25b1060e8a\workspace\transformed\jetified-media3-exoplayer-workmanager-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media3:media3-exoplayer:1.10.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1de37ee215f7564bb1fdc54d6f2cdf2b\workspace\transformed\jetified-media3-exoplayer-1.10.1\AndroidManifest.xml:20:5-44
+MERGED from [io.insert-koin:koin-androidx-compose:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\36f8dec03fa6946e4ea111a86049c6b9\workspace\transformed\jetified-koin-androidx-compose-4.2.1\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-androidx-compose:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\36f8dec03fa6946e4ea111a86049c6b9\workspace\transformed\jetified-koin-androidx-compose-4.2.1\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-compose-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d4f8e8b5c1fe6e1b2a7a3770aa25c551\workspace\transformed\jetified-koin-compose-viewmodel-release\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-compose-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d4f8e8b5c1fe6e1b2a7a3770aa25c551\workspace\transformed\jetified-koin-compose-viewmodel-release\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-compose-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b903fb78b931cd94247044634550600d\workspace\transformed\jetified-koin-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-compose-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b903fb78b931cd94247044634550600d\workspace\transformed\jetified-koin-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb1095463ff653be56fac9bc7a9d2bf7\workspace\transformed\jetified-koin-android-4.2.1\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb1095463ff653be56fac9bc7a9d2bf7\workspace\transformed\jetified-koin-android-4.2.1\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe721c4211b2b75988f6dd4bbba0907e\workspace\transformed\jetified-coil-compose-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe721c4211b2b75988f6dd4bbba0907e\workspace\transformed\jetified-coil-compose-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9c306758bcbd0b49f06340d98abb05a\workspace\transformed\jetified-coil-compose-base-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9c306758bcbd0b49f06340d98abb05a\workspace\transformed\jetified-coil-compose-base-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b12c2ffb12ef9c2e668da21ad3c6aa14\workspace\transformed\jetified-coil-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b12c2ffb12ef9c2e668da21ad3c6aa14\workspace\transformed\jetified-coil-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e7bdaeb8bae3137949ea2acbc8dc76cd\workspace\transformed\jetified-coil-base-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e7bdaeb8bae3137949ea2acbc8dc76cd\workspace\transformed\jetified-coil-base-2.5.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-network-okhttp-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ae16366ddaecf72a727b2c964cecacb\workspace\transformed\jetified-coil-network-okhttp\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-network-okhttp-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ae16366ddaecf72a727b2c964cecacb\workspace\transformed\jetified-coil-network-okhttp\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-compose-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30fef332c0cdd76e7e5c2eca58c98c16\workspace\transformed\jetified-coil-compose\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-compose-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30fef332c0cdd76e7e5c2eca58c98c16\workspace\transformed\jetified-coil-compose\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb2bdae5819f5baaa21f0dca8bfe159d\workspace\transformed\jetified-coil\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bb2bdae5819f5baaa21f0dca8bfe159d\workspace\transformed\jetified-coil\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-compose-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a58af2bcb0fb616607fa621a643a84b3\workspace\transformed\jetified-coil-compose-core\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-compose-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a58af2bcb0fb616607fa621a643a84b3\workspace\transformed\jetified-coil-compose-core\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-network-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79310511fd568d638515a8784b921908\workspace\transformed\jetified-coil-network-core\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-network-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79310511fd568d638515a8784b921908\workspace\transformed\jetified-coil-network-core\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ad6074e5daebcdbb343698501b5aa0db\workspace\transformed\jetified-coil-core\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt.coil3:coil-core-android:3.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ad6074e5daebcdbb343698501b5aa0db\workspace\transformed\jetified-coil-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073190db7baa1cdc292a505241333898\workspace\transformed\jetified-appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073190db7baa1cdc292a505241333898\workspace\transformed\jetified-appcompat-resources-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\48697dc06eb453bec67be42a115f298e\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\48697dc06eb453bec67be42a115f298e\workspace\transformed\appcompat-1.7.1\AndroidManifest.xml:5:5-44
+MERGED from [dev.chrisbanes.haze:haze-materials-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8c6f594f92841f8bd6b48d883b0d12b4\workspace\transformed\jetified-haze-materials-release\AndroidManifest.xml:5:5-44
+MERGED from [dev.chrisbanes.haze:haze-materials-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8c6f594f92841f8bd6b48d883b0d12b4\workspace\transformed\jetified-haze-materials-release\AndroidManifest.xml:5:5-44
+MERGED from [dev.chrisbanes.haze:haze-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\164fabfc886a06ab160fec0b28309201\workspace\transformed\jetified-haze-release\AndroidManifest.xml:5:5-44
+MERGED from [dev.chrisbanes.haze:haze-android:1.7.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\164fabfc886a06ab160fec0b28309201\workspace\transformed\jetified-haze-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8474418efa98294593d2b5c83e534cc8\workspace\transformed\fragment-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8474418efa98294593d2b5c83e534cc8\workspace\transformed\fragment-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment-ktx:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dc5a7f8c281b370b7aded95517b17961\workspace\transformed\jetified-fragment-ktx-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment-ktx:1.8.9] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dc5a7f8c281b370b7aded95517b17961\workspace\transformed\jetified-fragment-ktx-1.8.9\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\60720d4f5134dee5f7cbe194d941eced\workspace\transformed\jetified-navigation-common-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\60720d4f5134dee5f7cbe194d941eced\workspace\transformed\jetified-navigation-common-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-compose-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe2b7a73e71a903f1d772cc6e4e52f32\workspace\transformed\jetified-navigation-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe2b7a73e71a903f1d772cc6e4e52f32\workspace\transformed\jetified-navigation-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\821a5f9a238544dcbaf21af9064985f6\workspace\transformed\jetified-navigation-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime-android:2.9.7] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\821a5f9a238544dcbaf21af9064985f6\workspace\transformed\jetified-navigation-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [com.kmpalette:extensions-network-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30da717e4f5cfb214adbd1e0316b5540\workspace\transformed\jetified-extensions-network-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:extensions-network-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\30da717e4f5cfb214adbd1e0316b5540\workspace\transformed\jetified-extensions-network-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:extensions-bytearray-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8ec756f349938c35e8e9032303c9951f\workspace\transformed\jetified-extensions-bytearray-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:extensions-bytearray-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8ec756f349938c35e8e9032303c9951f\workspace\transformed\jetified-extensions-bytearray-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:kmpalette-core-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d20bcee26984750b4a0349a1ce0785e\workspace\transformed\jetified-kmpalette-core-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:kmpalette-core-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d20bcee26984750b4a0349a1ce0785e\workspace\transformed\jetified-kmpalette-core-debug\AndroidManifest.xml:5:5-44
+MERGED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:5:5-44
+MERGED from [network.chaintech:cmptoast-android:1.0.71] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\565f6b710adcf98ecef0560cd65a9cbf\workspace\transformed\jetified-cmpToast-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-compose-m3-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\13fad4eebd4cdd14d1a2100e1d9152e0\workspace\transformed\jetified-aboutlibraries-compose-m3\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-compose-m3-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\13fad4eebd4cdd14d1a2100e1d9152e0\workspace\transformed\jetified-aboutlibraries-compose-m3\AndroidManifest.xml:5:5-44
+MERGED from [sh.calvin.reorderable:reorderable-android-debug:2.4.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4b8b8eece4d6ac08cc89a3e1c21780f0\workspace\transformed\jetified-reorderable-debug\AndroidManifest.xml:5:5-44
+MERGED from [sh.calvin.reorderable:reorderable-android-debug:2.4.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4b8b8eece4d6ac08cc89a3e1c21780f0\workspace\transformed\jetified-reorderable-debug\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-resources-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bd6e78ee70f817b39c6e6d597570f721\workspace\transformed\jetified-compottie-resources-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-resources-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bd6e78ee70f817b39c6e6d597570f721\workspace\transformed\jetified-compottie-resources-release\AndroidManifest.xml:5:5-44
+MERGED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:5:5-44
+MERGED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6106093f6eabafc3dbcfc07cb98b3851\workspace\transformed\jetified-compottie-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6106093f6eabafc3dbcfc07cb98b3851\workspace\transformed\jetified-compottie-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-file-picker-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32f5fdc26b679d39f84c50243471c980\workspace\transformed\jetified-calf-file-picker-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-file-picker-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32f5fdc26b679d39f84c50243471c980\workspace\transformed\jetified-calf-file-picker-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.kyant0:backdrop-android:2.0.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11ae928ff845017566c81eed35ba29fb\workspace\transformed\jetified-backdrop\AndroidManifest.xml:5:5-44
+MERGED from [io.github.kyant0:backdrop-android:2.0.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\11ae928ff845017566c81eed35ba29fb\workspace\transformed\jetified-backdrop\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-network-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0a1b71f3431654729c972d6616f6ac3a\workspace\transformed\jetified-compottie-network-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-network-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0a1b71f3431654729c972d6616f6ac3a\workspace\transformed\jetified-compottie-network-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-network-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\354d7f5c84897aa86e167fcf2f606b0c\workspace\transformed\jetified-compottie-network-core-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-network-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\354d7f5c84897aa86e167fcf2f606b0c\workspace\transformed\jetified-compottie-network-core-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-dot-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\62beae380168b4cb4e4fb8c0f744fe80\workspace\transformed\jetified-compottie-dot-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-dot-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\62beae380168b4cb4e4fb8c0f744fe80\workspace\transformed\jetified-compottie-dot-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\509fca083973222fd9d4f9421df7b87e\workspace\transformed\jetified-compottie-core-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:compottie-core-android:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\509fca083973222fd9d4f9421df7b87e\workspace\transformed\jetified-compottie-core-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-compose-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a15bb789adaceb645117bda7e1d4fafc\workspace\transformed\jetified-aboutlibraries-compose\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-compose-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a15bb789adaceb645117bda7e1d4fafc\workspace\transformed\jetified-aboutlibraries-compose\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-io-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d26d2da2311e71dd77ac3924e942b974\workspace\transformed\jetified-calf-io-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-io-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d26d2da2311e71dd77ac3924e942b974\workspace\transformed\jetified-calf-io-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-core-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c7d891950d22508d92c707b60865da5a\workspace\transformed\jetified-calf-core-release\AndroidManifest.xml:5:5-44
+MERGED from [com.mohamedrejeb.calf:calf-core-android:0.12.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c7d891950d22508d92c707b60865da5a\workspace\transformed\jetified-calf-core-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.kyant0:shapes-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\de2226a50cee9319af8acec5a33ea0be\workspace\transformed\jetified-shapes\AndroidManifest.xml:5:5-44
+MERGED from [io.github.kyant0:shapes-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\de2226a50cee9319af8acec5a33ea0be\workspace\transformed\jetified-shapes\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:androidx-palette-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b03b940bf01bf2177330c09348f1aa39\workspace\transformed\jetified-androidx-palette-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:androidx-palette-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b03b940bf01bf2177330c09348f1aa39\workspace\transformed\jetified-androidx-palette-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:kmpalette-bitmap-loader-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fa1b8237604f7e63fb8c9bb3ba6ff108\workspace\transformed\jetified-kmpalette-bitmap-loader-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.kmpalette:kmpalette-bitmap-loader-android-debug:3.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fa1b8237604f7e63fb8c9bb3ba6ff108\workspace\transformed\jetified-kmpalette-bitmap-loader-debug\AndroidManifest.xml:5:5-44
+MERGED from [androidx.constraintlayout:constraintlayout-compose-android:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbc9127bd94e5a9919713183945f96c8\workspace\transformed\jetified-constraintlayout-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.constraintlayout:constraintlayout-compose-android:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbc9127bd94e5a9919713183945f96c8\workspace\transformed\jetified-constraintlayout-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-common-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\038f6fd5024cad301d76e3007ef98853\workspace\transformed\jetified-paging-common\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-common-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\038f6fd5024cad301d76e3007ef98853\workspace\transformed\jetified-paging-common\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-compose-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f019f2f82221408f3f7b76873505f4a1\workspace\transformed\jetified-paging-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.paging:paging-compose-android:3.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f019f2f82221408f3f7b76873505f4a1\workspace\transformed\jetified-paging-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-android:1.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\14507cb8b8a240913a4ee12a3bcc1095\workspace\transformed\jetified-material\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-android:1.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\14507cb8b8a240913a4ee12a3bcc1095\workspace\transformed\jetified-material\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material3.adaptive:adaptive-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dabd8e7efdc4a99b4fb403743bac629e\workspace\transformed\jetified-adaptive\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3.adaptive:adaptive-android:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dabd8e7efdc4a99b4fb403743bac629e\workspace\transformed\jetified-adaptive\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e020cf53b41bdb92075931728a6c7d2e\workspace\transformed\jetified-material-ripple\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e020cf53b41bdb92075931728a6c7d2e\workspace\transformed\jetified-material-ripple\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c916343578017b61ce5251da9acda86b\workspace\transformed\jetified-animation-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c916343578017b61ce5251da9acda86b\workspace\transformed\jetified-animation-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\407ff13e72b78ddd5adf3469bf1e826c\workspace\transformed\jetified-animation\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\407ff13e72b78ddd5adf3469bf1e826c\workspace\transformed\jetified-animation\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7316f77c67aff7513b9e481a569560d9\workspace\transformed\jetified-foundation-layout\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7316f77c67aff7513b9e481a569560d9\workspace\transformed\jetified-foundation-layout\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\db84cf3d7dfbd53f0c2310d2ba90ea71\workspace\transformed\jetified-foundation\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\db84cf3d7dfbd53f0c2310d2ba90ea71\workspace\transformed\jetified-foundation\AndroidManifest.xml:5:5-44
+MERGED from [org.jetbrains.compose.ui:ui-backhandler-android-debug:1.9.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\260a97ab7e3fd22a91615d50bb9dc595\workspace\transformed\jetified-ui-backhandler-debug\AndroidManifest.xml:5:5-44
+MERGED from [org.jetbrains.compose.ui:ui-backhandler-android-debug:1.9.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\260a97ab7e3fd22a91615d50bb9dc595\workspace\transformed\jetified-ui-backhandler-debug\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79e5b73855d721c2921551b8c7c278c8\workspace\transformed\jetified-ui-tooling-preview\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\79e5b73855d721c2921551b8c7c278c8\workspace\transformed\jetified-ui-tooling-preview\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\94c7bf2a7c820bd3228711fbf9d7d2bb\workspace\transformed\jetified-ui-tooling-data\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-data-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\94c7bf2a7c820bd3228711fbf9d7d2bb\workspace\transformed\jetified-ui-tooling-data\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\be62034307d0cc839b0a8b8fe4696f8b\workspace\transformed\jetified-ui-unit\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\be62034307d0cc839b0a8b8fe4696f8b\workspace\transformed\jetified-ui-unit\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e557fc9de99c6c0dcc0c27ca5dc97111\workspace\transformed\jetified-ui-graphics\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e557fc9de99c6c0dcc0c27ca5dc97111\workspace\transformed\jetified-ui-graphics\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbe7d7d76cd1c18f5edd3fa315ade892\workspace\transformed\jetified-ui-geometry\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dbe7d7d76cd1c18f5edd3fa315ade892\workspace\transformed\jetified-ui-geometry\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\aa70854155f57d940f602ff356785080\workspace\transformed\jetified-ui-util\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\aa70854155f57d940f602ff356785080\workspace\transformed\jetified-ui-util\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\058d6433893b4cfcbb86813d68a1705f\workspace\transformed\jetified-ui-text\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\058d6433893b4cfcbb86813d68a1705f\workspace\transformed\jetified-ui-text\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.5.0-alpha20] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0cd0b01414800027743fc11a24b2ca81\workspace\transformed\jetified-material3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.5.0-alpha20] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0cd0b01414800027743fc11a24b2ca81\workspace\transformed\jetified-material3\AndroidManifest.xml:20:5-44
+MERGED from [io.insert-koin:koin-core-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cc679561152068ec0a5498616d800e66\workspace\transformed\jetified-koin-core-viewmodel-release\AndroidManifest.xml:5:5-44
+MERGED from [io.insert-koin:koin-core-viewmodel-android:4.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cc679561152068ec0a5498616d800e66\workspace\transformed\jetified-koin-core-viewmodel-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.work:work-runtime-ktx:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5866661d125e9ac5f554db5c1eccf8c6\workspace\transformed\work-runtime-ktx-2.11.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.work:work-runtime-ktx:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5866661d125e9ac5f554db5c1eccf8c6\workspace\transformed\work-runtime-ktx-2.11.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:21:5-44
+MERGED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:21:5-44
+MERGED from [androidx.palette:palette-ktx:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3156672e13c62682b1a91e040da1a0e7\workspace\transformed\jetified-palette-ktx-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.palette:palette-ktx:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3156672e13c62682b1a91e040da1a0e7\workspace\transformed\jetified-palette-ktx-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.palette:palette:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a9426b7db47d5ae40c3995ee59ac6602\workspace\transformed\palette-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.palette:palette:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a9426b7db47d5ae40c3995ee59ac6602\workspace\transformed\palette-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8bb17377ef1fbcc72ad6711c1148d70b\workspace\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8bb17377ef1fbcc72ad6711c1148d70b\workspace\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe6493a63abc444ddcad54d5b027237c\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fe6493a63abc444ddcad54d5b027237c\workspace\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c246bb0d5f6dc63a4982c8046cf60bb7\workspace\transformed\jetified-graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c246bb0d5f6dc63a4982c8046cf60bb7\workspace\transformed\jetified-graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2dfe5991fbfbf6f0987f1087bc2add0f\workspace\transformed\recyclerview-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\2dfe5991fbfbf6f0987f1087bc2add0f\workspace\transformed\recyclerview-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media:media:1.7.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\17c693e4e004ccecb90193a13c3b3fa4\workspace\transformed\media-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.media:media:1.7.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\17c693e4e004ccecb90193a13c3b3fa4\workspace\transformed\media-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f60f95e2b253eb28d1b2872d7690dd3e\workspace\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f60f95e2b253eb28d1b2872d7690dd3e\workspace\transformed\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d19e8f5b60bf5fd8d9fa927acd135149\workspace\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d19e8f5b60bf5fd8d9fa927acd135149\workspace\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\77982e03942098a6d0adae86095daf7d\workspace\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\77982e03942098a6d0adae86095daf7d\workspace\transformed\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fb236b4a852a003e2d39477eb18c682c\workspace\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fb236b4a852a003e2d39477eb18c682c\workspace\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d662d9052523702760005ff03c1115a1\workspace\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d662d9052523702760005ff03c1115a1\workspace\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.documentfile:documentfile:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\719841f3e03d66fcc7b090c398d7adc7\workspace\transformed\documentfile-1.1.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.documentfile:documentfile:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\719841f3e03d66fcc7b090c398d7adc7\workspace\transformed\documentfile-1.1.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.window:window-core-android:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e389a308f0956336f98ce7871a4ac94e\workspace\transformed\jetified-window-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.window:window-core-android:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e389a308f0956336f98ce7871a4ac94e\workspace\transformed\jetified-window-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ceaffe8b221cbddef78934daad1efe3\workspace\transformed\jetified-autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ceaffe8b221cbddef78934daad1efe3\workspace\transformed\jetified-autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.emoji2:emoji2-views-helper:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5909797bfff38739ca2328bb9fd8397a\workspace\transformed\jetified-emoji2-views-helper-1.4.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5909797bfff38739ca2328bb9fd8397a\workspace\transformed\jetified-emoji2-views-helper-1.4.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5af35c69e9648873f6473f99f2437f0f\workspace\transformed\jetified-lifecycle-runtime-ktx\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5af35c69e9648873f6473f99f2437f0f\workspace\transformed\jetified-lifecycle-runtime-ktx\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25b22625d27b9539a6398bf42ccbe8a3\workspace\transformed\jetified-lifecycle-runtime\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25b22625d27b9539a6398bf42ccbe8a3\workspace\transformed\jetified-lifecycle-runtime\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b9caeca28f1d7cb23a07972d3f1e8737\workspace\transformed\lifecycle-viewmodel-2.10.0\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b9caeca28f1d7cb23a07972d3f1e8737\workspace\transformed\lifecycle-viewmodel-2.10.0\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\082c78c4b164f9e0c1ca4f55c4b043ec\workspace\transformed\jetified-lifecycle-viewmodel\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\082c78c4b164f9e0c1ca4f55c4b043ec\workspace\transformed\jetified-lifecycle-viewmodel\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b2e8c01ca2e9af408a2855b8eef1289a\workspace\transformed\jetified-lifecycle-service-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b2e8c01ca2e9af408a2855b8eef1289a\workspace\transformed\jetified-lifecycle-service-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\987443e2365377770d83b3c631d8b058\workspace\transformed\jetified-lifecycle-livedata-core-ktx-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\987443e2365377770d83b3c631d8b058\workspace\transformed\jetified-lifecycle-livedata-core-ktx-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a0658c4fe92da2b9aa7ca8d289978d9c\workspace\transformed\lifecycle-livedata-core-2.10.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a0658c4fe92da2b9aa7ca8d289978d9c\workspace\transformed\lifecycle-livedata-core-2.10.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d2e2677251e8d3a29f758cc22f3d42\workspace\transformed\lifecycle-livedata-2.10.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e8d2e2677251e8d3a29f758cc22f3d42\workspace\transformed\lifecycle-livedata-2.10.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\45bf9840413e8f8eda3e58813333327c\workspace\transformed\jetified-lifecycle-viewmodel-savedstate\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\45bf9840413e8f8eda3e58813333327c\workspace\transformed\jetified-lifecycle-viewmodel-savedstate\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856878d7064ac5fb4c6a16a030d2dbd9\workspace\transformed\jetified-savedstate\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856878d7064ac5fb4c6a16a030d2dbd9\workspace\transformed\jetified-savedstate\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\af210734530f04d02591295ba97bd26c\workspace\transformed\jetified-savedstate-ktx-1.4.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\af210734530f04d02591295ba97bd26c\workspace\transformed\jetified-savedstate-ktx-1.4.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.savedstate:savedstate-compose-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71417a7f7b7862ee4ab357f808f122a0\workspace\transformed\jetified-savedstate-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.savedstate:savedstate-compose-android:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71417a7f7b7862ee4ab357f808f122a0\workspace\transformed\jetified-savedstate-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-retain-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\99d32fd3e6e25624491af4ef5d1f9761\workspace\transformed\jetified-runtime-retain\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-retain-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\99d32fd3e6e25624491af4ef5d1f9761\workspace\transformed\jetified-runtime-retain\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigationevent:navigationevent-compose-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fb8535244eff469d53ce26f75d50db0\workspace\transformed\jetified-navigationevent-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigationevent:navigationevent-compose-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fb8535244eff469d53ce26f75d50db0\workspace\transformed\jetified-navigationevent-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigationevent:navigationevent-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ba4ec2b6ce4462b591cdd84c83179e1c\workspace\transformed\jetified-navigationevent\AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigationevent:navigationevent-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ba4ec2b6ce4462b591cdd84c83179e1c\workspace\transformed\jetified-navigationevent\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-annotation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\42f88456553fe6e2a6d23afae7493e76\workspace\transformed\jetified-runtime-annotation\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-annotation-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\42f88456553fe6e2a6d23afae7493e76\workspace\transformed\jetified-runtime-annotation\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0e6e3f02d6825f3c077ed9682ca606ff\workspace\transformed\jetified-runtime\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0e6e3f02d6825f3c077ed9682ca606ff\workspace\transformed\jetified-runtime\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\006a6abc8b6e4fb08d17fc9e62dba694\workspace\transformed\jetified-runtime-saveable\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\006a6abc8b6e4fb08d17fc9e62dba694\workspace\transformed\jetified-runtime-saveable\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fd5aa75632adb4e48aa03a52c1beeea3\workspace\transformed\jetified-lifecycle-runtime-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\fd5aa75632adb4e48aa03a52c1beeea3\workspace\transformed\jetified-lifecycle-runtime-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25ad52651ea0d8a7b5ebd01eb3587386\workspace\transformed\jetified-lifecycle-viewmodel-ktx-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\25ad52651ea0d8a7b5ebd01eb3587386\workspace\transformed\jetified-lifecycle-viewmodel-ktx-2.10.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b60e874adee73f069586a31aa832bd60\workspace\transformed\jetified-lifecycle-viewmodel-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b60e874adee73f069586a31aa832bd60\workspace\transformed\jetified-lifecycle-viewmodel-compose\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d9c709f2221a462513e3296ca9d0298\workspace\transformed\jetified-material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9d9c709f2221a462513e3296ca9d0298\workspace\transformed\jetified-material-icons-extended-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f4e24d603a9ea18bbfac7e476204a4b0\workspace\transformed\jetified-material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.8] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f4e24d603a9ea18bbfac7e476204a4b0\workspace\transformed\jetified-material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.37.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7521b52cd8fa444d1498701ae810db17\workspace\transformed\jetified-accompanist-drawablepainter-0.37.3\AndroidManifest.xml:21:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.37.3] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7521b52cd8fa444d1498701ae810db17\workspace\transformed\jetified-accompanist-drawablepainter-0.37.3\AndroidManifest.xml:21:5-44
+MERGED from [androidx.compose.ui:ui-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ffb2eb0bc26cd05243f1cdcc8183aa7e\workspace\transformed\jetified-ui\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\ffb2eb0bc26cd05243f1cdcc8183aa7e\workspace\transformed\jetified-ui\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\304d99ffae44214ec33029963d5ebde3\workspace\transformed\jetified-activity-ktx-1.13.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\304d99ffae44214ec33029963d5ebde3\workspace\transformed\jetified-activity-ktx-1.13.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b7f19cf9a57f57b7b16cec89a9ace6b3\workspace\transformed\jetified-activity-1.13.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b7f19cf9a57f57b7b16cec89a9ace6b3\workspace\transformed\jetified-activity-1.13.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-compose:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6b57217d72b35b45868eca1bb5a23aac\workspace\transformed\jetified-activity-compose-1.13.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.13.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6b57217d72b35b45868eca1bb5a23aac\workspace\transformed\jetified-activity-compose-1.13.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f969805792f9582a61870265905c5659\workspace\transformed\jetified-customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\f969805792f9582a61870265905c5659\workspace\transformed\jetified-customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.graphics:graphics-shapes-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\00cd1d7e2702500d3499c24bc34d33bf\workspace\transformed\jetified-graphics-shapes\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-shapes-android:1.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\00cd1d7e2702500d3499c24bc34d33bf\workspace\transformed\jetified-graphics-shapes\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e5e62c2f3af8d6e16e8060d7d05c9ec0\workspace\transformed\jetified-core-ktx-1.18.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\e5e62c2f3af8d6e16e8060d7d05c9ec0\workspace\transformed\jetified-core-ktx-1.18.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-ktx:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\472f9ed6b33df71d1e083ce6d068787a\workspace\transformed\jetified-room-ktx-2.8.4\AndroidManifest.xml:20:5-44
+MERGED from [androidx.room:room-ktx:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\472f9ed6b33df71d1e083ce6d068787a\workspace\transformed\jetified-room-ktx-2.8.4\AndroidManifest.xml:20:5-44
+MERGED from [:spotify] C:\Users\Sreenivishal\Documents\zune\core\service\spotify\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:spotify] C:\Users\Sreenivishal\Documents\zune\core\service\spotify\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b6b018910e88f31734d9904f23162827\workspace\transformed\jetified-datastore-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b6b018910e88f31734d9904f23162827\workspace\transformed\jetified-datastore-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-preferences-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71671679c80b5d851afbd9f705bb2562\workspace\transformed\jetified-datastore-preferences-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-preferences-core-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71671679c80b5d851afbd9f705bb2562\workspace\transformed\jetified-datastore-preferences-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d8a168af80927d71257bc2a59dd04084\workspace\transformed\jetified-datastore\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d8a168af80927d71257bc2a59dd04084\workspace\transformed\jetified-datastore\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5dbc7e1da233e527fef3029861e67807\workspace\transformed\jetified-datastore-preferences\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.2.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5dbc7e1da233e527fef3029861e67807\workspace\transformed\jetified-datastore-preferences\AndroidManifest.xml:20:5-44
+MERGED from [:ktorExt] C:\Users\Sreenivishal\Documents\zune\core\service\ktorExt\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [:ktorExt] C:\Users\Sreenivishal\Documents\zune\core\service\ktorExt\build\intermediates\merged_manifest\androidMain\processAndroidMainManifest\AndroidManifest.xml:5:5-44
+MERGED from [com.soywiz.korlibs.korim:korim-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\63e3d8c52145e4a2f1a7131d7b1f30dd\workspace\transformed\jetified-korim-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.korim:korim-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\63e3d8c52145e4a2f1a7131d7b1f30dd\workspace\transformed\jetified-korim-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.korio:korio-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073dc11e7cd7af0f3c3b76b2ca32684a\workspace\transformed\jetified-korio-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.korio:korio-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\073dc11e7cd7af0f3c3b76b2ca32684a\workspace\transformed\jetified-korio-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:21:5-44
+MERGED from [io.github.alexzhirkevich:keight-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fd697a2ef4c916be797b39c5da38cb2\workspace\transformed\jetified-keight-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:keight-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\0fd697a2ef4c916be797b39c5da38cb2\workspace\transformed\jetified-keight-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:keight-core-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5153879e971bdc56b2b3d9037e03d6c1\workspace\transformed\jetified-keight-core-release\AndroidManifest.xml:5:5-44
+MERGED from [io.github.alexzhirkevich:keight-core-android:0.0.04] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\5153879e971bdc56b2b3d9037e03d6c1\workspace\transformed\jetified-keight-core-release\AndroidManifest.xml:5:5-44
+MERGED from [com.soywiz.korlibs.korcoutines:korcoutines-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\53f4bc59ae463b6c5920cb3a0e3585e3\workspace\transformed\jetified-korcoutines-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.korcoutines:korcoutines-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\53f4bc59ae463b6c5920cb3a0e3585e3\workspace\transformed\jetified-korcoutines-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:6:5-44
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:6:5-44
+MERGED from [com.soywiz.korlibs.korma:korma-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bebd31485cd6b5f102ccf013f068dcc7\workspace\transformed\jetified-korma-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.korma:korma-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\bebd31485cd6b5f102ccf013f068dcc7\workspace\transformed\jetified-korma-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.klock:klock-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d84e4f23a041c0fdd6965e10e9c39500\workspace\transformed\jetified-klock-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.klock:klock-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d84e4f23a041c0fdd6965e10e9c39500\workspace\transformed\jetified-klock-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.kds:kds-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8abef776eb261c0f95c32c477445c85a\workspace\transformed\jetified-kds-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.kds:kds-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\8abef776eb261c0f95c32c477445c85a\workspace\transformed\jetified-kds-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.kmem:kmem-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dfc6340355ef36c58a4502b8f02efc6e\workspace\transformed\jetified-kmem-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.kmem:kmem-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\dfc6340355ef36c58a4502b8f02efc6e\workspace\transformed\jetified-kmem-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.krypto:krypto-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\eae82e4b4ef6cca112d184d29a00f242\workspace\transformed\jetified-krypto-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.krypto:krypto-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\eae82e4b4ef6cca112d184d29a00f242\workspace\transformed\jetified-krypto-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.klogger:klogger-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9543183748582d4a9a0f1686dd7e45cf\workspace\transformed\jetified-klogger-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.soywiz.korlibs.klogger:klogger-android:4.0.10] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9543183748582d4a9a0f1686dd7e45cf\workspace\transformed\jetified-klogger-debug\AndroidManifest.xml:5:5-7:41
+MERGED from [com.eygraber:uri-kmp-android:0.0.21] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4d583af5c069800d9b81d4acef1b4f9b\workspace\transformed\jetified-uri-release\AndroidManifest.xml:5:5-44
+MERGED from [com.eygraber:uri-kmp-android:0.0.21] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\4d583af5c069800d9b81d4acef1b4f9b\workspace\transformed\jetified-uri-release\AndroidManifest.xml:5:5-44
+MERGED from [co.touchlab:kermit-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\abfa8858ce61209032ede794170b587f\workspace\transformed\jetified-kermit-debug\AndroidManifest.xml:5:5-44
+MERGED from [co.touchlab:kermit-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\abfa8858ce61209032ede794170b587f\workspace\transformed\jetified-kermit-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cbebb2ef3cea0bc4c3cf0609015dd3ef\workspace\transformed\jetified-aboutlibraries-core\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:aboutlibraries-core-android:14.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\cbebb2ef3cea0bc4c3cf0609015dd3ef\workspace\transformed\jetified-aboutlibraries-core\AndroidManifest.xml:5:5-44
+MERGED from [androidx.sqlite:sqlite-framework-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6766e43f132446b54b755e482324ed64\workspace\transformed\jetified-sqlite-framework\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6766e43f132446b54b755e482324ed64\workspace\transformed\jetified-sqlite-framework\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3d46d01e65b602911b0ddbca9f3ed3cd\workspace\transformed\jetified-sqlite\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3d46d01e65b602911b0ddbca9f3ed3cd\workspace\transformed\jetified-sqlite\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-bundled-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\836dd0e8592e0e8416b03a24f9bd3396\workspace\transformed\jetified-sqlite-bundled\AndroidManifest.xml:5:5-44
+MERGED from [androidx.sqlite:sqlite-bundled-android:2.6.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\836dd0e8592e0e8416b03a24f9bd3396\workspace\transformed\jetified-sqlite-bundled\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-m3-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\78c0f1ff1c12d7aeb0554962c1bed0d2\workspace\transformed\jetified-multiplatform-markdown-renderer-m3\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-m3-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\78c0f1ff1c12d7aeb0554962c1bed0d2\workspace\transformed\jetified-multiplatform-markdown-renderer-m3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\268e869acd446efa7cff436cf41c2c33\workspace\transformed\jetified-core-viewtree-1.0.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-viewtree:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\268e869acd446efa7cff436cf41c2c33\workspace\transformed\jetified-core-viewtree-1.0.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7e39d23732cabe023158bac92d2f1f24\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7e39d23732cabe023158bac92d2f1f24\workspace\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1c239d813e3c211a44e9ff5053380943\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1c239d813e3c211a44e9ff5053380943\workspace\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\048b1576191dbdf5796ae410342f7e29\workspace\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\048b1576191dbdf5796ae410342f7e29\workspace\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f5d786db05be1fe4d90c46c3ea12ab7\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f5d786db05be1fe4d90c46c3ea12ab7\workspace\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\151278d022ea12cd106b70c4e7a5b6f7\workspace\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\151278d022ea12cd106b70c4e7a5b6f7\workspace\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7b12d3562a08a303f78607b0fc9c3010\workspace\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7b12d3562a08a303f78607b0fc9c3010\workspace\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.exifinterface:exifinterface:1.4.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f410baa083c318ca9dc476f15a52eb4\workspace\transformed\exifinterface-1.4.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.exifinterface:exifinterface:1.4.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6f410baa083c318ca9dc476f15a52eb4\workspace\transformed\exifinterface-1.4.2\AndroidManifest.xml:5:5-44
+MERGED from [androidx.tracing:tracing-ktx:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b115a0cb7770dddb65fbb47ee5898cd9\workspace\transformed\jetified-tracing-ktx-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing-ktx:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b115a0cb7770dddb65fbb47ee5898cd9\workspace\transformed\jetified-tracing-ktx-1.3.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing-android:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ee305d05a94855866a72fd211ae9b26\workspace\transformed\jetified-tracing\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing-android:1.3.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6ee305d05a94855866a72fd211ae9b26\workspace\transformed\jetified-tracing\AndroidManifest.xml:20:5-44
+MERGED from [co.touchlab:kermit-core-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\807da82c39eeadb10ea5c01a99ef2b33\workspace\transformed\jetified-kermit-core-debug\AndroidManifest.xml:5:5-44
+MERGED from [co.touchlab:kermit-core-android-debug:2.1.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\807da82c39eeadb10ea5c01a99ef2b33\workspace\transformed\jetified-kermit-core-debug\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c06c578a8be83daf4da4c0fde691267d\workspace\transformed\jetified-multiplatform-markdown-renderer\AndroidManifest.xml:5:5-44
+MERGED from [com.mikepenz:multiplatform-markdown-renderer-android:0.41.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c06c578a8be83daf4da4c0fde691267d\workspace\transformed\jetified-multiplatform-markdown-renderer\AndroidManifest.xml:5:5-44
+MERGED from [com.github.skydoves:compose-stability-runtime-android:0.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\605decaa905751bd6fee2df9bd2388fa\workspace\transformed\jetified-stability-runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [com.github.skydoves:compose-stability-runtime-android:0.7.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\605decaa905751bd6fee2df9bd2388fa\workspace\transformed\jetified-stability-runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.5.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b67bc16e9e23fcf3a7fe6a8c02f52e79\workspace\transformed\jetified-annotation-experimental-1.5.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.5.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\b67bc16e9e23fcf3a7fe6a8c02f52e79\workspace\transformed\jetified-annotation-experimental-1.5.1\AndroidManifest.xml:5:5-44
+MERGED from [io.github.maxrave-dev:ffmpeg-kit-audio:6.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c40060d4ac873586e94dbcb253c36643\workspace\transformed\jetified-ffmpeg-kit-audio-6.0.1\AndroidManifest.xml:5:5-44
+MERGED from [io.github.maxrave-dev:ffmpeg-kit-audio:6.0.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c40060d4ac873586e94dbcb253c36643\workspace\transformed\jetified-ffmpeg-kit-audio-6.0.1\AndroidManifest.xml:5:5-44
+	android:targetSdkVersion
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml
+provider#org.jetbrains.compose.resources.AndroidContextProvider
+ADDED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:8:9-13:20
+	android:enabled
+		ADDED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:11:13-35
+	android:authorities
+		ADDED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:10:13-84
+	android:exported
+		ADDED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:12:13-37
+	android:name
+		ADDED from [org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:9:13-82
+activity#androidx.compose.ui.tooling.PreviewActivity
+ADDED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:23:9-25:39
+	android:exported
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:25:13-36
+	android:name
+		ADDED from [androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:24:13-71
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:5-81
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:22-78
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:29:9-37:20
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:24:9-32:20
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:11:9-19:20
+MERGED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:11:9-19:20
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:24:9-28:34
+MERGED from [androidx.startup:startup-runtime:1.2.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\1a7cd71bd6a3d24941e5a4139632424c\workspace\transformed\jetified-startup-runtime-1.2.0\AndroidManifest.xml:24:9-28:34
+	tools:node
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:33:13-31
+	android:authorities
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:31:13-68
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:32:13-37
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:30:13-67
+meta-data#androidx.work.WorkManagerInitializer
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:34:13-36:52
+	android:value
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:36:17-49
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:35:17-68
+service#androidx.work.impl.background.systemjob.SystemJobService
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:39:9-45:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:42:13-70
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:43:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:44:13-69
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:45:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:41:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:40:13-84
+receiver#androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:54:9-59:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:57:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:58:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:59:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:56:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:55:13-88
+receiver#androidx.work.impl.background.systemalarm.RescheduleReceiver
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:60:9-69:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:63:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:64:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:65:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:62:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:61:13-88
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:66:13-68:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:17-79
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:25-76
+receiver#androidx.work.impl.diagnostics.DiagnosticsReceiver
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:70:9-80:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:73:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:74:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:75:13-57
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:76:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:72:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:71:13-78
+intent-filter#action:name:androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:77:13-79:29
+action#androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:17-88
+	android:name
+		ADDED from [androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:25-85
+uses-library#androidx.window.extensions
+ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:23:9-25:40
+	android:required
+		ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:25:13-37
+	android:name
+		ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:24:13-54
+uses-library#androidx.window.sidecar
+ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:26:9-28:40
+	android:required
+		ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:27:13-51
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:23:9-81
+permission#com.zune.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:22-94
+uses-permission#com.zune.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
+service#androidx.room.MultiInstanceInvalidationService
+ADDED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:24:9-28:63
+	android:exported
+		ADDED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:28:13-60
+	android:directBootAware
+		ADDED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:26:13-43
+	android:name
+		ADDED from [androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:25:13-74
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:25-92
+meta-data#okhttp3.internal.platform.PlatformInitializer
+ADDED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:16:13-18:52
+	android:value
+		ADDED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:18:17-49
+	android:name
+		ADDED from [com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:17:17-77

@@ -1,0 +1,23 @@
+com.zune.player
+color ic_launcher_background
+drawable bg_1
+drawable bg_2
+drawable bg_3
+drawable bg_4
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable wmc_bg
+drawable wmc_play_button
+drawable wmc_play_button_bg
+drawable zune_back
+font segoe_ui
+font segoe_ui_light
+font segoeuithibd
+font titillium_web_light
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
+string app_name
+style Theme_ZunePlayer
+xml backup_rules
+xml data_extraction_rules

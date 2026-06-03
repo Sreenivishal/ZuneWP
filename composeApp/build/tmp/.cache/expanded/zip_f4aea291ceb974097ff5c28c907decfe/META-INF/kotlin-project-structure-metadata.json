@@ -1,0 +1,119 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "androidApiElements",
+        "sourceSet": [
+          "jvmCommonMain",
+          "nonJsCommonMain",
+          "nonNativeMain",
+          "nonAppleMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "androidRuntimeElements",
+        "sourceSet": [
+          "jvmCommonMain",
+          "nonJsCommonMain",
+          "nonNativeMain",
+          "nonAppleMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmApiElements",
+        "sourceSet": [
+          "jvmCommonMain",
+          "nonJsCommonMain",
+          "nonNativeMain",
+          "nonAppleMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmRuntimeElements",
+        "sourceSet": [
+          "jvmCommonMain",
+          "nonJsCommonMain",
+          "nonNativeMain",
+          "nonAppleMain",
+          "commonMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "io.coil-kt.coil3:coil-core",
+          "io.coil-kt.coil3:coil-network-core",
+          "com.squareup.okhttp3:okhttp",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "jvmCommonMain",
+        "dependsOn": [
+          "nonJsCommonMain",
+          "nonNativeMain"
+        ],
+        "moduleDependency": [
+          "io.coil-kt.coil3:coil-core",
+          "io.coil-kt.coil3:coil-network-core",
+          "com.squareup.okhttp3:okhttp",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nonAppleMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.coil-kt.coil3:coil-core",
+          "io.coil-kt.coil3:coil-network-core",
+          "com.squareup.okhttp3:okhttp",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nonJsCommonMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "io.coil-kt.coil3:coil-core",
+          "io.coil-kt.coil3:coil-network-core",
+          "com.squareup.okhttp3:okhttp",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nonNativeMain",
+        "dependsOn": [
+          "nonAppleMain"
+        ],
+        "moduleDependency": [
+          "io.coil-kt.coil3:coil-core",
+          "io.coil-kt.coil3:coil-network-core",
+          "com.squareup.okhttp3:okhttp",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      }
+    ]
+  }
+}

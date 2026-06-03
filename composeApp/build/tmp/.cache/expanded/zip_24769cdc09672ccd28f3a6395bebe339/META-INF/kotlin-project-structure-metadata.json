@@ -1,0 +1,81 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "androidApiElements",
+        "sourceSet": [
+          "jvmAndAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "androidRuntimeElements",
+        "sourceSet": [
+          "jvmAndAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jvmStubsApiElements",
+        "sourceSet": [
+          "jvmAndAndroidMain",
+          "commonMain",
+          "commonStubsMain"
+        ]
+      },
+      {
+        "name": "jvmStubsRuntimeElements",
+        "sourceSet": [
+          "jvmAndAndroidMain",
+          "commonMain",
+          "commonStubsMain"
+        ]
+      },
+      {
+        "name": "linuxx64StubsApiElements",
+        "sourceSet": [
+          "commonMain",
+          "commonStubsMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.compose.runtime:runtime",
+          "org.jetbrains.kotlin:kotlin-stdlib"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "commonStubsMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.compose.runtime:runtime",
+          "org.jetbrains.kotlin:kotlin-stdlib"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "jvmAndAndroidMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.compose.runtime:runtime",
+          "org.jetbrains.kotlin:kotlin-stdlib"
+        ],
+        "binaryLayout": "klib"
+      }
+    ]
+  }
+}

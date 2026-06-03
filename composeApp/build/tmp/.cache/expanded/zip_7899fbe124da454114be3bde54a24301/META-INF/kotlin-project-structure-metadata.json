@@ -1,0 +1,331 @@
+{
+  "projectStructure": {
+    "formatVersion": "0.3.3",
+    "isPublishedAsRoot": "true",
+    "variants": [
+      {
+        "name": "debugApiElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "debugRuntimeElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseApiElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "releaseRuntimeElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "desktopApiElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain",
+          "nonAndroidMain"
+        ]
+      },
+      {
+        "name": "desktopRuntimeElements",
+        "sourceSet": [
+          "jvmMain",
+          "commonMain",
+          "nonAndroidMain"
+        ]
+      },
+      {
+        "name": "iosArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "iosX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsApiElements",
+        "sourceSet": [
+          "webMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "jsRuntimeElements",
+        "sourceSet": [
+          "webMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "linuxArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "linuxX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "macosX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "tvosArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "tvosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "tvosX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "wasmJsApiElements",
+        "sourceSet": [
+          "webMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "wasmJsRuntimeElements",
+        "sourceSet": [
+          "webMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosArm32ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosSimulatorArm64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      },
+      {
+        "name": "watchosX64ApiElements",
+        "sourceSet": [
+          "nativeMain",
+          "nonJvmMain",
+          "nonAndroidMain",
+          "commonMain"
+        ]
+      }
+    ],
+    "sourceSets": [
+      {
+        "name": "commonMain",
+        "dependsOn": [],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "jvmMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nativeMain",
+        "dependsOn": [
+          "nonJvmMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "sourceSetCInteropMetadataDirectory": "nativeMain-cinterop",
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nonAndroidMain",
+        "dependsOn": [
+          "commonMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "nonJvmMain",
+        "dependsOn": [
+          "nonAndroidMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      },
+      {
+        "name": "webMain",
+        "dependsOn": [
+          "nonJvmMain"
+        ],
+        "moduleDependency": [
+          "androidx.annotation:annotation",
+          "androidx.collection:collection",
+          "org.jetbrains.androidx.lifecycle:lifecycle-common",
+          "org.jetbrains.androidx.lifecycle:lifecycle-runtime",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",
+          "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate",
+          "org.jetbrains.androidx.savedstate:savedstate",
+          "org.jetbrains.androidx.navigation:navigation-common",
+          "org.jetbrains.kotlin:kotlin-stdlib",
+          "org.jetbrains.kotlinx:kotlinx-serialization-core",
+          "org.jetbrains.kotlinx:atomicfu"
+        ],
+        "binaryLayout": "klib"
+      }
+    ]
+  }
+}
