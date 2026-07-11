@@ -68,9 +68,13 @@ internal class DownloadUtils(
         ) { dataSpec ->
             val mediaId = dataSpec.key ?: error("No media id")
             Logger.w("Stream", mediaId)
-            Logger.w("Stream", mediaId.startsWith(MERGING_DATA_TYPE.VIDEO).toString())
             val length = if (dataSpec.length >= 0) dataSpec.length else 1
-            if (downloadCache.isCached(mediaId, dataSpec.position, length) || playerCache.isCached(mediaId, dataSpec.position, length)) {
+            val cleanMediaId = if (mediaId.startsWith(MERGING_DATA_TYPE.VIDEO)) {
+                mediaId.removePrefix(MERGING_DATA_TYPE.VIDEO)
+            } else {
+                mediaId
+            }
+            if (downloadCache.isCached(cleanMediaId, dataSpec.position, length) || playerCache.isCached(cleanMediaId, dataSpec.position, length)) {
                 return@Factory dataSpec
             }
             var dataSpecReturn: DataSpec = dataSpec

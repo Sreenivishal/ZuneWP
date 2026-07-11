@@ -27,9 +27,13 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.ui.components.HeaderAction
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
 @Composable
 fun AlbumDetailScreen(
@@ -73,26 +77,62 @@ fun AlbumDetailScreen(
                 .background(Color.Black.copy(alpha = 0.4f))
         )
 
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
         Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                contentDescription = "Back",
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 24.dp)
-                    .offset(x = (-20).dp, y = (-8).dp)
-                    .size(80.dp)
-                    .metroClickable { onBack() }
-            )
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "header_music"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                    stiffness = 150f
+                                )
+                            },
+                            renderInOverlayDuringTransition = false
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
+                Text(
+                    text = "albums",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                        fontSize = 170.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.12f),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                    modifier = Modifier
+                        .offset(x = (-12).dp, y = (-48).dp)
+                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                        .then(sharedModifier)
+                        .metroClickable { onBack() }
+                )
+            }
             // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, top = 24.dp, bottom = 12.dp),
+                    .padding(start = 24.dp, top = 8.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = albumName.lowercase(),
-                    style = ZuneTypography.h1.copy(fontSize = 56.sp),
+                    style = ZuneTypography.h1.copy(fontSize = 42.sp),
                     color = LocalZuneAccent.current,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -103,7 +143,7 @@ fun AlbumDetailScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(horizontal = 24.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 HeaderAction(
@@ -130,7 +170,7 @@ fun AlbumDetailScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
 
             // Track List - Vertical
             LazyColumn(
@@ -138,7 +178,7 @@ fun AlbumDetailScreen(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp),
                 contentPadding = PaddingValues(bottom = 48.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 itemsIndexed(tracks, key = { index, track -> "${track.id}_$index" }) { index, track ->
                     AlbumTrackCard(
@@ -181,7 +221,7 @@ fun AlbumDetailScreen(
                             )
                         } else {
                             LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                                 modifier = Modifier.heightIn(max = 240.dp)
                             ) {
                                 items(playlists) { playlist ->
@@ -235,6 +275,9 @@ fun AlbumTrackCard(
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
     Box(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -243,15 +286,20 @@ fun AlbumTrackCard(
                 .pointerInput(track) {
                     detectTapGestures(
                         onTap = { onClick() },
-                        onLongPress = { showMenu = true }
+                        onLongPress = {
+                            if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                            showMenu = true
+                        }
                     )
                 }
-                .padding(vertical = 12.dp),
+                .padding(vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = index.toString().padStart(2, '0'),
-                style = ZuneTypography.h1.copy(fontSize = 48.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Thin),
+                style = ZuneTypography.h1.copy(fontSize = 32.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Thin),
                 color = Color.White.copy(alpha = 0.2f),
                 modifier = Modifier.width(72.dp)
             )
@@ -262,7 +310,7 @@ fun AlbumTrackCard(
             ) {
                 Text(
                     text = track.title.lowercase(),
-                    style = ZuneTypography.h1.copy(fontSize = 36.sp),
+                    style = ZuneTypography.h1.copy(fontSize = 24.sp),
                     color = if (isCurrentlyPlaying) LocalZuneAccent.current else ZuneTextPrimary,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
@@ -271,7 +319,7 @@ fun AlbumTrackCard(
                 
                 Text(
                     text = formatDuration(track.durationMs),
-                    style = ZuneTypography.h4.copy(fontSize = 20.sp),
+                    style = ZuneTypography.h4.copy(fontSize = 14.sp),
                     color = LocalZuneAccent.current
                 )
             }

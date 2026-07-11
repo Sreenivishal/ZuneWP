@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MusicRepository(application)
-    val player = AudioPlayer(application)
+    val player = AudioPlayer.getInstance(application)
     
     private val _audioItems = MutableStateFlow<List<AudioItem>>(emptyList())
     val audioItems: StateFlow<List<AudioItem>> = _audioItems.asStateFlow()
@@ -29,16 +29,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            player.queue.collect { queue ->
-                saveQueueToPrefs(queue)
-            }
-        }
-        viewModelScope.launch {
             player.currentAudio.collect { item ->
                 if (item != null) {
                     val prefs = application.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
                     prefs.edit().putLong("last_played_id", item.id).apply()
-                    saveCurrentIndexToPrefs()
                 }
             }
         }
@@ -47,43 +41,23 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     fun loadMusic() {
         viewModelScope.launch {
             _isLoading.value = true
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                val newAudio = repository.getAudioItems()
-                val newPlaylists = repository.getPlaylists()
-                
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                    _audioItems.value = newAudio
-                    _playlists.value = newPlaylists
-                    loadPinned()
-                    
-                    // Restore last played queue and track
-                    val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
-                    val queueStr = prefs.getString("last_played_queue", "") ?: ""
-                    val lastPlayedIndex = prefs.getInt("last_played_index", 0)
-                    
-                    if (queueStr.isNotEmpty()) {
-                        val queueIds = queueStr.split(",").mapNotNull { it.toLongOrNull() }
-                        val restoredQueue = queueIds.mapNotNull { id -> _audioItems.value.find { it.id == id } }
-                        if (restoredQueue.isNotEmpty() && player.currentAudio.value == null) {
-                            val safeIndex = lastPlayedIndex.coerceIn(restoredQueue.indices)
-                            player.restoreLastQueue(restoredQueue, safeIndex)
-                        }
-                    } else {
-                        val lastPlayedId = prefs.getLong("last_played_id", -1L)
-                        if (lastPlayedId != -1L) {
-                            val lastItem = _audioItems.value.find { it.id == lastPlayedId }
-                            if (lastItem != null && player.currentAudio.value == null) {
-                                player.restoreLastPlayed(lastItem)
-                            }
-                        }
-                    }
-                    
-                    _isLoading.value = false
+            _audioItems.value = repository.getAudioItems()
+            _playlists.value = repository.getPlaylists()
+            loadPinned()
+            
+            // Restore last played track
+            val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
+            val lastPlayedId = prefs.getLong("last_played_id", -1L)
+            if (lastPlayedId != -1L) {
+                val lastItem = _audioItems.value.find { it.id == lastPlayedId }
+                if (lastItem != null && player.currentAudio.value == null) {
+                    player.restoreLastPlayed(lastItem)
                 }
             }
+            
+            _isLoading.value = false
         }
     }
-
 
     fun getItemsForCategory(category: String): List<Any> {
         val items = audioItems.value
@@ -169,8 +143,13 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     fun addItemToPlaylist(playlistName: String, item: AudioItem) {
         viewModelScope.launch {
             repository.addToPlaylist(playlistName, item)
-            // Optionally reload playlists if we are looking at them
             _playlists.value = repository.getPlaylists()
+        }
+    }
+
+    fun savePlaylistTracks(playlistName: String, tracks: List<AudioItem>) {
+        viewModelScope.launch {
+            repository.savePlaylistTracks(playlistName, tracks)
         }
     }
 
@@ -204,24 +183,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private fun savePinned() {
         val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
         prefs.edit().putString("pinned_songs", _pinnedItems.value.joinToString(",") { "${it.first}:${it.second}" }).apply()
-    }
-
-    private fun saveQueueToPrefs(queue: List<AudioItem>) {
-        if (queue.isEmpty()) return
-        val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
-        val queueStr = queue.joinToString(",") { it.id.toString() }
-        prefs.edit().putString("last_played_queue", queueStr).apply()
-        saveCurrentIndexToPrefs()
-    }
-
-    private fun saveCurrentIndexToPrefs() {
-        val current = player.currentAudio.value ?: return
-        val queue = player.queue.value
-        val index = queue.indexOfFirst { it.id == current.id }
-        if (index != -1) {
-            val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putInt("last_played_index", index).apply()
-        }
     }
 
     fun pinSong(id: Long) {

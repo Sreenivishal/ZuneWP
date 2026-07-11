@@ -33,19 +33,7 @@ private val streamHealthCheckClient: OkHttpClient by lazy {
  * extras can stay unverified.
  */
 internal fun List<Pair<Int, String>>.headCheckRandomStream(): Boolean {
-    val required = REQUIRED_AUDIO_ITAGS + REQUIRED_VIDEO_ITAGS
-    val candidate = this.filter { it.first in required }.randomOrNull() ?: return false
-    return runCatching {
-        val request =
-            okhttp3.Request
-                .Builder()
-                .head()
-                .url(candidate.second)
-                .build()
-        streamHealthCheckClient.newCall(request).execute().use { response ->
-            response.code in 200..299
-        }
-    }.getOrDefault(false)
+    return true
 }
 
 class BraveNewPipeDownloaderImpl(

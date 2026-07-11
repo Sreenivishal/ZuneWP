@@ -19,6 +19,8 @@ import com.maxrave.kotlinytmusicscraper.YouTube
 import com.maxrave.kotlinytmusicscraper.models.MediaType
 import com.maxrave.kotlinytmusicscraper.models.response.PlayerResponse
 import com.maxrave.logger.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +38,7 @@ internal class StreamRepositoryImpl(
             localDataSource.insertNewFormat(newFormat)
         }
 
-    override fun getNewFormat(videoId: String): Flow<NewFormatEntity?> = flow { emit(localDataSource.getNewFormat(videoId)) }.flowOn(Dispatchers.Main)
+    override fun getNewFormat(videoId: String): Flow<NewFormatEntity?> = flow { emit(localDataSource.getNewFormat(videoId)) }.flowOn(Dispatchers.IO)
 
     override suspend fun getFormatFlow(videoId: String) = localDataSource.getNewFormatAsFlow(videoId)
 
@@ -173,119 +175,74 @@ internal class StreamRepositoryImpl(
                     Logger.d("Stream", "expireInSeconds ${response.streamingData?.expiresInSeconds}")
                     Logger.w("Stream", "expired at ${now().plusSeconds(response.streamingData?.expiresInSeconds?.toLong() ?: 0L)}")
                     val durationSecond = response.videoDetails?.lengthSeconds?.toIntOrNull()
-                    // AutoMix metadata from Tidal (hoisted for NewFormatEntity insertion below)
-                    var tidalBpm: Int? = null
-                    var tidalMusicKey: String? = null
-                    var tidalKeyScale: String? = null
-                    if (!isVideo && durationSecond != null && data.third == MediaType.Song) {
-                        val metadataEndpoint = youTube.getTidalEndpoints().metadataUrl
-                        if (metadataEndpoint != null) {
-                            val title = response.videoDetails?.title ?: ""
-                            val author = response.videoDetails?.author ?: ""
-                            val q =
-                                "$title $author"
-                                    .replace(
-                                        Regex("\\((feat\\.|ft.|cùng với|con|mukana|com|avec|合作音乐人: ) "),
-                                        " ",
-                                    ).replace(
-                                        Regex("( và | & | и | e | und |, |和| dan)"),
-                                        " ",
-                                    ).replace("  ", " ")
-                                    .replace(Regex("([()])"), "")
-                                    .replace(".", " ")
-                                    .replace("  ", " ")
-                            Logger.d("Stream", "Search Tidal metadata for: $q (endpoint=$metadataEndpoint)")
-                            youTube
-                                .searchTidalMetadata(metadataEndpoint, q, durationSecond)
-                                .onSuccess { metadata ->
-                                    Logger.w("Stream", "Tidal metadata: $metadata")
-                                    tidalBpm = metadata.bpm
-                                    tidalMusicKey = metadata.musicKey
-                                    tidalKeyScale = metadata.keyScale
-                                }.onFailure {
-                                    Logger.e("Stream", "Tidal metadata error: ${it.message}", it)
-                                }
+                    
+                    val streamUrl = if (data.first != null) {
+                        if (muxed) {
+                            response.streamingData?.hlsManifestUrl
                         } else {
-                            Logger.d("Stream", "No working Tidal endpoint, skipping metadata fetch")
+                            format?.url?.plus("&cpn=${data.first}")
                         }
-                    }
-                    insertNewFormat(
-                        NewFormatEntity(
-                            videoId = if (VIDEO_QUALITY.itags.contains(format?.itag)) "${MERGING_DATA_TYPE.VIDEO}$videoId" else videoId,
-                            itag = format?.itag ?: itag ?: 141,
-                            mimeType =
-                                Regex("""([^;]+);\s*codecs=["']([^"']+)["']""")
-                                    .find(
-                                        format?.mimeType ?: "",
-                                    )?.groupValues
-                                    ?.getOrNull(1) ?: format?.mimeType ?: "",
-                            codecs =
-                                Regex("""([^;]+);\s*codecs=["']([^"']+)["']""")
-                                    .find(
-                                        format?.mimeType ?: "",
-                                    )?.groupValues
-                                    ?.getOrNull(2) ?: format?.mimeType ?: "",
-                            bitrate = format?.bitrate,
-                            sampleRate = format?.audioSampleRate,
-                            contentLength = format?.contentLength,
-                            loudnessDb =
-                                response.playerConfig
-                                    ?.audioConfig
-                                    ?.loudnessDb
-                                    ?.toFloat(),
-                            lengthSeconds = response.videoDetails?.lengthSeconds?.toInt(),
-                            playbackTrackingVideostatsPlaybackUrl =
-                                response.playbackTracking?.videostatsPlaybackUrl?.baseUrl?.replace(
-                                    "https://s.youtube.com",
-                                    "https://music.youtube.com",
-                                ),
-                            playbackTrackingAtrUrl =
-                                response.playbackTracking?.atrUrl?.baseUrl?.replace(
-                                    "https://s.youtube.com",
-                                    "https://music.youtube.com",
-                                ),
-                            playbackTrackingVideostatsWatchtimeUrl =
-                                response.playbackTracking?.videostatsWatchtimeUrl?.baseUrl?.replace(
-                                    "https://s.youtube.com",
-                                    "https://music.youtube.com",
-                                ),
-                            cpn = data.first,
-                            expiredTime = now().plusSeconds(response.streamingData?.expiresInSeconds?.toLong() ?: 0L),
-                            audioUrl = if (muxed) response.streamingData?.hlsManifestUrl else format?.url,
-                            videoUrl = if (muxed) response.streamingData?.hlsManifestUrl else videoFormat?.url,
-                            bpm = tidalBpm,
-                            musicKey = tidalMusicKey,
-                            keyScale = tidalKeyScale,
-                        ),
-                    )
-                    if (data.first != null) {
-                        emit(
-                            if (muxed) {
-                                response.streamingData?.hlsManifestUrl
-                            } else {
-                                format?.url?.let { url ->
-                                    if (youTube.isManifestUrl(url)) {
-                                        url.plus("&cpn=${data.first}")
-                                    } else {
-                                        url.plus("&cpn=${data.first}&range=0-${format.contentLength ?: 10000000}")
-                                    }
-                                }
-                            },
-                        )
                     } else {
-                        emit(
-                            if (muxed) {
-                                response.streamingData?.hlsManifestUrl
-                            } else {
-                                format?.url?.let { url ->
-                                    if (youTube.isManifestUrl(url)) {
-                                        url
-                                    } else {
-                                        url.plus("&range=0-${format.contentLength ?: 10000000}")
-                                    }
+                        if (muxed) response.streamingData?.hlsManifestUrl else format?.url
+                    }
+                    emit(streamUrl)
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        var tidalBpm: Int? = null
+                        var tidalMusicKey: String? = null
+                        var tidalKeyScale: String? = null
+                        try {
+                            if (!isVideo && durationSecond != null && data.third == MediaType.Song) {
+                                val metadataEndpoint = youTube.getTidalEndpoints().metadataUrl
+                                if (metadataEndpoint != null) {
+                                    val title = response.videoDetails?.title ?: ""
+                                    val author = response.videoDetails?.author ?: ""
+                                    val q = "$title $author"
+                                        .replace(Regex("\\((feat\\.|ft.|cùng với|con|mukana|com|avec|合作音乐人: ) "), " ")
+                                        .replace(Regex("( và | & | и | e | und |, |和| dan)"), " ")
+                                        .replace("  ", " ")
+                                        .replace(Regex("([()])"), "")
+                                        .replace(".", " ")
+                                        .replace("  ", " ")
+                                    youTube.searchTidalMetadata(metadataEndpoint, q, durationSecond)
+                                        .onSuccess { metadata ->
+                                            tidalBpm = metadata.bpm
+                                            tidalMusicKey = metadata.musicKey
+                                            tidalKeyScale = metadata.keyScale
+                                        }
                                 }
-                            },
-                        )
+                            }
+                        } catch (e: Exception) {
+                            Logger.e("Stream", "Tidal metadata error: ${e.message}", e)
+                        }
+
+                        try {
+                            insertNewFormat(
+                                NewFormatEntity(
+                                    videoId = if (VIDEO_QUALITY.itags.contains(format?.itag)) "${MERGING_DATA_TYPE.VIDEO}$videoId" else videoId,
+                                    itag = format?.itag ?: itag ?: 141,
+                                    mimeType = Regex("""([^;]+);\s*codecs=["']([^"']+)["']""").find(format?.mimeType ?: "")?.groupValues?.getOrNull(1) ?: format?.mimeType ?: "",
+                                    codecs = Regex("""([^;]+);\s*codecs=["']([^"']+)["']""").find(format?.mimeType ?: "")?.groupValues?.getOrNull(2) ?: format?.mimeType ?: "",
+                                    bitrate = format?.bitrate,
+                                    sampleRate = format?.audioSampleRate,
+                                    contentLength = format?.contentLength,
+                                    loudnessDb = response.playerConfig?.audioConfig?.loudnessDb?.toFloat(),
+                                    lengthSeconds = response.videoDetails?.lengthSeconds?.toInt(),
+                                    playbackTrackingVideostatsPlaybackUrl = response.playbackTracking?.videostatsPlaybackUrl?.baseUrl?.replace("https://s.youtube.com", "https://music.youtube.com"),
+                                    playbackTrackingAtrUrl = response.playbackTracking?.atrUrl?.baseUrl?.replace("https://s.youtube.com", "https://music.youtube.com"),
+                                    playbackTrackingVideostatsWatchtimeUrl = response.playbackTracking?.videostatsWatchtimeUrl?.baseUrl?.replace("https://s.youtube.com", "https://music.youtube.com"),
+                                    cpn = data.first,
+                                    expiredTime = now().plusSeconds(response.streamingData?.expiresInSeconds?.toLong() ?: 0L),
+                                    audioUrl = if (muxed) response.streamingData?.hlsManifestUrl else format?.url,
+                                    videoUrl = if (muxed) response.streamingData?.hlsManifestUrl else videoFormat?.url,
+                                    bpm = tidalBpm,
+                                    musicKey = tidalMusicKey,
+                                    keyScale = tidalKeyScale,
+                                ),
+                            )
+                        } catch (e: Exception) {
+                            Logger.e("Stream", "Database insert error: ${e.message}", e)
+                        }
                     }
                 }.onFailure {
                     it.printStackTrace()

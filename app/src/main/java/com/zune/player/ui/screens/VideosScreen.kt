@@ -70,7 +70,11 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import com.zune.player.ui.components.PivotLayout
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -87,7 +91,8 @@ data class VideoItem(
     val dateAdded: Long = 0L,
     val posterUrl: String? = null,
     val gradientColors: List<Color> = emptyList(),
-    val videoUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    val videoUrl: String = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    val folderName: String = "videos"
 )
 
 @Composable
@@ -106,6 +111,9 @@ fun VideosScreen(
     var videoToShowDetails by remember { mutableStateOf<VideoItem?>(null) }
     var videos by remember { mutableStateOf<List<VideoItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var selectedFolder by remember { mutableStateOf<String?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+    val tabWidths = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
     
     val permissionString = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_VIDEO
@@ -172,13 +180,15 @@ fun VideosScreen(
                         MediaStore.Video.Media._ID,
                         MediaStore.Video.Media.DISPLAY_NAME,
                         MediaStore.Video.Media.DURATION,
-                        MediaStore.Video.Media.DATE_ADDED
+                        MediaStore.Video.Media.DATE_ADDED,
+                        MediaStore.Video.Media.BUCKET_DISPLAY_NAME
                     )
                     resolver.query(uri, projection, null, null, "${MediaStore.Video.Media.DATE_ADDED} DESC")?.use { cursor ->
                         val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
                         val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                         val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
                         val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+                        val bucketColumn = cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME)
                         
                         while (cursor.moveToNext()) {
                             val id = cursor.getLong(idColumn)
@@ -186,6 +196,7 @@ fun VideosScreen(
                             val duration = cursor.getLong(durationColumn)
                             val dateAdded = cursor.getLong(dateAddedColumn)
                             val contentUri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+                            val folder = if (bucketColumn != -1) cursor.getString(bucketColumn) ?: "camera" else "camera"
                             
                             loadedList.add(
                                 VideoItem(
@@ -196,7 +207,8 @@ fun VideosScreen(
                                     durationMs = duration,
                                     dateAdded = dateAdded,
                                     gradientColors = listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
-                                    videoUrl = contentUri.toString()
+                                    videoUrl = contentUri.toString(),
+                                    folderName = folder.lowercase()
                                 )
                             )
                         }
@@ -220,8 +232,18 @@ fun VideosScreen(
         videos.filterNot { it.id in deletedMockIds }
     }
     
+    // Jump selector modal state
+    var showJumpSelector by remember { mutableStateOf(false) }
+    val videoGridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+
     // Fullscreen player target
     var activePlaybackVideo by remember { mutableStateOf<VideoItem?>(null) }
+    var activePlayerVideo by remember { mutableStateOf<VideoItem?>(null) }
+    LaunchedEffect(activePlaybackVideo) {
+        if (activePlaybackVideo != null) {
+            activePlayerVideo = activePlaybackVideo
+        }
+    }
     
     // Deep-linked navigation handler
     LaunchedEffect(videos, initialVideoId) {
@@ -233,11 +255,33 @@ fun VideosScreen(
         }
     }
     
+    val groupedVideos = remember(currentVideosFiltered) {
+        val groups = mutableMapOf<String, MutableList<VideoItem>>()
+        val sdf = java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.US)
+        currentVideosFiltered.forEach { v ->
+            val monthYear = sdf.format(java.util.Date(v.dateAdded * 1000L))
+            groups.getOrPut(monthYear) { mutableListOf() }.add(v)
+        }
+        groups.entries.map { it.key to it.value.toList() }
+    }
+    
+    val flatVideoGridItems = remember(groupedVideos) {
+        val list = mutableListOf<Any>()
+        groupedVideos.forEach { (monthStr, videoList) ->
+            list.add(monthStr) // Header item
+            list.addAll(videoList) // Grid items
+        }
+        list
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
     ) {
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
         if (!hasPermission && !useSamplesFallback) {
             VideosPermissionPrompt(
                 onAllow = { permissionLauncher.launch(permissionString) },
@@ -246,85 +290,337 @@ fun VideosScreen(
             )
         } else {
             Column(modifier = Modifier.fillMaxSize()) {
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                    contentDescription = "Back",
+                Box(
                     modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .offset(x = (-20).dp, y = (-8).dp)
-                        .size(80.dp)
-                        .metroClickable { onBack() }
-                )
-                // Small Category / Section Header
-                Text(
-                    text = "VIDEOS",
-                    style = ZuneTypography.h4.copy(
-                        fontFamily = SegoeUiFontFamily,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = ZuneTextSecondary,
-                    modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
-                )
+                        .fillMaxWidth()
+                        .height(120.dp)
+                ) {
+                    @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                        with(sharedTransitionScope) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = "header_videos"),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                boundsTransform = { _, _ ->
+                                    androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                        stiffness = 150f
+                                    )
+                                },
+                                renderInOverlayDuringTransition = false
+                            ).skipToLookaheadSize()
+                        }
+                    } else {
+                        Modifier
+                    }
+
+                    Text(
+                        text = "videos",
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                            fontSize = 170.sp
+                        ),
+                        color = Color.White.copy(alpha = 0.12f),
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                        modifier = Modifier
+                            .offset(x = (-12).dp, y = (-48).dp)
+                            .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                            .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                            .then(sharedModifier)
+                            .metroClickable { onBack() }
+                    )
+                }
                 
-                // Large ALL header
-                Text(
-                    text = "ALL",
-                    style = ZuneTypography.h1.copy(
-                        fontFamily = SegoeUiFontFamily,
-                        fontSize = 42.sp
-                    ),
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 24.dp, bottom = 16.dp)
-                )
+
+                val tabs = listOf("all", "folders", "search")
+                val pagerState = rememberPagerState { tabs.size }
+
+                // Sliding giant tabs
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .clipToBounds()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints.copy(maxWidth = Constraints.Infinity))
+                                layout(constraints.maxWidth, placeable.height) {
+                                    var offsetPx = 0f
+                                    val pageOffset = pagerState.currentPage + pagerState.currentPageOffsetFraction
+                                    val activePageIndex = pageOffset.toInt()
+                                    val fraction = pageOffset - activePageIndex
+                                    
+                                    for (i in 0 until activePageIndex) {
+                                        offsetPx += (tabWidths[i] ?: 0f)
+                                    }
+                                    if (fraction > 0f) {
+                                        offsetPx += (tabWidths[activePageIndex] ?: 0f) * fraction
+                                    } else if (fraction < 0f && activePageIndex > 0) {
+                                        offsetPx += (tabWidths[activePageIndex - 1] ?: 0f) * fraction
+                                    }
+                                    placeable.place(x = -offsetPx.toInt(), y = 0)
+                                }
+                            }
+                            .padding(start = 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            val pageOffset = pagerState.currentPage + pagerState.currentPageOffsetFraction
+                            val distance = kotlin.math.abs(pageOffset - index)
+                            val alpha = (1f - distance * 0.6f).coerceIn(0.4f, 1f)
+                            
+                            val isCurrentTab = pagerState.currentPage == index
+                            val displayText = if (isAeroTheme && isCurrentTab) "< ${title.uppercase()} >" else title.uppercase()
+                            val textColor = Color.White.copy(alpha = alpha)
+                            val textStyle = ZuneTypography.h1.copy(
+                                fontFamily = SegoeUiFontFamily,
+                                fontSize = 42.sp
+                            )
+                            
+                            Text(
+                                text = displayText,
+                                style = textStyle,
+                                color = textColor,
+                                modifier = Modifier
+                                    .metroClickable {
+                                        coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                                    }
+                                    .layout { measurable, constraints ->
+                                        val placeable = measurable.measure(constraints)
+                                        val spacingPx = 24.dp.toPx()
+                                        tabWidths[index] = placeable.width + spacingPx
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                            )
+                        }
+                    }
+                }
 
                 if (isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("loading videos...", color = ZuneTextSecondary, style = ZuneTypography.body1)
                     }
-                } else if (currentVideosFiltered.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("no videos found.", color = ZuneTextSecondary, style = ZuneTypography.body1)
-                    }
                 } else {
                     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
                     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-                    if (isLandscape) {
-                        androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(2),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            itemsIndexed(currentVideosFiltered, key = { _, video -> video.id }) { index, video ->
-                                VideoListCard(
-                                    modifier = Modifier.animateItem(),
-                                    video = video,
-                                    isAeroTheme = isAeroTheme,
-                                    onClick = { activePlaybackVideo = video },
-                                    onLongClick = { longPressedVideo = video }
-                                )
+                    
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            0 -> {
+                                if (currentVideosFiltered.isEmpty()) {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text("no videos found.", color = ZuneTextSecondary, style = ZuneTypography.body1)
+                                    }
+                                } else {
+                                    val columns = if (isLandscape) 5 else 3
+                                    androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                                        columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                                        state = videoGridState,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = 24.dp),
+                                        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        flatVideoGridItems.forEachIndexed { globalIndex, item ->
+                                            if (item is String) {
+                                                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(columns) }, key = "header_$item") {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(top = 16.dp, bottom = 8.dp)
+                                                            .metroClickable { showJumpSelector = true },
+                                                        contentAlignment = Alignment.CenterStart
+                                                    ) {
+                                                        Text(
+                                                            text = item.lowercase(),
+                                                            style = ZuneTypography.h1.copy(
+                                                                fontSize = 20.sp,
+                                                                fontFamily = SegoeUiFontFamily,
+                                                                fontWeight = FontWeight.Bold
+                                                            ),
+                                                            color = Color.White,
+                                                            maxLines = 1
+                                                        )
+                                                    }
+                                                }
+                                            } else if (item is VideoItem) {
+                                                item(key = item.id) {
+                                                    VideoGridCard(
+                                                        video = item,
+                                                        isAeroTheme = isAeroTheme,
+                                                        onClick = { activePlaybackVideo = item },
+                                                        onLongClick = { longPressedVideo = item }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 24.dp),
-                            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            itemsIndexed(currentVideosFiltered, key = { _, video -> video.id }) { index, video ->
-                                VideoListCard(
-                                    modifier = Modifier.animateItem(),
-                                    video = video,
-                                    isAeroTheme = isAeroTheme,
-                                    onClick = { activePlaybackVideo = video },
-                                    onLongClick = { longPressedVideo = video }
-                                )
+                            1 -> {
+                                if (selectedFolder == null) {
+                                    val groupedFolders = remember(currentVideosFiltered) {
+                                        currentVideosFiltered.groupBy { it.folderName }
+                                    }
+                                    if (groupedFolders.isEmpty()) {
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            Text("no folders found.", color = ZuneTextSecondary, style = ZuneTypography.body1)
+                                        }
+                                    } else {
+                                        val columns = if (isLandscape) 4 else 2
+                                        androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 24.dp),
+                                            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(20.dp)
+                                        ) {
+                                            groupedFolders.forEach { (folderName, folderVideos) ->
+                                                item(key = folderName) {
+                                                    VideoFolderCard(
+                                                        folderName = folderName,
+                                                        videos = folderVideos,
+                                                        isAeroTheme = isAeroTheme,
+                                                        onClick = { selectedFolder = folderName }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    val videosInFolder = remember(currentVideosFiltered, selectedFolder) {
+                                        currentVideosFiltered.filter { it.folderName == selectedFolder }
+                                    }
+                                    Column(modifier = Modifier.fillMaxSize()) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { selectedFolder = null }
+                                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowBack,
+                                                contentDescription = "back to folders",
+                                                tint = LocalZuneAccent.current,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "back to folders",
+                                                color = LocalZuneAccent.current,
+                                                style = ZuneTypography.body2.copy(fontWeight = FontWeight.Bold)
+                                            )
+                                        }
+                                        
+                                        val columns = if (isLandscape) 5 else 3
+                                        androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 24.dp),
+                                            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            itemsIndexed(videosInFolder, key = { _, video -> video.id }) { index, video ->
+                                                VideoGridCard(
+                                                    video = video,
+                                                    isAeroTheme = isAeroTheme,
+                                                    onClick = { activePlaybackVideo = video },
+                                                    onLongClick = { longPressedVideo = video }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            2 -> {
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    OutlinedTextField(
+                                        value = searchQuery,
+                                        onValueChange = { searchQuery = it },
+                                        placeholder = { Text("search videos...", color = Color.White.copy(alpha = 0.4f)) },
+                                        trailingIcon = {
+                                            if (searchQuery.isNotEmpty()) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "Clear",
+                                                    tint = Color.White.copy(alpha = 0.6f),
+                                                    modifier = Modifier.metroClickable { searchQuery = "" }
+                                                )
+                                            }
+                                        },
+                                        singleLine = true,
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            textColor = Color.White,
+                                            focusedBorderColor = LocalZuneAccent.current,
+                                            unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                                            cursorColor = LocalZuneAccent.current,
+                                            backgroundColor = Color(0xFF0F0F0F)
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 24.dp, vertical = 8.dp)
+                                    )
+                                    
+                                    val searchFiltered = remember(searchQuery, currentVideosFiltered) {
+                                        if (searchQuery.isBlank()) {
+                                            emptyList()
+                                        } else {
+                                            val q = searchQuery.lowercase().trim()
+                                            currentVideosFiltered.filter {
+                                                it.title.lowercase().contains(q) ||
+                                                it.subtitle.lowercase().contains(q) ||
+                                                it.folderName.lowercase().contains(q)
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (searchQuery.isBlank()) {
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            Text("search your videos", color = ZuneTextSecondary, style = ZuneTypography.body1)
+                                        }
+                                    } else if (searchFiltered.isEmpty()) {
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            Text("no videos found.", color = ZuneTextSecondary, style = ZuneTypography.body1)
+                                        }
+                                    } else {
+                                        val columns = if (isLandscape) 5 else 3
+                                        androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(horizontal = 24.dp),
+                                            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            itemsIndexed(searchFiltered, key = { _, video -> video.id }) { index, video ->
+                                                VideoGridCard(
+                                                    video = video,
+                                                    isAeroTheme = isAeroTheme,
+                                                    onClick = { activePlaybackVideo = video },
+                                                    onLongClick = { longPressedVideo = video }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -334,41 +630,53 @@ fun VideosScreen(
         }
         
         // Immersive Fullscreen Playback View Overlay (using ExoPlayer)
-        activePlaybackVideo?.let { video ->
-            FullscreenVideoPlayer(
-                video = video,
-                videos = currentVideosFiltered,
-                onVideoChanged = { activePlaybackVideo = it },
-                pinnedIds = pinnedIds,
-                onPin = onPin,
-                onUnpin = onUnpin,
-                onDismiss = { activePlaybackVideo = null },
-                onDeleteVideo = {
-                    if (video.uri != null) {
-                        pendingDeleteUri = video.uri
-                        deleteMediaStoreUri(
-                            context = context,
-                            uri = video.uri,
-                            onDeleteCompleted = {
-                                reloadTrigger++
+        AnimatedVisibility(
+            visible = activePlaybackVideo != null,
+            enter = fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(250)) + scaleOut(targetScale = 0.9f, animationSpec = tween(250))
+        ) {
+            val video = activePlayerVideo
+            if (video != null) {
+                androidx.compose.runtime.key(video.id) {
+                    FullscreenVideoPlayer(
+                        video = video,
+                        videos = currentVideosFiltered,
+                        onVideoChanged = { 
+                            activePlaybackVideo = it
+                            activePlayerVideo = it
+                        },
+                        pinnedIds = pinnedIds,
+                        onPin = onPin,
+                        onUnpin = onUnpin,
+                        onDismiss = { activePlaybackVideo = null },
+                        onDeleteVideo = {
+                            if (video.uri != null) {
+                                pendingDeleteUri = video.uri
+                                deleteMediaStoreUri(
+                                    context = context,
+                                    uri = video.uri,
+                                    onDeleteCompleted = {
+                                        reloadTrigger++
+                                        activePlaybackVideo = null
+                                    },
+                                    onLauncherNeeded = { intentSender ->
+                                        try {
+                                            deleteLauncher.launch(
+                                                androidx.activity.result.IntentSenderRequest.Builder(intentSender).build()
+                                            )
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    }
+                                )
+                            } else {
+                                deletedMockIds = deletedMockIds + video.id
                                 activePlaybackVideo = null
-                            },
-                            onLauncherNeeded = { intentSender ->
-                                try {
-                                    deleteLauncher.launch(
-                                        androidx.activity.result.IntentSenderRequest.Builder(intentSender).build()
-                                    )
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
                             }
-                        )
-                    } else {
-                        deletedMockIds = deletedMockIds + video.id
-                        activePlaybackVideo = null
-                    }
+                        }
+                    )
                 }
-            )
+            }
         }
         // Long Press Drop-Up Context Menu
         if (longPressedVideo != null) {
@@ -450,6 +758,27 @@ fun VideosScreen(
                     }
                 }
             }
+        }
+
+        // Month Jump List Selector
+        AnimatedVisibility(
+            visible = showJumpSelector,
+            enter = fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300))
+        ) {
+            MonthJumpListSelector(
+                months = groupedVideos.map { it.first },
+                onMonthSelected = { selectedMonth ->
+                    showJumpSelector = false
+                    val targetIndex = flatVideoGridItems.indexOf(selectedMonth)
+                    if (targetIndex != -1) {
+                        coroutineScope.launch {
+                            videoGridState.animateScrollToItem(targetIndex)
+                        }
+                    }
+                },
+                onDismiss = { showJumpSelector = false }
+            )
         }
 
         // Context Details Dialog
@@ -1560,13 +1889,7 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-// Lighten helper for blacks
-private fun Color.lightenForText(): Color {
-    val hsl = FloatArray(3)
-    androidx.core.graphics.ColorUtils.colorToHSL(this.toArgb(), hsl)
-    hsl[2] = hsl[2].coerceAtLeast(0.6f)
-    return Color(androidx.core.graphics.ColorUtils.HSLToColor(hsl))
-}
+
 
 data class VideoFileMetadata(val size: String, val width: Int, val height: Int)
 
@@ -1647,6 +1970,175 @@ private fun DropUpMenuItem(text: String, onClick: () -> Unit) {
                 fontSize = 20.sp,
                 color = Color.White
             )
+        )
+    }
+}
+
+@Composable
+fun VideoGridCard(
+    video: VideoItem,
+    isAeroTheme: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val localThumbnail = rememberVideoThumbnail(context, video.uri)
+    val cardGlassModifier = if (isAeroTheme) {
+        Modifier
+            .border(
+                width = 1.dp,
+                color = Color.Black.copy(alpha = 0.40f),
+                shape = RoundedCornerShape(3.dp)
+            )
+            .background(Color(0xFF1E1E1E), shape = RoundedCornerShape(3.dp))
+            .clip(RoundedCornerShape(3.dp))
+    } else {
+        Modifier.background(Color(0xFF1E1E1E))
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.5f)
+            .then(cardGlassModifier)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        if (localThumbnail != null) {
+            androidx.compose.foundation.Image(
+                bitmap = localThumbnail.asImageBitmap(),
+                contentDescription = video.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (video.posterUrl != null) {
+            AsyncImage(
+                model = video.posterUrl,
+                contentDescription = video.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawRect(
+                    brush = Brush.linearGradient(
+                        colors = video.gradientColors.ifEmpty { listOf(Color(0xFFEE0979), Color(0xFFFF6A00)) },
+                        start = Offset.Zero,
+                        end = Offset(size.width, size.height)
+                    )
+                )
+            }
+        }
+        // Small Play arrow overlay in center
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(Color.Black.copy(alpha = 0.6f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun VideoFolderCard(
+    folderName: String,
+    videos: List<VideoItem>,
+    isAeroTheme: Boolean,
+    onClick: () -> Unit
+) {
+    val firstVideo = videos.firstOrNull()
+    val context = LocalContext.current
+    val localThumbnail = rememberVideoThumbnail(context, firstVideo?.uri)
+    
+    val cardGlassModifier = if (isAeroTheme) {
+        Modifier
+            .border(
+                width = 1.dp,
+                color = Color.Black.copy(alpha = 0.40f),
+                shape = RoundedCornerShape(3.dp)
+            )
+            .background(Color(0xFF1E1E1E), shape = RoundedCornerShape(3.dp))
+            .clip(RoundedCornerShape(3.dp))
+    } else {
+        Modifier.background(Color(0xFF1E1E1E))
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .metroClickable { onClick() }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.5f)
+                .then(cardGlassModifier),
+            contentAlignment = Alignment.Center
+        ) {
+            if (localThumbnail != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = localThumbnail.asImageBitmap(),
+                    contentDescription = folderName,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else if (firstVideo?.posterUrl != null) {
+                AsyncImage(
+                    model = firstVideo.posterUrl,
+                    contentDescription = folderName,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawRect(
+                        brush = Brush.linearGradient(
+                            colors = firstVideo?.gradientColors?.ifEmpty { listOf(Color(0xFFEE0979), Color(0xFFFF6A00)) } ?: listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
+                            start = Offset.Zero,
+                            end = Offset(size.width, size.height)
+                        )
+                    )
+                }
+            }
+            // Folder icon overlay
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(8.dp)
+                    .size(24.dp)
+                    .background(Color.Black.copy(alpha = 0.6f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Folder,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = folderName.uppercase(),
+            style = ZuneTypography.body1.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+            color = Color.White,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+        Text(
+            text = "${videos.size} videos",
+            style = ZuneTypography.caption,
+            color = ZuneTextSecondary
         )
     }
 }

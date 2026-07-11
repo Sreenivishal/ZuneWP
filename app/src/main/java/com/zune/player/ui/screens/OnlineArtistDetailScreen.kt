@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -30,6 +32,8 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.data.OnlineAlbum
 import com.zune.player.data.OnlineSong
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.components.metroClickable
 import com.zune.player.ui.theme.*
 import kotlinx.coroutines.launch
@@ -77,16 +81,52 @@ fun OnlineArtistDetailScreen(
                 .background(Color.Black.copy(alpha = 0.5f))
         )
 
+        val sharedTransitionScope = LocalSharedTransitionScope.current
+        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
         Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                contentDescription = "Back",
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 24.dp)
-                    .offset(x = (-20).dp, y = (-8).dp)
-                    .size(80.dp)
-                    .metroClickable { onBack() }
-            )
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "header_music"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                    stiffness = 150f
+                                )
+                            },
+                            renderInOverlayDuringTransition = false
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
+                Text(
+                    text = "artists",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                        fontSize = 170.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.12f),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                    modifier = Modifier
+                        .offset(x = (-12).dp, y = (-48).dp)
+                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                        .then(sharedModifier)
+                        .metroClickable { onBack() }
+                )
+            }
             // Header Row: Artist Name
             Row(
                 modifier = Modifier
@@ -308,6 +348,9 @@ fun ArtistSongCard(
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
     Box(
         modifier = modifier
@@ -315,7 +358,12 @@ fun ArtistSongCard(
             .pointerInput(song) {
                 detectTapGestures(
                     onTap = { onClick() },
-                    onLongPress = { showMenu = true }
+                    onLongPress = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        showMenu = true
+                    }
                 )
             }
             .padding(vertical = 12.dp)
@@ -392,6 +440,9 @@ fun ArtistAlbumCard(
     modifier: Modifier = Modifier
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
     Box(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -400,7 +451,12 @@ fun ArtistAlbumCard(
                 .pointerInput(album) {
                     detectTapGestures(
                         onTap = { onClick() },
-                        onLongPress = { showMenu = true }
+                        onLongPress = {
+                            if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                            showMenu = true
+                        }
                     )
                 }
                 .padding(vertical = 8.dp),

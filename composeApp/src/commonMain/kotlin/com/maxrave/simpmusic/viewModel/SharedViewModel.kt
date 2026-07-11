@@ -766,14 +766,16 @@ class SharedViewModel(
             mediaPlayerHandler.clearMediaItems()
             songRepository.insertSong(track.toSongEntity()).lastOrNull()?.let {
                 println("insertSong: $it")
-                songRepository
-                    .getSongById(track.videoId)
-                    .collect { songEntity ->
-                        if (songEntity != null) {
-                            Logger.w("Check like", "loadMediaItemFromTrack ${songEntity.liked}")
-                            _liked.value = songEntity.liked
+                launch {
+                    songRepository
+                        .getSongById(track.videoId)
+                        .collect { songEntity ->
+                            if (songEntity != null) {
+                                Logger.w("Check like", "loadMediaItemFromTrack ${songEntity.liked}")
+                                _liked.value = songEntity.liked
+                            }
                         }
-                    }
+                }
             }
             track.durationSeconds?.let {
                 songRepository.updateDurationSeconds(

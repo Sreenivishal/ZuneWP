@@ -44,16 +44,27 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import coil.compose.rememberAsyncImagePainter
 
+object AppsCache {
+    var cachedApps: List<AppItem> = emptyList()
+    var isInitialized: Boolean = false
+
+    fun invalidate() {
+        cachedApps = emptyList()
+        isInitialized = false
+    }
+}
+
 data class AppItem(
     val packageName: String,
     val appName: String,
-    val icon: Drawable,
     val appId: Long
 )
 
@@ -105,33 +116,42 @@ fun AppsScreen(
 
     // Load installed apps
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            val pm = context.packageManager
-            val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
-                addCategory(Intent.CATEGORY_LAUNCHER)
-            }
-            val resolveInfos = try {
-                pm.queryIntentActivities(mainIntent, 0)
-            } catch (e: Exception) {
-                emptyList()
-            }
-            
-            val apps = resolveInfos.mapNotNull { ri ->
-                val pkgName = ri.activityInfo.packageName
-                if (pkgName == context.packageName) return@mapNotNull null // hide Zune itself from the launcher list
-                val appLabel = ri.loadLabel(pm).toString()
-                val appIcon = ri.loadIcon(pm)
-                val appHash = pkgName.hashCode().toLong() and 0x0FFFFFFFFFFFFFFFL
-                val appId = appHash or 0x3000000000000000L
-                AppItem(pkgName, appLabel, appIcon, appId)
-            }.sortedBy { it.appName.lowercase() }
-            
-            withContext(Dispatchers.Main) {
-                installedApps = apps
-                isLoading = false
+        if (AppsCache.isInitialized) {
+            installedApps = AppsCache.cachedApps
+            isLoading = false
+        } else {
+            withContext(Dispatchers.IO) {
+                val pm = context.packageManager
+                val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                }
+                val resolveInfos = try {
+                    pm.queryIntentActivities(mainIntent, 0)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                
+                val apps = resolveInfos.mapNotNull { ri ->
+                    val pkgName = ri.activityInfo.packageName
+                    if (pkgName == context.packageName) return@mapNotNull null // hide Zune itself from the launcher list
+                    val appLabel = ri.loadLabel(pm).toString()
+                    val appHash = pkgName.hashCode().toLong() and 0x0FFFFFFFFFFFFFFFL
+                    val appId = appHash or 0x3000000000000000L
+                    AppItem(pkgName, appLabel, appId)
+                }.sortedBy { it.appName.lowercase() }
+                
+                withContext(Dispatchers.Main) {
+                    AppsCache.cachedApps = apps
+                    AppsCache.isInitialized = true
+                    installedApps = apps
+                    isLoading = false
+                }
             }
         }
     }
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
 
     Box(
         modifier = Modifier
@@ -140,15 +160,48 @@ fun AppsScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Back Button
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                contentDescription = "Back",
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 4.dp)
-                    .offset(x = (-20).dp, y = (-8).dp)
-                    .size(80.dp)
-                    .metroClickable { onBack() }
-            )
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "header_apps"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                    stiffness = 150f
+                                )
+                            },
+                            renderInOverlayDuringTransition = false
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
+                Text(
+                    text = "apps",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                        fontSize = 170.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.12f),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                    modifier = Modifier
+                        .offset(x = (-12).dp, y = (-48).dp)
+                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                        .then(sharedModifier)
+                        .metroClickable { onBack() }
+                )
+            }
 
             // Search Bar
             OutlinedTextField(
@@ -260,7 +313,7 @@ fun AppsScreen(
             }
         }
 
-        // Fullscreen Alphabet Jump Selector Grid
+        // Fullscreen Alphabet Jump Selector Grid (One-Handed, Bottom Positioned)
         AnimatedVisibility(
             visible = showJumpGrid,
             enter = fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
@@ -269,15 +322,19 @@ fun AppsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
-                    .pointerInput(Unit) { detectTapGestures { showJumpGrid = false } }
+                    .background(Color.Black.copy(alpha = 0.9f))
+                    .pointerInput(Unit) { detectTapGestures { showJumpGrid = false } },
+                contentAlignment = Alignment.BottomCenter
             ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(6),
-                    contentPadding = PaddingValues(top = 48.dp, start = 24.dp, end = 24.dp, bottom = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxSize()
+                    columns = GridCells.Fixed(5),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 48.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .pointerInput(Unit) { /* intercept clicks */ }
                 ) {
                     val availableLetters = groupedItems.filterIsInstance<Char>().toSet()
                     val alphabet = ('a'..'z').toList() + listOf('#')
@@ -326,7 +383,23 @@ fun AppRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
+    var appIcon by remember(app.packageName) { mutableStateOf<Drawable?>(null) }
+
+    LaunchedEffect(app.packageName) {
+        withContext(Dispatchers.IO) {
+            try {
+                val pm = context.packageManager
+                val icon = pm.getApplicationIcon(app.packageName)
+                withContext(Dispatchers.Main) {
+                    appIcon = icon
+                }
+            } catch (e: Exception) {
+                // Ignore and keep as null to use colored letter tile fallback
+            }
+        }
+    }
 
     Box(
         modifier = modifier
@@ -342,29 +415,34 @@ fun AppRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // App Icon cropped to fit square (scale up adaptive icons to remove safe zone padding)
+            // App Icon Box (Fit content scale, square tile background)
             Box(
                 modifier = Modifier
                     .size(42.dp)
                     .background(LocalZuneAccent.current)
-                    .clip(RectangleShape)
-                    .clipToBounds(),
+                    .clip(RectangleShape),
                 contentAlignment = Alignment.Center
             ) {
-                val isAdaptive = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O &&
-                        app.icon is android.graphics.drawable.AdaptiveIconDrawable
-                androidx.compose.foundation.Image(
-                    painter = rememberAsyncImagePainter(model = app.icon),
-                    contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().then(
-                        if (isAdaptive) Modifier.scale(1.45f) else Modifier
+                if (appIcon != null) {
+                    androidx.compose.foundation.Image(
+                        painter = rememberAsyncImagePainter(model = appIcon),
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
                     )
-                )
+                } else {
+                    Text(
+                        text = app.appName.firstOrNull()?.toString()?.uppercase() ?: "",
+                        style = ZuneTypography.body1.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White
+                    )
+                }
             }
 
             Text(
-                text = app.appName.lowercase(),
+                text = app.appName,
                 style = ZuneTypography.h2.copy(
                     fontFamily = SegoeUiFontFamily,
                     fontSize = 24.sp,
@@ -389,6 +467,44 @@ fun AppRow(
             ) {
                 Text(
                     text = if (isPinned) "unpin from start" else "pin to start",
+                    color = Color.White,
+                    style = ZuneTypography.body1
+                )
+            }
+            DropdownMenuItem(
+                onClick = {
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = android.net.Uri.parse("package:${app.packageName}")
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    menuExpanded = false
+                }
+            ) {
+                Text(
+                    text = "app info",
+                    color = Color.White,
+                    style = ZuneTypography.body1
+                )
+            }
+            DropdownMenuItem(
+                onClick = {
+                    try {
+                        val intent = Intent(Intent.ACTION_DELETE).apply {
+                            data = android.net.Uri.parse("package:${app.packageName}")
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    menuExpanded = false
+                }
+            ) {
+                Text(
+                    text = "uninstall",
                     color = Color.White,
                     style = ZuneTypography.body1
                 )

@@ -33,6 +33,7 @@ fun SynchronizedLyricsView(
     lyrics: List<LyricLine>,
     currentLyricIndex: Int,
     onLyricClick: (Long) -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -49,18 +50,22 @@ fun SynchronizedLyricsView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.Center
+            .background(Color.Black)
     ) {
         if (lyrics.isEmpty()) {
-            Text(
-                text = "no lyrics available",
-                fontFamily = SegoeUiLightFontFamily,
-                fontSize = 24.sp,
-                color = Color.White.copy(alpha = 0.4f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(32.dp)
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "no lyrics available",
+                    fontFamily = SegoeUiLightFontFamily,
+                    fontSize = 24.sp,
+                    color = Color.White.copy(alpha = 0.4f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp)
+                )
+            }
         } else {
             LazyColumn(
                 state = listState,
@@ -80,7 +85,7 @@ fun SynchronizedLyricsView(
                     )
                     
                     val textColor by animateColorAsState(
-                        targetValue = if (isActive) Color.White else Color.White.copy(alpha = 0.35f),
+                        targetValue = if (isActive) accent else Color.White.copy(alpha = 0.35f),
                         animationSpec = tween(durationMillis = 350),
                         label = "LyricColor"
                     )
@@ -106,5 +111,42 @@ fun SynchronizedLyricsView(
                 }
             }
         }
+
+        // Fading edge overlay at top
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .align(Alignment.TopCenter)
+                .background(
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        colors = listOf(Color.Black, Color.Transparent)
+                    )
+                )
+        )
+
+        // Fading edge overlay at bottom
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .align(Alignment.BottomCenter)
+                .background(
+                    androidx.compose.ui.graphics.Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, Color.Black)
+                    )
+                )
+        )
+
+        // Metro back / close button overlay
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
+            contentDescription = "Close Lyrics",
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .size(40.dp)
+                .clickable { onDismiss() }
+        )
     }
 }

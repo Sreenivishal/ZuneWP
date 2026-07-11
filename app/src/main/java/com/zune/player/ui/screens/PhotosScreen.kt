@@ -66,6 +66,8 @@ import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import com.zune.player.ui.components.PivotLayout
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -93,6 +95,9 @@ fun PhotosScreen(
     onUnpin: (Long) -> Unit = {},
     onBack: () -> Unit
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     
@@ -287,25 +292,48 @@ fun PhotosScreen(
                 val albumName = activeAlbumName!!
                 
                 Column(modifier = Modifier.fillMaxSize()) {
-                    androidx.compose.foundation.Image(
-                        painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                        contentDescription = "Back",
+                    Box(
                         modifier = Modifier
-                            .padding(bottom = 4.dp)
-                            .offset(x = (-20).dp, y = (-8).dp)
-                            .size(80.dp)
-                            .metroClickable { activeAlbumName = null }
-                    )
-                    Text(
-                        text = "ALBUMS",
-                        style = ZuneTypography.h4.copy(
-                            fontFamily = SegoeUiFontFamily,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = ZuneTextSecondary,
-                        modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
-                    )
+                            .fillMaxWidth()
+                            .height(120.dp)
+                    ) {
+                        @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                        val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                            with(sharedTransitionScope) {
+                                Modifier.sharedElement(
+                                    rememberSharedContentState(key = "header_pictures"),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = { _, _ ->
+                                        androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                            stiffness = 150f
+                                        )
+                                    },
+                                    renderInOverlayDuringTransition = false
+                                ).skipToLookaheadSize()
+                            }
+                        } else {
+                            Modifier
+                        }
+
+                        Text(
+                            text = "pictures",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                                fontSize = 170.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.12f),
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                            modifier = Modifier
+                                .offset(x = (-12).dp, y = (-48).dp)
+                                .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                                .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                                .then(sharedModifier)
+                                .metroClickable { activeAlbumName = null }
+                        )
+                    }
                     
                     Text(
                         text = albumName.uppercase(),
@@ -370,30 +398,51 @@ fun PhotosScreen(
             } else {
                 // Main Photos Hub Pivot
                 Column(modifier = Modifier.fillMaxSize()) {
-                    androidx.compose.foundation.Image(
-                        painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                        contentDescription = "Back",
+                    Box(
                         modifier = Modifier
-                            .padding(bottom = 4.dp)
-                            .offset(x = (-20).dp, y = (-8).dp)
-                            .size(80.dp)
-                            .metroClickable { onBack() }
-                    )
+                            .fillMaxWidth()
+                            .height(120.dp)
+                    ) {
+                        @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                        val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                            with(sharedTransitionScope) {
+                                Modifier.sharedElement(
+                                    rememberSharedContentState(key = "header_pictures"),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = { _, _ ->
+                                        androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                            stiffness = 150f
+                                        )
+                                    },
+                                    renderInOverlayDuringTransition = false
+                                ).skipToLookaheadSize()
+                            }
+                        } else {
+                            Modifier
+                        }
+
+                        Text(
+                            text = "pictures",
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                                fontSize = 170.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.12f),
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                            modifier = Modifier
+                                .offset(x = (-12).dp, y = (-48).dp)
+                                .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                                .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                                .then(sharedModifier)
+                                .metroClickable { onBack() }
+                        )
+                    }
                     val pages = listOf("all", "albums")
                     val pagerState = rememberPagerState(initialPage = 0) { pages.size }
                     val tabWidths = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
-
-                    // Small Category / Section Header
-                    Text(
-                        text = "PHOTOS",
-                        style = ZuneTypography.h4.copy(
-                            fontFamily = SegoeUiFontFamily,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = ZuneTextSecondary,
-                        modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
-                    )
                     
                     // Sliding giant tabs
                     Box(
@@ -1882,13 +1931,6 @@ fun generateMockPhotos(): List<PhotoItem> {
     }
 }
 
-// Utility extension to lighten the accent colors slightly for black texts/backgrounds
-private fun Color.lightenForText(): Color {
-    val hsl = FloatArray(3)
-    androidx.core.graphics.ColorUtils.colorToHSL(this.toArgb(), hsl)
-    hsl[2] = hsl[2].coerceAtLeast(0.6f)
-    return Color(androidx.core.graphics.ColorUtils.HSLToColor(hsl))
-}
 
 data class FileMetadata(val size: String, val width: Int, val height: Int)
 

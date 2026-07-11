@@ -4,6 +4,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -22,16 +25,38 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.delay
 
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import com.zune.player.ui.theme.LocalZuneAccent
+
 /**
  * Simulates the true Windows Phone / Zune UI 3D "tilt" effect.
  * Elements scale down slightly and physically rotate on X/Y axes based on touch position.
  */
 fun Modifier.metroClickable(
+    hapticFeedbackEnabled: Boolean = false,
     onClick: () -> Unit
 ) = composed {
-    var isPressed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     var tapOffset by remember { mutableStateOf(Offset.Zero) }
     var itemSize by remember { mutableStateOf(IntSize.Zero) }
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            val hapticEnabled = prefs.getBoolean("haptic_feedback_enabled", true)
+            if (hapticFeedbackEnabled && hapticEnabled) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        }
+    }
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.98f else 1f,
@@ -70,15 +95,13 @@ fun Modifier.metroClickable(
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 tapOffset = down.position
-                isPressed = true
-                
-                val up = waitForUpOrCancellation()
-                isPressed = false
-                if (up != null) {
-                    onClick()
-                }
             }
         }
+        .clickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick
+        )
 }
 
 

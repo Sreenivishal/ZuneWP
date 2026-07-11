@@ -2,40 +2,55 @@ package com.zune.player.player
 
 import android.content.ComponentName
 import android.content.Context
-import android.content.ServiceConnection
-import android.os.IBinder
+import androidx.core.content.ContextCompat
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
-import com.maxrave.simpmusic.viewModel.SharedViewModel
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import com.zune.player.data.AudioItem
 import com.zune.player.data.LyricLine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import com.zune.player.data.LyricsRepository
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import kotlinx.coroutines.flow.firstOrNull
+import org.koin.core.context.GlobalContext
+import org.koin.core.qualifier.named
+import com.maxrave.common.Config
+import androidx.media3.datasource.cache.SimpleCache
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.CacheWriter
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.common.C
+import android.net.Uri
+import androidx.core.net.toUri
 
-enum class PlayerMode {
-    NONE, LOCAL, ONLINE
-}
+class AudioPlayer private constructor(private val context: Context) {
+    companion object {
+        @Volatile
+        private var instance: AudioPlayer? = null
 
-class AudioPlayer(private val context: Context) : KoinComponent {
-    private val sharedViewModel: SharedViewModel by inject()
-    private val mediaPlayerHandler: MediaPlayerHandler by inject()
+        fun getInstance(context: Context): AudioPlayer {
+            return instance ?: synchronized(this) {
+                instance ?: AudioPlayer(context.applicationContext).also { instance = it }
+            }
+        }
+    }
 
     private val playerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var mediaController: MediaController? = null
+    private var positionPollJob: Job? = null
+    private var lyricsJob: Job? = null
+    private var isUserScrubbing = false
+    private var preloadingJob: Job? = null
 
-    private val localPlayer = LocalAudioPlayer(context)
-    private val onlinePlayer = OnlineAudioPlayer(sharedViewModel, mediaPlayerHandler)
-
-    private val unifiedQueue = mutableListOf<AudioItem>()
-    private var currentIndex = -1
-
-    private var activePlayerMode = PlayerMode.NONE
+    // Store original list to match MediaItem to AudioItem
+    private var currentPlaylist = emptyList<AudioItem>()
+    private var pendingRestoreItem: AudioItem? = null
+    private var pendingRestoreQueue: Pair<List<AudioItem>, Int>? = null
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
@@ -43,15 +58,18 @@ class AudioPlayer(private val context: Context) : KoinComponent {
     private val _currentAudio = MutableStateFlow<AudioItem?>(null)
     val currentAudio = _currentAudio.asStateFlow()
 
+    // Queue: ordered list of upcoming + current tracks
     private val _queue = MutableStateFlow<List<AudioItem>>(emptyList())
     val queue = _queue.asStateFlow()
 
     private val _upcomingQueue = MutableStateFlow<List<AudioItem>>(emptyList())
     val upcomingQueue = _upcomingQueue.asStateFlow()
 
+    // Repeat
     private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
     val repeatMode = _repeatMode.asStateFlow()
 
+    // Shuffle
     private val _shuffleEnabled = MutableStateFlow(false)
     val shuffleEnabled = _shuffleEnabled.asStateFlow()
 
@@ -70,338 +88,427 @@ class AudioPlayer(private val context: Context) : KoinComponent {
     private val _currentLyricIndex = MutableStateFlow(-1)
     val currentLyricIndex = _currentLyricIndex.asStateFlow()
 
+    val currentPositionValue: Long get() = mediaController?.currentPosition ?: 0L
+    val durationValue: Long get() = mediaController?.duration?.coerceAtLeast(0L) ?: 0L
+
     init {
-        // Start SimpleMediaService for online playback notifications
-        val serviceConnection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                com.maxrave.media3.di.setServiceActivitySession(
-                    context,
-                    com.zune.player.MainActivity::class.java,
-                    service
-                )
+        val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
+        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {
+                mediaController = controllerFuture.get()
+                setupControllerListener()
+            },
+            ContextCompat.getMainExecutor(context)
+        )
+    }
+
+    private fun setupControllerListener() {
+        val controller = mediaController ?: return
+        // Sync initial state
+        _shuffleEnabled.value = controller.shuffleModeEnabled
+        _repeatMode.value = controller.repeatMode
+        refreshQueue()
+
+        pendingRestoreItem?.let {
+            applyRestore(it)
+            pendingRestoreItem = null
+        }
+
+        pendingRestoreQueue?.let { (items, index) ->
+            applyRestoreQueue(items, index)
+            pendingRestoreQueue = null
+        }
+
+        controller.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _isPlaying.value = isPlaying
+                if (isPlaying) {
+                    startPollingPosition()
+                } else {
+                    positionPollJob?.cancel()
+                    _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
+                    _duration.value = controller.duration.coerceAtLeast(0L)
+                }
             }
-            override fun onServiceDisconnected(name: ComponentName?) {}
-        }
-        com.maxrave.media3.di.startService(context, serviceConnection)
 
-        // Sync states from local player when active
-        playerScope.launch { localPlayer._isPlaying.collect { if (activePlayerMode == PlayerMode.LOCAL) _isPlaying.value = it } }
-        playerScope.launch { localPlayer._currentAudio.collect { if (activePlayerMode == PlayerMode.LOCAL) _currentAudio.value = it } }
-        playerScope.launch { localPlayer._repeatMode.collect { if (activePlayerMode == PlayerMode.LOCAL) _repeatMode.value = it } }
-        playerScope.launch { localPlayer._shuffleEnabled.collect { if (activePlayerMode == PlayerMode.LOCAL) _shuffleEnabled.value = it } }
-        playerScope.launch { localPlayer._isBuffering.collect { if (activePlayerMode == PlayerMode.LOCAL) _isBuffering.value = it } }
-        playerScope.launch { localPlayer._currentPosition.collect { if (activePlayerMode == PlayerMode.LOCAL) _currentPosition.value = it } }
-        playerScope.launch { localPlayer._duration.collect { if (activePlayerMode == PlayerMode.LOCAL) _duration.value = it } }
-        playerScope.launch { localPlayer._lyrics.collect { if (activePlayerMode == PlayerMode.LOCAL) _lyrics.value = it } }
-        playerScope.launch { localPlayer._currentLyricIndex.collect { if (activePlayerMode == PlayerMode.LOCAL) _currentLyricIndex.value = it } }
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                _isBuffering.value = playbackState == Player.STATE_BUFFERING
+                _duration.value = controller.duration.coerceAtLeast(0L)
+            }
 
-        // Sync states from online player when active
-        playerScope.launch { onlinePlayer._isPlaying.collect { if (activePlayerMode == PlayerMode.ONLINE) _isPlaying.value = it } }
-        playerScope.launch { onlinePlayer._currentAudio.collect { if (activePlayerMode == PlayerMode.ONLINE) _currentAudio.value = it } }
-        playerScope.launch { onlinePlayer._repeatMode.collect { if (activePlayerMode == PlayerMode.ONLINE) _repeatMode.value = it } }
-        playerScope.launch { onlinePlayer._shuffleEnabled.collect { if (activePlayerMode == PlayerMode.ONLINE) _shuffleEnabled.value = it } }
-        playerScope.launch { onlinePlayer._isBuffering.collect { if (activePlayerMode == PlayerMode.ONLINE) _isBuffering.value = it } }
-        playerScope.launch { onlinePlayer._currentPosition.collect { if (activePlayerMode == PlayerMode.ONLINE) _currentPosition.value = it } }
-        playerScope.launch { onlinePlayer._duration.collect { if (activePlayerMode == PlayerMode.ONLINE) _duration.value = it } }
-        playerScope.launch { onlinePlayer._lyrics.collect { if (activePlayerMode == PlayerMode.ONLINE) _lyrics.value = it } }
-        playerScope.launch { onlinePlayer._currentLyricIndex.collect { if (activePlayerMode == PlayerMode.ONLINE) _currentLyricIndex.value = it } }
+            override fun onPlayerError(error: PlaybackException) {
+                super.onPlayerError(error)
+                _isBuffering.value = false
+            }
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                super.onMediaItemTransition(mediaItem, reason)
+                val mediaId = mediaItem?.mediaId
+                val matchedItem = currentPlaylist.find {
+                    val itemUriStr = it.uri.toString()
+                    val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
+                        itemUriStr.substringAfter("zune://online/")
+                    } else {
+                        itemUriStr
+                    }
+                    cleanItemUri == mediaId
+                }
+                if (matchedItem != null) {
+                    _currentAudio.value = matchedItem
+                }
+                _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
+                _duration.value = controller.duration.coerceAtLeast(0L)
+                refreshQueue()
+                fetchLyrics()
+            }
+
+            override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+                _shuffleEnabled.value = shuffleModeEnabled
+                refreshQueue()
+            }
+
+            override fun onRepeatModeChanged(repeatMode: Int) {
+                _repeatMode.value = repeatMode
+            }
+        })
     }
 
-    private fun switchPlayerMode(newMode: PlayerMode) {
-        if (activePlayerMode == newMode) return
+    private fun startPollingPosition() {
+        positionPollJob?.cancel()
+        positionPollJob = playerScope.launch {
+            while (isActive) {
+                val controller = mediaController
+                if (controller != null && controller.isPlaying) {
+                    if (!isUserScrubbing) {
+                        _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
+                    }
+                    _duration.value = controller.duration.coerceAtLeast(0L)
 
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.setActive(false)
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.setActive(false)
-        }
-
-        activePlayerMode = newMode
-
-        // Ensure state propagates immediately
-        if (newMode == PlayerMode.LOCAL) {
-            localPlayer.setActive(true)
-            _isPlaying.value = localPlayer._isPlaying.value
-            _currentAudio.value = localPlayer._currentAudio.value
-            _repeatMode.value = localPlayer._repeatMode.value
-            _shuffleEnabled.value = localPlayer._shuffleEnabled.value
-            _isBuffering.value = localPlayer._isBuffering.value
-            _currentPosition.value = localPlayer._currentPosition.value
-            _duration.value = localPlayer._duration.value
-            _lyrics.value = localPlayer._lyrics.value
-            _currentLyricIndex.value = localPlayer._currentLyricIndex.value
-        } else if (newMode == PlayerMode.ONLINE) {
-            onlinePlayer.setActive(true)
-            _isPlaying.value = onlinePlayer._isPlaying.value
-            _currentAudio.value = onlinePlayer._currentAudio.value
-            _repeatMode.value = onlinePlayer._repeatMode.value
-            _shuffleEnabled.value = onlinePlayer._shuffleEnabled.value
-            _isBuffering.value = onlinePlayer._isBuffering.value
-            _currentPosition.value = onlinePlayer._currentPosition.value
-            _duration.value = onlinePlayer._duration.value
-            _lyrics.value = onlinePlayer._lyrics.value
-            _currentLyricIndex.value = onlinePlayer._currentLyricIndex.value
+                    val lines = _lyrics.value
+                    if (lines.isNotEmpty()) {
+                        val targetPosition = if (isUserScrubbing) _currentPosition.value else controller.currentPosition
+                        _currentLyricIndex.value = lines.indexOfLast { it.timeMs <= targetPosition }
+                    }
+                }
+                delay(250L)
+            }
         }
     }
 
-    private fun checkPlaybackState() {
-        playerScope.launch {
-            localPlayer._playbackState.collect { state ->
-                if (activePlayerMode == PlayerMode.LOCAL && state == Player.STATE_ENDED) {
-                    skipToNext()
+    private fun fetchLyrics() {
+        lyricsJob?.cancel()
+        val item = _currentAudio.value
+        if (item == null) {
+            _lyrics.value = emptyList()
+            _currentLyricIndex.value = -1
+            return
+        }
+        _lyrics.value = emptyList()
+        _currentLyricIndex.value = -1
+        lyricsJob = playerScope.launch {
+            try {
+                val fetched = LyricsRepository.getLyrics(item.title, item.artist)
+                _lyrics.value = fetched
+            } catch (e: Exception) {
+                _lyrics.value = emptyList()
+            }
+        }
+    }
+
+    /** Rebuilds the queue StateFlow from the current controller playlist. */
+    private fun refreshQueue() {
+        val controller = mediaController ?: return
+        val count = controller.mediaItemCount
+        val rebuilt = mutableListOf<AudioItem>()
+        for (i in 0 until count) {
+            val mi = controller.getMediaItemAt(i)
+            val mediaId = mi.mediaId
+            val item = currentPlaylist.find {
+                val itemUriStr = it.uri.toString()
+                val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
+                    itemUriStr.substringAfter("zune://online/")
+                } else {
+                    itemUriStr
+                }
+                cleanItemUri == mediaId
+            }
+            if (item != null) rebuilt.add(item)
+        }
+        _queue.value = rebuilt
+
+        val index = rebuilt.indexOfFirst { it.id == _currentAudio.value?.id }
+        _upcomingQueue.value = if (index in rebuilt.indices) {
+            rebuilt.drop(index + 1)
+        } else {
+            emptyList()
+        }
+        triggerPreloading()
+    }
+
+    private fun registerItems(items: List<AudioItem>) {
+        val existingUris = currentPlaylist.map { it.uri.toString() }.toSet()
+        val newUnique = items.filter { it.uri.toString() !in existingUris }
+        currentPlaylist = currentPlaylist + newUnique
+    }
+
+    private fun triggerPreloading() {
+        preloadingJob?.cancel()
+        val current = _currentAudio.value
+        val upcoming = _upcomingQueue.value.take(2)
+        
+        preloadingJob = playerScope.launch(Dispatchers.IO) {
+            if (current != null && current.uri.scheme == "zune" && current.uri.host == "online") {
+                val videoId = current.uri.toString().substringAfter("zune://online/")
+                preloadSong(videoId, preloadEntire = true)
+            }
+            
+            for (item in upcoming) {
+                if (isActive && item.uri.scheme == "zune" && item.uri.host == "online") {
+                    val videoId = item.uri.toString().substringAfter("zune://online/")
+                    preloadSong(videoId, preloadEntire = false)
                 }
             }
         }
-        playerScope.launch {
-            onlinePlayer._playbackState.collect { state ->
-                if (activePlayerMode == PlayerMode.ONLINE && state == Player.STATE_ENDED) {
-                    skipToNext()
-                }
-            }
-        }
     }
-    
-    init {
-        checkPlaybackState()
+
+    private suspend fun preloadSong(videoId: String, preloadEntire: Boolean) {
+        try {
+            val playerCache = GlobalContext.get().get<SimpleCache>(named(Config.PLAYER_CACHE))
+            val streamRepository = GlobalContext.get().get<com.maxrave.domain.repository.StreamRepository>()
+            val dataStoreManager = GlobalContext.get().get<com.maxrave.domain.manager.DataStoreManager>()
+            
+            val streamUrl = streamRepository.getStream(
+                dataStoreManager = dataStoreManager,
+                videoId = videoId,
+                isDownloading = false,
+                isVideo = false
+            ).firstOrNull() ?: return
+            
+            val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            val cacheDataSourceFactory = CacheDataSource.Factory()
+                .setCache(playerCache)
+                .setUpstreamDataSourceFactory(httpDataSourceFactory)
+                .setCacheWriteDataSinkFactory(null)
+                
+            val cacheDataSource = cacheDataSourceFactory.createDataSource()
+            val length = if (preloadEntire) C.LENGTH_UNSET.toLong() else 2 * 1024 * 1024L
+            
+            val dataSpec = DataSpec.Builder()
+                .setUri(Uri.parse(streamUrl))
+                .setKey(videoId)
+                .setPosition(0)
+                .setLength(length)
+                .build()
+                
+            val cacheWriter = CacheWriter(
+                cacheDataSource,
+                dataSpec,
+                null,
+                null
+            )
+            
+            cacheWriter.cache()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun play(item: AudioItem) {
-        unifiedQueue.clear()
-        unifiedQueue.add(item)
-        updateQueues()
-        currentIndex = 0
-        playCurrentIndex()
-    }
+        if (_currentAudio.value?.id == item.id) {
+            resume()
+            return
+        }
 
-    fun playList(items: List<AudioItem>, startIndex: Int = 0) {
-        if (items.isEmpty()) return
-        unifiedQueue.clear()
-        unifiedQueue.addAll(items)
-        updateQueues()
-        currentIndex = startIndex
-        playCurrentIndex()
+        registerItems(listOf(item))
+        val mediaItem = buildMediaItem(item)
+        mediaController?.setMediaItem(mediaItem)
+        mediaController?.prepare()
+        mediaController?.play()
+
+        _currentAudio.value = item
+        refreshQueue()
+        fetchLyrics()
     }
 
     fun restoreLastPlayed(item: AudioItem) {
-        restoreLastQueue(listOf(item), 0)
+        if (mediaController != null) {
+            applyRestore(item)
+        } else {
+            pendingRestoreItem = item
+        }
+    }
+
+    private fun applyRestore(item: AudioItem) {
+        registerItems(listOf(item))
+        val mediaItem = buildMediaItem(item)
+        mediaController?.setMediaItem(mediaItem)
+        mediaController?.prepare()
+        _currentAudio.value = item
+        refreshQueue()
+        fetchLyrics()
     }
 
     fun restoreLastQueue(items: List<AudioItem>, startIndex: Int) {
         if (items.isEmpty()) return
-        unifiedQueue.clear()
-        unifiedQueue.addAll(items)
-        updateQueues()
-        currentIndex = startIndex
-        
-        val item = unifiedQueue[currentIndex]
-        val isOnline = item.uri.scheme == "zune" && item.uri.host == "online"
-        if (isOnline) {
-            switchPlayerMode(PlayerMode.ONLINE)
-            onlinePlayer.restoreLastQueue(listOf(item), 0)
+        if (mediaController != null) {
+            applyRestoreQueue(items, startIndex)
         } else {
-            switchPlayerMode(PlayerMode.LOCAL)
-            localPlayer.restoreLastQueue(listOf(item), 0)
+            pendingRestoreQueue = Pair(items, startIndex)
         }
+    }
+
+    private fun applyRestoreQueue(items: List<AudioItem>, startIndex: Int) {
+        registerItems(items)
+        val mediaItems = items.map { buildMediaItem(it) }
+        val safeIndex = startIndex.coerceIn(items.indices)
+        mediaController?.setMediaItems(mediaItems, safeIndex, 0)
+        mediaController?.prepare()
+        _currentAudio.value = items[safeIndex]
+        refreshQueue()
+        fetchLyrics()
+    }
+
+    fun playList(items: List<AudioItem>, startIndex: Int = 0) {
+        if (items.isEmpty()) return
+
+        if (currentPlaylist == items && _currentAudio.value?.id == items[startIndex].id) {
+            resume()
+            return
+        }
+
+        registerItems(items)
+        val mediaItems = items.map { buildMediaItem(it) }
+        val safeIndex = startIndex.coerceIn(items.indices)
+        mediaController?.setMediaItems(mediaItems, safeIndex, 0)
+        mediaController?.prepare()
+        mediaController?.play()
+
+        _currentAudio.value = items[safeIndex]
+        refreshQueue()
+        fetchLyrics()
     }
 
     fun addToQueue(items: List<AudioItem>) {
-        unifiedQueue.addAll(items)
-        updateQueues()
-        
-        // If nothing is playing, start playing the first added item
-        if (activePlayerMode == PlayerMode.NONE || currentIndex == -1) {
-            currentIndex = 0
-            playCurrentIndex()
-        }
+        val controller = mediaController ?: return
+        registerItems(items)
+        controller.addMediaItems(items.map { buildMediaItem(it) })
+        refreshQueue()
     }
 
     fun playNext(items: List<AudioItem>) {
-        if (currentIndex == -1) {
-            addToQueue(items)
-            return
-        }
-        unifiedQueue.addAll(currentIndex + 1, items)
-        updateQueues()
-    }
-
-    private fun playCurrentIndex() {
-        if (currentIndex !in unifiedQueue.indices) return
-        updateQueues()
-        val item = unifiedQueue[currentIndex]
-        val isOnline = item.uri.scheme == "zune" && item.uri.host == "online"
-        if (isOnline) {
-            switchPlayerMode(PlayerMode.ONLINE)
-            onlinePlayer.play(item)
-        } else {
-            switchPlayerMode(PlayerMode.LOCAL)
-            localPlayer.play(item)
-        }
+        val controller = mediaController ?: return
+        registerItems(items)
+        val insertAt = (controller.currentMediaItemIndex + 1).coerceAtMost(controller.mediaItemCount)
+        controller.addMediaItems(insertAt, items.map { buildMediaItem(it) })
+        refreshQueue()
     }
 
     fun toggleShuffle() {
-        // Implement shuffle logic on unifiedQueue later
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.toggleShuffle()
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.toggleShuffle()
-        }
+        val controller = mediaController ?: return
+        val next = !controller.shuffleModeEnabled
+        controller.shuffleModeEnabled = next
+        _shuffleEnabled.value = next
     }
 
     fun toggleRepeat() {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.toggleRepeat()
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.toggleRepeat()
+        val controller = mediaController ?: return
+        val next = when (controller.repeatMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+            else -> Player.REPEAT_MODE_OFF
         }
+        controller.repeatMode = next
+        _repeatMode.value = next
     }
 
+    /** Jump to a specific index in the queue. */
     fun playFromQueue(index: Int) {
-        if (index in unifiedQueue.indices) {
-            currentIndex = index
-            playCurrentIndex()
-        }
+        mediaController?.seekTo(index, 0)
+        mediaController?.play()
     }
 
+    /** Move queue item from [from] to [to]. */
     fun reorderQueue(from: Int, to: Int) {
-        if (from !in unifiedQueue.indices || to !in unifiedQueue.indices) return
-        val item = unifiedQueue.removeAt(from)
-        unifiedQueue.add(to, item)
-        
-        if (currentIndex == from) {
-            currentIndex = to
-        } else if (currentIndex in (from + 1)..to) {
-            currentIndex--
-        } else if (currentIndex in to until from) {
-            currentIndex++
-        }
-
-        updateQueues()
-
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.reorderQueue(from, to)
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.reorderQueue(from, to)
+        val controller = mediaController ?: return
+        controller.moveMediaItem(from, to)
+        val updated = _queue.value.toMutableList()
+        if (from in updated.indices && to in updated.indices) {
+            val item = updated.removeAt(from)
+            updated.add(to, item)
+            _queue.value = updated
+            currentPlaylist = updated
         }
     }
 
+    /** Remove an item from the queue by its index. */
     fun removeFromQueue(index: Int) {
-        if (index !in unifiedQueue.indices) return
-        unifiedQueue.removeAt(index)
-        
-        if (currentIndex == index) {
-            // Keep currentIndex, but play the new item at this index
-            if (unifiedQueue.isEmpty()) {
-                currentIndex = -1
-                pause()
-            } else {
-                if (currentIndex >= unifiedQueue.size) {
-                    currentIndex = 0
-                }
-                playCurrentIndex()
-            }
-        } else if (currentIndex > index) {
-            currentIndex--
-        }
-
-        updateQueues()
-
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.removeFromQueue(index)
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.removeFromQueue(index)
+        val controller = mediaController ?: return
+        controller.removeMediaItem(index)
+        val updated = _queue.value.toMutableList()
+        if (index in updated.indices) {
+            updated.removeAt(index)
+            _queue.value = updated
+            currentPlaylist = updated
         }
     }
 
-    fun resume() {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.resume()
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.resume()
-        }
-    }
-
-    fun pause() {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.pause()
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.pause()
-        }
-    }
+    fun resume() { mediaController?.play() }
+    fun pause() { mediaController?.pause() }
 
     fun togglePlayPause() {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.togglePlayPause()
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.togglePlayPause()
-        }
+        if (mediaController?.isPlaying == true) pause() else resume()
     }
+
+    fun seekTo(position: Long) { mediaController?.seekTo(position) }
 
     fun setUserScrubbing(scrubbing: Boolean) {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.setUserScrubbing(scrubbing)
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.setUserScrubbing(scrubbing)
-        }
-    }
-
-    fun seekTo(position: Long) {
-        if (activePlayerMode == PlayerMode.LOCAL) {
-            localPlayer.seekTo(position)
-        } else if (activePlayerMode == PlayerMode.ONLINE) {
-            onlinePlayer.seekTo(position)
-        }
+        isUserScrubbing = scrubbing
     }
 
     fun skipToNext() {
-        if (unifiedQueue.isEmpty()) return
-        
-        // Handle repeat mode
-        if (_repeatMode.value == Player.REPEAT_MODE_ONE) {
-            playCurrentIndex()
-            return
-        }
-
-        currentIndex++
-        if (currentIndex >= unifiedQueue.size) {
-            if (_repeatMode.value == Player.REPEAT_MODE_ALL) {
-                currentIndex = 0
-            } else {
-                currentIndex = unifiedQueue.size - 1 // Clamp to end
-                pause() // Stop playback
-                return
-            }
-        }
-        playCurrentIndex()
+        if (mediaController?.hasNextMediaItem() == true) mediaController?.seekToNextMediaItem()
     }
 
     fun skipToPrevious() {
-        if (unifiedQueue.isEmpty()) return
-        
-        // If we've played for more than 3 seconds, just restart the track
-        if (_currentPosition.value > 3000) {
-            seekTo(0)
-            return
+        if (mediaController?.hasPreviousMediaItem() == true) {
+            mediaController?.seekToPreviousMediaItem()
+        } else {
+            mediaController?.seekTo(0)
         }
-        
-        currentIndex--
-        if (currentIndex < 0) {
-            currentIndex = 0
-        }
-        playCurrentIndex()
     }
 
     fun release() {
+        positionPollJob?.cancel()
+        lyricsJob?.cancel()
         playerScope.cancel()
-        localPlayer.release()
-        onlinePlayer.release()
+        mediaController?.release()
     }
 
-    private fun updateQueues() {
-        _queue.value = unifiedQueue.toList()
-        _upcomingQueue.value = if (currentIndex in unifiedQueue.indices) {
-            unifiedQueue.drop(currentIndex + 1)
+    private fun buildMediaItem(item: AudioItem): MediaItem {
+        val isOnline = item.uri.scheme == "zune" && item.uri.host == "online"
+        
+        val metadata = MediaMetadata.Builder()
+            .setTitle(item.title)
+            .setArtist(item.artist)
+            .setAlbumTitle(item.album)
+            .setArtworkUri(item.albumArtUri)
+            .setDescription(if (isOnline) com.maxrave.common.MERGING_DATA_TYPE.SONG else null)
+            .build()
+
+        val builder = MediaItem.Builder()
+            .setMediaMetadata(metadata)
+
+        if (isOnline) {
+            val videoId = item.uri.toString().substringAfter("zune://online/")
+            builder.setMediaId(videoId)
+            builder.setUri(videoId)
+            builder.setCustomCacheKey(videoId)
         } else {
-            emptyList()
+            builder.setMediaId(item.uri.toString())
+            builder.setUri(item.uri)
         }
+
+        return builder.build()
     }
 }

@@ -1,5 +1,9 @@
 package com.zune.player.ui.screens
 
+import androidx.compose.ui.graphics.RectangleShape
+import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.text.style.TextOverflow
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
@@ -56,6 +60,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.R
 import androidx.media3.common.Player
 import com.zune.player.data.AudioItem
@@ -103,6 +109,47 @@ fun HomeScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
     var selectedBg by remember { mutableStateOf(prefs.getInt("bg_selection", 0)) }
+    var showFeaturedSection by remember { mutableStateOf(prefs.getBoolean("show_featured_section", true)) }
+
+    DisposableEffect(prefs) {
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "show_featured_section") {
+                showFeaturedSection = prefs.getBoolean("show_featured_section", true)
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!AppsCache.isInitialized) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val pm = context.packageManager
+                    val mainIntent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
+                        addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+                    }
+                    val resolveInfos = pm.queryIntentActivities(mainIntent, 0)
+                    val apps = resolveInfos.mapNotNull { ri ->
+                        val pkgName = ri.activityInfo.packageName
+                        if (pkgName == context.packageName) return@mapNotNull null
+                        val appLabel = ri.loadLabel(pm).toString()
+                        val appId = (pkgName.hashCode().toLong() and 0x0FFFFFFFFFFFFFFFL) or 0x3000000000000000L
+                        AppItem(pkgName, appLabel, appId)
+                    }.sortedBy { it.appName.lowercase() }
+                    
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        AppsCache.cachedApps = apps
+                        AppsCache.isInitialized = true
+                    }
+                } catch (e: Exception) {
+                    // ignore
+                }
+            }
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -455,21 +502,39 @@ fun HomeScreen(
 
 
                         // Featured sub-section
-                        Text(
-                            text = " Featured",
-                            style = ZuneTypography.h4.copy(
-                                fontSize = 50.sp,
-                                fontFamily = SegoeUiLightFontFamily,
-                                fontWeight = FontWeight.Light
-                            ),
-                            color = Color.White,
-                            modifier = Modifier.padding(start = 24.dp, end = 0.dp, top = 8.dp, bottom = 0.dp)
-                        )
-                        FeaturedSectionView(
-                            audioItems = audioItems,
-                            onPlayAlbum = onPlayAlbum,
-                            isAeroTheme = isAeroTheme
-                        )
+                        if (showFeaturedSection) {
+                            val featuredTitleStyle = if (isAeroTheme) {
+                                ZuneTypography.h2.copy(
+                                    fontSize = 48.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    letterSpacing = 0.sp,
+                                    brush = AeroBlueOrbGradient
+                                )
+                            } else {
+                                ZuneTypography.h4.copy(
+                                    fontSize = 50.sp,
+                                    fontFamily = SegoeUiLightFontFamily,
+                                    fontWeight = FontWeight.Light
+                                )
+                            }
+                            val featuredTitleColor = if (isAeroTheme) Color.Unspecified else Color.White
+                            val featuredTitlePadding = if (isAeroTheme) {
+                                Modifier.padding(start = 24.dp, bottom = 16.dp, top = 24.dp)
+                            } else {
+                                Modifier.padding(start = 24.dp, end = 0.dp, top = 8.dp, bottom = 0.dp)
+                            }
+                            Text(
+                                text = if (isAeroTheme) "Featured" else "Featured",
+                                style = featuredTitleStyle,
+                                color = featuredTitleColor,
+                                modifier = featuredTitlePadding
+                            )
+                            FeaturedSectionView(
+                                audioItems = audioItems,
+                                onPlayAlbum = onPlayAlbum,
+                                isAeroTheme = isAeroTheme
+                            )
+                        }
                     }
                 }
                 1 -> Column(modifier = Modifier.fillMaxSize()) {
@@ -716,11 +781,14 @@ fun MusicPage(
 
     val categories = remember(isLauncher) {
         if (isLauncher) {
-            listOf("music", "videos", "pictures", "podcasts", "apps", "search", "settings")
+            listOf("music", "videos", "pictures", "podcasts", "apps", "settings")
         } else {
-            listOf("music", "videos", "pictures", "podcasts", "search", "settings")
+            listOf("music", "videos", "pictures", "podcasts", "settings")
         }
     }
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -740,6 +808,32 @@ fun MusicPage(
                 } else {
                     if (isBlackBackground) accentColor.lightenForText() else Color.White.copy(alpha = 0.6f)
                 }
+                
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    val isForward = com.zune.player.LocalIsForwardTransition.current
+                    with(sharedTransitionScope) {
+                        val isTransitionRunning = animatedVisibilityScope.transition.currentState != animatedVisibilityScope.transition.targetState
+                        if (isTransitionRunning && isForward) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = "header_${category.lowercase()}"),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                boundsTransform = { _, _ ->
+                                    androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                        stiffness = 150f
+                                    )
+                                },
+                                renderInOverlayDuringTransition = false
+                            ).skipToLookaheadSize()
+                        } else {
+                            Modifier
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+
                 Text(
                     text = category,
                     style = ZuneTypography.h2.copy(
@@ -749,9 +843,9 @@ fun MusicPage(
                         textAlign = androidx.compose.ui.text.style.TextAlign.Start
                     ),
                     color = textColor,
-                    modifier = Modifier
+                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItem()
+                        .then(sharedModifier)
                         .metroClickable {
                             onNavigateToCategory(category)
                         }
@@ -855,11 +949,58 @@ fun FeaturedAlbumsPage(
 @Composable
 fun PersonalizePage(
     getScrollPosition: (String) -> Pair<Int, Int> = { Pair(0, 0) },
-    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> }
+    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> },
+    onShowFeaturedChanged: (Boolean) -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
     var selectedBg by remember { mutableStateOf(prefs.getInt("bg_selection", 0)) }
+    var customBgUriStr by remember { mutableStateOf(prefs.getString("bg_custom_uri", null)) }
+    var showFeaturedSection by remember { mutableStateOf(prefs.getBoolean("show_featured_section", true)) }
+
+    DisposableEffect(prefs) {
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "show_featured_section") {
+                showFeaturedSection = prefs.getBoolean("show_featured_section", true)
+            } else if (key == "bg_selection") {
+                selectedBg = prefs.getInt("bg_selection", 0)
+            } else if (key == "bg_custom_uri") {
+                customBgUriStr = prefs.getString("bg_custom_uri", null)
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!AppsCache.isInitialized) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val pm = context.packageManager
+                    val mainIntent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
+                        addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+                    }
+                    val resolveInfos = pm.queryIntentActivities(mainIntent, 0)
+                    val apps = resolveInfos.mapNotNull { ri ->
+                        val pkgName = ri.activityInfo.packageName
+                        if (pkgName == context.packageName) return@mapNotNull null
+                        val appLabel = ri.loadLabel(pm).toString()
+                        val appId = (pkgName.hashCode().toLong() and 0x0FFFFFFFFFFFFFFFL) or 0x3000000000000000L
+                        AppItem(pkgName, appLabel, appId)
+                    }.sortedBy { it.appName.lowercase() }
+                    
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        AppsCache.cachedApps = apps
+                        AppsCache.isInitialized = true
+                    }
+                } catch (e: Exception) {
+                    // ignore
+                }
+            }
+        }
+    }
 
     val options = listOf(
         0 to "pure black",
@@ -1072,7 +1213,6 @@ fun PersonalizePage(
                         )
                 ) {
                     if (drawableRes == -1) {
-                        val customBgUriStr = remember(selectedBg) { prefs.getString("bg_custom_uri", null) }
                         if (!customBgUriStr.isNullOrEmpty()) {
                             AsyncImage(
                                 model = android.net.Uri.parse(customBgUriStr),
@@ -1110,6 +1250,81 @@ fun PersonalizePage(
                 )
             }
         }
+
+        // Section: Toggles
+        item(span = { GridItemSpan(2) }) {
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 12.dp)) {
+                Text(
+                    text = "FEATURED SECTION",
+                    style = ZuneTypography.h4.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                    color = ZuneTextSecondary,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Text(
+                        text = "show",
+                        color = if (showFeaturedSection) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (showFeaturedSection) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("show_featured_section", true).apply()
+                            onShowFeaturedChanged(true)
+                        }
+                    )
+                    Text(
+                        text = "hide",
+                        color = if (!showFeaturedSection) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (!showFeaturedSection) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("show_featured_section", false).apply()
+                            onShowFeaturedChanged(false)
+                        }
+                    )
+                }
+            }
+        }
+
+        item(span = { GridItemSpan(2) }) {
+            var hapticEnabled by remember { mutableStateOf(prefs.getBoolean("haptic_feedback_enabled", true)) }
+            
+            DisposableEffect(prefs) {
+                val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key == "haptic_feedback_enabled") {
+                        hapticEnabled = prefs.getBoolean("haptic_feedback_enabled", true)
+                    }
+                }
+                prefs.registerOnSharedPreferenceChangeListener(listener)
+                onDispose {
+                    prefs.unregisterOnSharedPreferenceChangeListener(listener)
+                }
+            }
+            
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp)) {
+                Text(
+                    text = "HAPTIC FEEDBACK (VIBRATION)",
+                    style = ZuneTypography.h4.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                    color = ZuneTextSecondary,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Text(
+                        text = "on",
+                        color = if (hapticEnabled) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (hapticEnabled) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("haptic_feedback_enabled", true).apply()
+                        }
+                    )
+                    Text(
+                        text = "off",
+                        color = if (!hapticEnabled) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (!hapticEnabled) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("haptic_feedback_enabled", false).apply()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -1125,1595 +1340,4 @@ fun PlaceholderPage(title: String) {
             modifier = Modifier.padding(start = 24.dp, top = 24.dp)
         )
     }
-}
-
-private fun Color.lightenForText(): Color {
-    val hsl = FloatArray(3)
-    androidx.core.graphics.ColorUtils.colorToHSL(this.toArgb(), hsl)
-    hsl[2] = hsl[2].coerceAtLeast(0.6f)
-    return Color(androidx.core.graphics.ColorUtils.HSLToColor(hsl))
-}
-
-@Composable
-fun rememberVideoTileThumbnail(context: android.content.Context, videoUri: android.net.Uri?): android.graphics.Bitmap? {
-    var bitmap by remember(videoUri) { mutableStateOf<android.graphics.Bitmap?>(null) }
-    LaunchedEffect(videoUri) {
-        if (videoUri != null) {
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                try {
-                    val bmp = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                        context.contentResolver.loadThumbnail(videoUri, android.util.Size(512, 512), null)
-                    } else {
-                        var retriever: android.media.MediaMetadataRetriever? = null
-                        try {
-                            retriever = android.media.MediaMetadataRetriever()
-                            retriever.setDataSource(context, videoUri)
-                            retriever.getFrameAtTime(1000000, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-                        } finally {
-                            retriever?.release()
-                        }
-                    }
-                    if (bmp != null) {
-                        bitmap = bmp
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
-    return bitmap
-}
-
-@Composable
-fun TileEqualizer(color: Color, modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "EqAnim")
-
-    val h1 by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(450, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "EqBar1"
-    )
-    val h2 by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(350, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "EqBar2"
-    )
-    val h3 by infiniteTransition.animateFloat(
-        initialValue = 0.1f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "EqBar3"
-    )
-    val h4 by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0.95f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(400, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "EqBar4"
-    )
-
-    Row(
-        modifier = modifier.height(24.dp).width(36.dp),
-        horizontalArrangement = Arrangement.spacedBy(3.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        val heights = listOf(h1, h2, h3, h4)
-        heights.forEach { heightVal ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(heightVal)
-                    .background(color)
-            )
-        }
-    }
-}
-
-@Composable
-fun PinnedTileView(
-    tileItem: PinnedTileItem,
-    size: Int,
-    isPlaying: Boolean,
-    isEditMode: Boolean,
-    isHovered: Boolean,
-    isDragged: Boolean,
-    dragOffset: Offset,
-    isAeroTheme: Boolean,
-    onPlay: (PinnedTileItem) -> Unit,
-    onUnpin: (Long) -> Unit,
-    onCycleSize: (Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val videoThumbnail = if (tileItem.type == "video") rememberVideoTileThumbnail(context, tileItem.imageUri as? android.net.Uri) else null
-
-    // Determine photo/gallery app exception
-    val isPhotoOrGalleryApp = remember(tileItem) {
-        tileItem.type == "app" && (tileItem.title.lowercase().contains("photo") || tileItem.title.lowercase().contains("gallery"))
-    }
-    val shouldLoadPhotos = tileItem.type == "photo" || isPhotoOrGalleryApp
-
-    // Photo cycling slideshow
-    val localPhotos = remember { mutableStateListOf<PhotoItem>() }
-    LaunchedEffect(shouldLoadPhotos) {
-        if (shouldLoadPhotos) {
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                val list = queryLocalPhotos(context)
-                if (list.isNotEmpty()) {
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        localPhotos.clear()
-                        localPhotos.addAll(list)
-                    }
-                }
-            }
-        }
-    }
-
-    // Notification Reader for app status using ZuneNotificationListenerService
-    val activeNotifications by com.zune.player.service.ZuneNotificationListenerService.activeNotifications.collectAsState()
-    val matchingNotifs = remember(activeNotifications, tileItem.title) {
-        val titleLabel = tileItem.title.lowercase().trim()
-        activeNotifications.filter { sbn ->
-            val pkg = sbn.packageName.lowercase()
-            val appLabel = try {
-                val pm = context.packageManager
-                pm.getApplicationLabel(pm.getApplicationInfo(sbn.packageName, 0)).toString().lowercase()
-            } catch (e: Exception) {
-                ""
-            }
-            
-            // Check direct match
-            val isDirectMatch = pkg.contains(titleLabel) || appLabel.contains(titleLabel)
-            
-            // Check generic alias maps for native Metro/Zune apps to standard Android apps
-            isDirectMatch || when (titleLabel) {
-                "phone", "dialer", "call", "calls" -> {
-                    pkg.contains("dialer") || pkg.contains("phone") || pkg.contains("telecom") || pkg.contains("telephony") ||
-                    appLabel.contains("phone") || appLabel.contains("dialer") || appLabel.contains("call")
-                }
-                "people", "contacts" -> {
-                    pkg.contains("contacts") || pkg.contains("people") ||
-                    appLabel.contains("contacts") || appLabel.contains("people")
-                }
-                "messaging", "messages", "sms", "text" -> {
-                    pkg.contains("messaging") || pkg.contains("message") || pkg.contains("mms") || pkg.contains("sms") ||
-                    appLabel.contains("message") || appLabel.contains("messaging") || appLabel.contains("sms") || appLabel.contains("chat")
-                }
-                "email", "mail", "gmail", "outlook" -> {
-                    pkg.contains("mail") || pkg.contains("gm") || pkg.contains("outlook") ||
-                    appLabel.contains("mail") || appLabel.contains("gmail") || appLabel.contains("outlook")
-                }
-                "internet", "browser", "chrome", "explorer" -> {
-                    pkg.contains("browser") || pkg.contains("chrome") || pkg.contains("webview") || pkg.contains("firefox") ||
-                    appLabel.contains("browser") || appLabel.contains("chrome") || appLabel.contains("internet")
-                }
-                "music", "zune", "player" -> {
-                    pkg.contains("music") || pkg.contains("player") || pkg.contains("zune") ||
-                    appLabel.contains("music") || appLabel.contains("player") || appLabel.contains("zune")
-                }
-                "photos", "gallery", "camera" -> {
-                    pkg.contains("photo") || pkg.contains("gallery") || pkg.contains("camera") || pkg.contains("media") ||
-                    appLabel.contains("photo") || appLabel.contains("gallery") || appLabel.contains("camera")
-                }
-                else -> false
-            }
-        }
-    }
-
-    var currentNotifIndex by remember { mutableIntStateOf(0) }
-    var activeNotificationsText by remember { mutableStateOf("") }
-    
-    // Periodic update fallback to ensure listener service list is updated
-    LaunchedEffect(Unit) {
-        while (true) {
-            try {
-                com.zune.player.service.ZuneNotificationListenerService.updateNotifications()
-            } catch (e: Exception) {
-                // ignore
-            }
-            delay(5000)
-        }
-    }
-
-    LaunchedEffect(matchingNotifs, currentNotifIndex, tileItem.title) {
-        if (matchingNotifs.isNotEmpty()) {
-            val matchingNotif = matchingNotifs.getOrNull(currentNotifIndex % matchingNotifs.size) ?: matchingNotifs.first()
-            val notif = matchingNotif.notification
-            val extras = notif?.extras
-            val appLabel = try {
-                val pm = context.packageManager
-                pm.getApplicationLabel(pm.getApplicationInfo(matchingNotif.packageName, 0)).toString()
-            } catch (e: Exception) {
-                matchingNotif.packageName
-            }
-            
-            // Extract title and text
-            val titleStr = extras?.get("android.title")?.toString() ?: extras?.get("android.title.big")?.toString()
-            var textStr = extras?.get("android.text")?.toString()
-            if (textStr.isNullOrEmpty()) {
-                textStr = extras?.get("android.bigText")?.toString()
-            }
-            if (textStr.isNullOrEmpty()) {
-                val lines = extras?.getCharSequenceArray("android.textLines")
-                if (lines != null && lines.isNotEmpty()) {
-                    textStr = lines.lastOrNull()?.toString()
-                }
-            }
-            if (textStr.isNullOrEmpty()) {
-                textStr = notif?.tickerText?.toString()
-            }
-            
-            val detailsText = when {
-                !titleStr.isNullOrEmpty() && !textStr.isNullOrEmpty() -> "$titleStr: $textStr"
-                !titleStr.isNullOrEmpty() -> titleStr
-                !textStr.isNullOrEmpty() -> textStr
-                else -> ""
-            }
-            
-            activeNotificationsText = if (detailsText.isNotEmpty()) {
-                detailsText
-            } else {
-                appLabel
-            }
-        } else {
-            activeNotificationsText = "no notifications"
-        }
-    }
-
-    // Check if live tile updates are allowed
-    val isLiveAllowed = remember(tileItem, activeNotificationsText) {
-        if (tileItem.type != "app") {
-            true
-        } else {
-            val label = tileItem.title.lowercase()
-            val isException = label.contains("photo") || label.contains("gallery")
-            // Calendar and Clock are statically rendered on front face, so they don't slide/flip
-            val isCalOrClock = label.contains("calendar") || label.contains("clock") || label.contains("time")
-            !isCalOrClock && (isException || (activeNotificationsText.isNotEmpty() && activeNotificationsText != "no notifications"))
-        }
-    }
-
-    var tileState by remember { mutableIntStateOf(0) }
-
-    if (size > 1 || tileItem.type == "app") {
-        LaunchedEffect(tileItem.id, isLiveAllowed) {
-            if (!isLiveAllowed) {
-                tileState = 0
-                return@LaunchedEffect
-            }
-            delay(kotlin.random.Random.nextLong(500, 3000))
-            while (true) {
-                delay(kotlin.random.Random.nextLong(4000, 10000))
-                tileState = if (tileState == 0) {
-                    if (kotlin.random.Random.nextBoolean()) 1 else 2
-                } else {
-                    0
-                }
-            }
-        }
-    }
-
-    var currentPhotoIndex by remember { mutableIntStateOf(0) }
-    LaunchedEffect(tileState) {
-        if (tileState == 0 && localPhotos.isNotEmpty()) {
-            currentPhotoIndex = (currentPhotoIndex + 1) % localPhotos.size
-        }
-    }
-
-    LaunchedEffect(tileState) {
-        if (tileState == 0 && matchingNotifs.isNotEmpty()) {
-            currentNotifIndex = (currentNotifIndex + 1) % matchingNotifs.size
-        }
-    }
-
-    val activePhotoUri = if (shouldLoadPhotos && localPhotos.isNotEmpty()) {
-        localPhotos.getOrNull(currentPhotoIndex)?.uri
-    } else {
-        null
-    }
-
-    val backPhotoUri = if (shouldLoadPhotos && localPhotos.size > 1) {
-        localPhotos.getOrNull((currentPhotoIndex + 1) % localPhotos.size)?.uri
-    } else {
-        null
-    }
-
-    val imageModel = if (tileItem.type == "video") videoThumbnail else (activePhotoUri ?: tileItem.imageUri)
-
-    // Dynamic Live Tile transitions based on tile ID
-    val transitionStyle = remember(tileItem.id) {
-        (tileItem.id % 3).toInt() // 0 = 3D Flip, 1 = Vertical Slide, 2 = Horizontal Slide
-    }
-
-    val flipAngle by animateFloatAsState(
-        targetValue = if (tileState != 0) 180f else 0f,
-        animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-        label = "TileFlipAngle"
-    )
-
-    val slidePercent by animateFloatAsState(
-        targetValue = when (tileState) {
-            1 -> if (tileItem.type == "song") 0.5f else 1f
-            2 -> 1f
-            else -> 0f
-        },
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-        label = "TileSlidePercent"
-    )
-
-    val isFlipped = transitionStyle == 0 && flipAngle > 90f
-
-    // Dynamic text info for Calendar and Clock exceptions
-    val calendarText = remember {
-        val sdf = java.text.SimpleDateFormat("EEEE, MMMM dd", java.util.Locale.US)
-        sdf.format(java.util.Date())
-    }
-
-    var currentTimeText by remember { mutableStateOf("") }
-    LaunchedEffect(tileItem.id) {
-        val label = tileItem.title.lowercase()
-        if (label.contains("clock") || label.contains("time")) {
-            while (true) {
-                val sdf = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US)
-                currentTimeText = sdf.format(java.util.Date())
-                delay(10000)
-            }
-        }
-    }
-
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomStart
-    ) {
-        val isCalendar = remember(tileItem) { tileItem.title.lowercase().contains("calendar") }
-        val isClock = remember(tileItem) { tileItem.title.lowercase().contains("clock") || tileItem.title.lowercase().contains("time") }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .then(
-                    if (isAeroTheme) {
-                        val tileShape = RoundedCornerShape(6.dp)
-                        val innerShape = RoundedCornerShape(5.dp)
-                        if (isPlaying) {
-                            Modifier
-                                .border(width = 1.dp, color = LocalZuneAccent.current.copy(alpha = 0.5f), shape = tileShape)
-                                .padding(1.dp)
-                                .border(width = 1.5.dp, brush = Brush.verticalGradient(listOf(Color.White, LocalZuneAccent.current)), shape = innerShape)
-                                .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.18f), LocalZuneAccent.current.copy(alpha = 0.08f))), shape = innerShape)
-                                .clip(innerShape)
-                        } else {
-                            Modifier
-                                .border(width = 1.dp, color = Color.Black.copy(alpha = 0.35f), shape = tileShape)
-                                .padding(1.dp)
-                                .border(width = 1.dp, brush = Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.08f))), shape = innerShape)
-                                .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.14f), Color.White.copy(alpha = 0.04f))), shape = innerShape)
-                                .clip(innerShape)
-                        }
-                    } else {
-                        Modifier
-                            .then(if (isPlaying) Modifier.border(3.dp, LocalZuneAccent.current) else Modifier)
-                            .background(LocalZuneAccent.current)
-                    }
-                )
-                .graphicsLayer {
-                    if (transitionStyle == 0) {
-                        rotationY = flipAngle
-                        cameraDistance = 12f * density
-                    }
-                }
-        ) {
-            if (isFlipped) {
-                // BACK FACE (Flip details)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer { rotationY = 180f }
-                ) {
-                    if (shouldLoadPhotos && backPhotoUri != null) {
-                        AsyncImage(
-                            model = backPhotoUri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val backText = remember(tileItem, activeNotificationsText) {
-                                when (tileItem.type) {
-                                    "app" -> activeNotificationsText.lowercase()
-                                    "song" -> "artist: ${tileItem.subtitle.lowercase()}"
-                                    "photo" -> "view gallery"
-                                    "video" -> "play clip"
-                                    else -> "pin status"
-                                }
-                            }
-                            val adjustedBackFontSize = remember(backText, size) {
-                                val length = backText.length
-                                val base = if (size == 4) 18 else 13
-                                val adjusted = when {
-                                    length > 40 -> base - 3
-                                    length > 20 -> base - 1
-                                    else -> base
-                                }
-                                adjusted.coerceAtLeast(10).sp
-                            }
-                            Text(
-                                text = backText,
-                                style = ZuneTypography.h2.copy(fontSize = adjustedBackFontSize),
-                                color = Color.White,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
-                    }
-                }
-            } else {
-                // FRONT FACE
-                if (isCalendar) {
-                    val dayOfWeekAbbr = remember {
-                        val sdf = java.text.SimpleDateFormat("EEE", java.util.Locale.US)
-                        sdf.format(java.util.Date()).lowercase()
-                    }
-                    val dayOfMonth = remember {
-                        val sdf = java.text.SimpleDateFormat("dd", java.util.Locale.US)
-                        sdf.format(java.util.Date())
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp)
-                    ) {
-                        // Top-left: Event info
-                        Column(modifier = Modifier.align(Alignment.TopStart)) {
-                            Text(
-                                text = "no upcoming events",
-                                style = ZuneTypography.h2.copy(
-                                    fontSize = if (size == 4) 14.sp else 12.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = SegoeUiFontFamily
-                                ),
-                                color = Color.White
-                            )
-                        }
-
-                        // Bottom-right: Day and Date
-                        Row(
-                            modifier = Modifier.align(Alignment.BottomEnd),
-                            verticalAlignment = Alignment.Bottom,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Text(
-                                text = dayOfWeekAbbr,
-                                style = ZuneTypography.h2.copy(
-                                    fontSize = if (size == 4) 18.sp else 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = SegoeUiFontFamily
-                                ),
-                                color = Color.White,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
-                            Text(
-                                text = dayOfMonth,
-                                style = ZuneTypography.h1.copy(
-                                    fontSize = if (size == 4) 54.sp else 42.sp,
-                                    fontWeight = FontWeight.Normal,
-                                    fontFamily = SegoeUiLightFontFamily
-                                ),
-                                color = Color.White
-                            )
-                        }
-                    }
-                } else if (isClock) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.BottomEnd
-                    ) {
-                        Text(
-                            text = currentTimeText.lowercase(),
-                            style = ZuneTypography.h1.copy(
-                                fontSize = if (size == 4) 32.sp else 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = SegoeUiLightFontFamily
-                            ),
-                            color = Color.White
-                        )
-                    }
-                } else {
-                    // Under slide details shown under slides
-                    if (size > 1 && transitionStyle != 0) {
-                        if (shouldLoadPhotos && backPhotoUri != null) {
-                            AsyncImage(
-                                model = backPhotoUri,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                contentAlignment = Alignment.TopStart
-                            ) {
-                                val displayText = remember(tileItem, activeNotificationsText) {
-                                    if (tileItem.type == "app" && activeNotificationsText.isNotEmpty() && activeNotificationsText != "no notifications") {
-                                        activeNotificationsText
-                                    } else {
-                                        tileItem.title
-                                    }
-                                }
-                                val adjustedSlideFontSize = remember(displayText, size) {
-                                    val length = displayText.length
-                                    val base = if (size == 4) 22 else 18
-                                    val adjusted = when {
-                                        length > 40 -> base - 6
-                                        length > 20 -> base - 3
-                                        else -> base
-                                    }
-                                    adjusted.coerceAtLeast(11).sp
-                                }
-                                Text(
-                                    text = displayText.lowercase(),
-                                    style = ZuneTypography.h2.copy(fontSize = adjustedSlideFontSize),
-                                    color = Color.White,
-                                    maxLines = 3,
-                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-
-                    // Front slide container
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer {
-                                if (transitionStyle == 1) {
-                                    translationY = this.size.height * slidePercent
-                                } else if (transitionStyle == 2) {
-                                    translationX = this.size.width * slidePercent
-                                }
-                            }
-                    ) {
-                        if (imageModel != null) {
-                            AsyncImage(
-                                model = imageModel,
-                                contentDescription = tileItem.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize(),
-                                alpha = if (isEditMode && !isHovered) 0.7f else 1f
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(if (isAeroTheme) LocalZuneAccent.current.copy(alpha = 0.6f) else LocalZuneAccent.current)
-                            )
-                        }
-
-                        // Notification count badge overlay on the front face of standard app tiles (excluding Calendar/Clock)
-                        if (tileItem.type == "app" && matchingNotifs.isNotEmpty() && !isCalendar && !isClock) {
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(8.dp)
-                            ) {
-                                Text(
-                                    text = matchingNotifs.size.toString(),
-                                    style = ZuneTypography.h1.copy(
-                                        fontSize = if (size == 4) 28.sp else 22.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = SegoeUiFontFamily
-                                    ),
-                                    color = Color.White
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Title overlay at the bottom
-                if ((tileItem.type == "app" || size > 1) && !isCalendar && !isClock) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 8.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = tileItem.title.lowercase(),
-                            style = ZuneTypography.h2.copy(
-                                fontSize = if (size == 4) 14.sp else 12.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
-                            ),
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-        }
-
-        // Edit control buttons overlay
-        if (isEditMode) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(32.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .border(1.5.dp, Color.White, CircleShape)
-                    .metroClickable { onUnpin(tileItem.id) },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Close, contentDescription = "Unpin", tint = Color.White, modifier = Modifier.size(18.dp))
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(4.dp)
-                    .size(32.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .border(1.5.dp, Color.White, CircleShape)
-                    .metroClickable { onCycleSize(tileItem.id) },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Resize", tint = Color.White, modifier = Modifier.size(18.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun PinnedPage(
-    pinnedItems: List<Pair<PinnedTileItem, Int>>,
-    currentPlayingId: Long?,
-    onPlay: (PinnedTileItem) -> Unit,
-    onUnpin: (Long) -> Unit,
-    onCycleSize: (Long) -> Unit,
-    onMove: (Int, Int) -> Unit,
-    isAeroTheme: Boolean,
-    getScrollPosition: (String) -> Pair<Int, Int> = { Pair(0, 0) },
-    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> },
-    isNested: Boolean = false
-) {
-    var isEditMode by remember { mutableStateOf(false) }
-    var draggedId by remember { mutableStateOf<Long?>(null) }
-    var hoveredId by remember { mutableStateOf<Long?>(null) }
-    var dragOffset by remember { mutableStateOf(Offset.Zero) }
-    var pointerOffset by remember { mutableStateOf(Offset.Zero) }
-    val itemBounds = remember { mutableStateMapOf<Long, Rect>() }
-
-    val initialPos = remember { getScrollPosition("home_pinned") }
-    val scrollState = if (isNested) null else rememberScrollState(initial = initialPos.first)
-
-    if (!isNested && scrollState != null) {
-        DisposableEffect(scrollState) {
-            onDispose {
-                onScrollPositionChanged("home_pinned", scrollState.value, 0)
-            }
-        }
-    }
-
-    val columnModifier = if (isNested) {
-        Modifier.fillMaxWidth()
-    } else {
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState!!)
-    }
-
-    Column(
-        modifier = columnModifier
-            .pointerInput(isEditMode) {
-                if (isEditMode) {
-                    detectTapGestures { isEditMode = false }
-                }
-            }
-    ) {
-        if (!isNested) {
-            val pinsTitleStyle = if (isAeroTheme) {
-                ZuneTypography.h2.copy(
-                    fontSize = 48.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-                    letterSpacing = 0.sp,
-                    brush = AeroBlueOrbGradient
-                )
-            } else {
-                ZuneTypography.h2.copy(
-                    fontSize = 80.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-                    letterSpacing = 2.sp
-                )
-            }
-            val pinsTitleColor = if (isAeroTheme) Color.Unspecified else Color.White
-            val pinsTitlePadding = if (isAeroTheme) {
-                Modifier.padding(start = 24.dp, bottom = 16.dp, top = 24.dp)
-            } else {
-                Modifier.padding(start = 24.dp, bottom = 16.dp, top = 8.dp)
-            }
-
-            androidx.compose.material.Text(
-                text = if (isAeroTheme) "Pins" else "pins",
-                style = pinsTitleStyle,
-                color = pinsTitleColor,
-                modifier = pinsTitlePadding
-            )
-        }
-
-        if (pinnedItems.isEmpty()) {
-            PlaceholderPage("pinned items")
-        } else {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            ) {
-                val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-                val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-                val columns = if (isLandscape) 7 else 4
-                val horizontalSpacing = 8.dp
-                val verticalSpacing = 8.dp
-                val colWidth = (maxWidth - horizontalSpacing * (columns - 1)) / columns
-
-                val occupied = remember(pinnedItems, columns) {
-                    mutableSetOf<Pair<Int, Int>>()
-                }
-                val placements = remember(pinnedItems, columns) {
-                    val map = mutableMapOf<Long, Rect>()
-                    occupied.clear()
-                    for ((tileItem, size) in pinnedItems) {
-                        val w = if (size == 4) 4 else if (size == 2) 2 else 1
-                        val h = if (size == 4) 2 else if (size == 2) 2 else 1
-                        var found = false
-                        var searchY = 0
-                        while (!found) {
-                            for (searchX in 0..columns - w) {
-                                var collision = false
-                                for (dy in 0 until h) {
-                                    for (dx in 0 until w) {
-                                        if (occupied.contains(Pair(searchX + dx, searchY + dy))) {
-                                            collision = true
-                                            break
-                                        }
-                                    }
-                                    if (collision) break
-                                }
-                                if (!collision) {
-                                    for (dy in 0 until h) {
-                                        for (dx in 0 until w) {
-                                            occupied.add(Pair(searchX + dx, searchY + dy))
-                                        }
-                                    }
-                                    map[tileItem.id] = Rect(
-                                        left = searchX.toFloat(),
-                                        top = searchY.toFloat(),
-                                        right = (searchX + w).toFloat(),
-                                        bottom = (searchY + h).toFloat()
-                                    )
-                                    found = true
-                                    break
-                                }
-                            }
-                            if (!found) searchY++
-                        }
-                    }
-                    map
-                }
-
-                val maxY = if (occupied.isEmpty()) 0 else occupied.maxOf { it.second } + 1
-                val totalHeight = if (maxY > 0) (colWidth * maxY) + (verticalSpacing * (maxY - 1)) else 0.dp
-
-                Box(modifier = Modifier.fillMaxWidth().height(totalHeight + 0.dp).padding(top = 0.dp)) {
-                    pinnedItems.forEachIndexed { index, (tileItem, size) ->
-                        val rect = placements[tileItem.id] ?: return@forEachIndexed
-                        val xOffset = (colWidth * rect.left) + (horizontalSpacing * rect.left)
-                        val yOffset = (colWidth * rect.top) + (verticalSpacing * rect.top)
-                        val animatedXOffset by animateDpAsState(
-                            targetValue = xOffset,
-                            animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow),
-                            label = "TileXOffset"
-                        )
-                        val animatedYOffset by animateDpAsState(
-                            targetValue = yOffset,
-                            animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow),
-                            label = "TileYOffset"
-                        )
-                        val width = (colWidth * rect.width) + (horizontalSpacing * (rect.width - 1f))
-                        val height = (colWidth * rect.height) + (verticalSpacing * (rect.height - 1f))
-
-                        val id = tileItem.id
-                        val isDragged = draggedId == id
-                        val isHovered = hoveredId == id
-                        val isPlaying = currentPlayingId == id
-
-                        val targetScale = if (isDragged) 1.05f else if (isEditMode) {
-                            if (isHovered) 0.85f else 0.92f
-                        } else 1f
-                        val animatedScale by animateFloatAsState(
-                            targetValue = targetScale,
-                            animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMedium),
-                            label = "TileScale"
-                        )
-
-                        val targetAlpha = if (isDragged) 0.9f else if (isEditMode) {
-                            if (isHovered) 0.5f else 1f
-                        } else 1f
-                        val animatedAlpha by animateFloatAsState(
-                            targetValue = targetAlpha,
-                            animationSpec = tween(durationMillis = 200),
-                            label = "TileAlpha"
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .offset(x = animatedXOffset, y = animatedYOffset)
-                                .size(width = width, height = height)
-                                .onGloballyPositioned { coordinates ->
-                                    itemBounds[id] = coordinates.boundsInWindow()
-                                }
-                                .zIndex(if (isDragged) 1f else 0f)
-                                .graphicsLayer {
-                                    scaleX = animatedScale
-                                    scaleY = animatedScale
-                                    alpha = animatedAlpha
-                                    if (isDragged) {
-                                        translationX = dragOffset.x
-                                        translationY = dragOffset.y
-                                    }
-                                }
-                                .then(
-                                    if (isAeroTheme) {
-                                        val tileShape = RoundedCornerShape(6.dp)
-                                        val innerShape = RoundedCornerShape(5.dp)
-                                        if (isPlaying) {
-                                            Modifier
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = LocalZuneAccent.current.copy(alpha = 0.5f),
-                                                    shape = tileShape
-                                                )
-                                                .padding(1.dp)
-                                                .border(
-                                                    width = 1.5.dp,
-                                                    brush = Brush.verticalGradient(
-                                                        colors = listOf(
-                                                            Color.White,
-                                                            LocalZuneAccent.current
-                                                        )
-                                                    ),
-                                                    shape = innerShape
-                                                )
-                                                .background(
-                                                    brush = Brush.verticalGradient(
-                                                        colors = listOf(
-                                                            Color.White.copy(alpha = 0.18f),
-                                                            LocalZuneAccent.current.copy(alpha = 0.08f)
-                                                        )
-                                                    ),
-                                                    shape = innerShape
-                                                )
-                                                .clip(innerShape)
-                                        } else {
-                                            Modifier
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = Color.Black.copy(alpha = 0.35f),
-                                                    shape = tileShape
-                                                )
-                                                .padding(1.dp)
-                                                .border(
-                                                    width = 1.dp,
-                                                    brush = Brush.verticalGradient(
-                                                        colors = listOf(
-                                                            Color.White.copy(alpha = 0.55f),
-                                                            Color.White.copy(alpha = 0.08f)
-                                                        )
-                                                    ),
-                                                    shape = innerShape
-                                                )
-                                                .background(
-                                                    brush = Brush.verticalGradient(
-                                                        colors = listOf(
-                                                            Color.White.copy(alpha = 0.14f),
-                                                            Color.White.copy(alpha = 0.04f)
-                                                        )
-                                                    ),
-                                                    shape = innerShape
-                                                )
-                                                .clip(innerShape)
-                                        }
-                                    } else {
-                                        Modifier
-                                            .then(if (isPlaying) Modifier.border(3.dp, LocalZuneAccent.current) else Modifier)
-                                            .background(LocalZuneAccent.current)
-                                    }
-                                )
-                                .pointerInput(isEditMode, id) {
-                                    if (isEditMode) {
-                                        detectDragGestures(
-                                            onDragStart = { offset ->
-                                                draggedId = id
-                                                hoveredId = null
-                                                dragOffset = Offset.Zero
-                                                pointerOffset = offset
-                                            },
-                                            onDragEnd = {
-                                                if (hoveredId != null && draggedId != null && hoveredId != draggedId) {
-                                                    val sourceIndex = pinnedItems.indexOfFirst { it.first.id == draggedId }
-                                                    val targetIndex = pinnedItems.indexOfFirst { it.first.id == hoveredId }
-                                                    if (sourceIndex != -1 && targetIndex != -1) {
-                                                        onMove(sourceIndex, targetIndex)
-                                                    }
-                                                }
-                                                draggedId = null
-                                                hoveredId = null
-                                                dragOffset = Offset.Zero
-                                            },
-                                            onDragCancel = {
-                                                draggedId = null
-                                                hoveredId = null
-                                                dragOffset = Offset.Zero
-                                            },
-                                            onDrag = { change, dragAmount ->
-                                                change.consume()
-                                                dragOffset += dragAmount
-
-                                                val myBounds = itemBounds[id] ?: return@detectDragGestures
-                                                val absoluteFingerPos = myBounds.topLeft + pointerOffset + dragOffset
-
-                                                var newHovered: Long? = null
-                                                for ((targetId, bounds) in itemBounds) {
-                                                    if (targetId != id && bounds.contains(absoluteFingerPos)) {
-                                                        newHovered = targetId
-                                                        break
-                                                    }
-                                                }
-
-                                                if (newHovered == null) {
-                                                    var closestItem: Long? = null
-                                                    var minDistance = Float.MAX_VALUE
-
-                                                    for ((targetId, bounds) in itemBounds) {
-                                                        if (targetId == id) continue
-                                                        val cx = bounds.left + bounds.width / 2f
-                                                        val cy = bounds.top + bounds.height / 2f
-                                                        val dx = cx - absoluteFingerPos.x
-                                                        val dy = cy - absoluteFingerPos.y
-                                                        val dist = dx * dx + dy * dy
-                                                        if (dist < minDistance) {
-                                                            minDistance = dist
-                                                            closestItem = targetId
-                                                        }
-                                                    }
-                                                    newHovered = closestItem
-                                                }
-
-                                                hoveredId = newHovered
-                                            }
-                                        )
-                                    } else {
-                                        detectTapGestures(
-                                            onTap = { onPlay(tileItem) },
-                                            onLongPress = { isEditMode = true }
-                                        )
-                                    }
-                                }
-                        ) {
-                            PinnedTileView(
-                                tileItem = tileItem,
-                                size = size,
-                                isPlaying = isPlaying,
-                                isEditMode = isEditMode,
-                                isHovered = isHovered,
-                                isDragged = isDragged,
-                                dragOffset = dragOffset,
-                                isAeroTheme = isAeroTheme,
-                                onPlay = onPlay,
-                                onUnpin = onUnpin,
-                                onCycleSize = onCycleSize
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun WmcStartOrbAndClock() {
-    var timeText by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) {
-        val sdf = java.text.SimpleDateFormat("h:mm", java.util.Locale.getDefault())
-        while (true) {
-            timeText = sdf.format(java.util.Date()).uppercase()
-            kotlinx.coroutines.delay(1000)
-        }
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = timeText,
-            style = ZuneTypography.h2.copy(
-                fontSize = 20.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-            ),
-            color = Color.White.copy(alpha = 0.9f)
-        )
-    }
-}
-
-
-data class PinnedTileItem(
-    val id: Long,
-    val type: String,
-    val title: String,
-    val subtitle: String,
-    val imageUri: Any?,
-    val gradientColors: List<Color>,
-    val size: Int
-)
-
-private fun queryLocalPhotos(context: android.content.Context): List<PhotoItem> {
-    val list = mutableListOf<PhotoItem>()
-    val permissionString = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        android.Manifest.permission.READ_MEDIA_IMAGES
-    } else {
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    }
-    val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(context, permissionString) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    if (hasPermission) {
-        try {
-            val resolver = context.contentResolver
-            val uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val projection = arrayOf(
-                android.provider.MediaStore.Images.Media._ID,
-                android.provider.MediaStore.Images.Media.DISPLAY_NAME,
-                android.provider.MediaStore.Images.Media.DATE_TAKEN,
-                android.provider.MediaStore.Images.Media.BUCKET_DISPLAY_NAME
-            )
-            resolver.query(uri, projection, null, null, "${android.provider.MediaStore.Images.Media.DATE_TAKEN} DESC")?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media._ID)
-                val nameColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media.DISPLAY_NAME)
-                val dateColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media.DATE_TAKEN)
-                val bucketColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idColumn)
-                    val name = cursor.getString(nameColumn) ?: "photo_$id"
-                    val date = cursor.getLong(dateColumn)
-                    val album = cursor.getString(bucketColumn) ?: "camera roll"
-                    val contentUri = android.content.ContentUris.withAppendedId(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                    list.add(
-                        PhotoItem(
-                            id = id,
-                            uri = contentUri,
-                            dateTaken = date,
-                            albumName = album.lowercase(),
-                            title = name
-                        )
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    if (list.isEmpty()) {
-        list.addAll(generateMockPhotos())
-    }
-    return list
-}
-
-private fun queryLocalVideos(context: android.content.Context): List<VideoItem> {
-    val list = mutableListOf<VideoItem>()
-    val permissionString = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        android.Manifest.permission.READ_MEDIA_VIDEO
-    } else {
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    }
-    val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(context, permissionString) == android.content.pm.PackageManager.PERMISSION_GRANTED
-    if (hasPermission) {
-        try {
-            val resolver = context.contentResolver
-            val uri = android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-            val projection = arrayOf(
-                android.provider.MediaStore.Video.Media._ID,
-                android.provider.MediaStore.Video.Media.DISPLAY_NAME,
-                android.provider.MediaStore.Video.Media.DURATION,
-                android.provider.MediaStore.Video.Media.DATE_ADDED
-            )
-            resolver.query(uri, projection, null, null, "${android.provider.MediaStore.Video.Media.DATE_ADDED} DESC")?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media._ID)
-                val nameColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DISPLAY_NAME)
-                val durationColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DURATION)
-                val dateAddedColumn = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DATE_ADDED)
-
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idColumn)
-                    val name = cursor.getString(nameColumn) ?: "video_$id"
-                    val duration = cursor.getLong(durationColumn)
-                    val dateAdded = cursor.getLong(dateAddedColumn)
-                    val contentUri = android.content.ContentUris.withAppendedId(android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
-
-                    list.add(
-                        VideoItem(
-                            id = id,
-                            uri = contentUri,
-                            title = name.removeSuffix(".mp4").lowercase(),
-                            subtitle = "local video",
-                            durationMs = duration,
-                            dateAdded = dateAdded,
-                            gradientColors = listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
-                            videoUrl = contentUri.toString()
-                        )
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-    if (list.isEmpty()) {
-        list.addAll(generateMockVideos())
-    }
-    return list.sortedByDescending { it.dateAdded }
-}
-
-private sealed class LiveTileItem {
-    data class ImageUri(val uri: android.net.Uri) : LiveTileItem()
-    data class Gradient(val colors: List<Color>) : LiveTileItem()
-}
-
-@Composable
-fun PicturesAndVideosPagePreview(
-    isAeroTheme: Boolean,
-    photosList: List<PhotoItem>,
-    videosList: List<VideoItem> = emptyList(),
-    onNavigateToPhotos: () -> Unit,
-    onNavigateToVideos: () -> Unit
-) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val liveTileItems = remember(photosList) {
-        val localPhotos = photosList.filter { it.uri != null }
-        if (localPhotos.isNotEmpty()) {
-            localPhotos.take(10).map { LiveTileItem.ImageUri(it.uri!!) }
-        } else {
-            photosList.take(10).map {
-                if (it.gradientColors.isNotEmpty()) {
-                    LiveTileItem.Gradient(it.gradientColors)
-                } else {
-                    LiveTileItem.Gradient(listOf(Color(0xFFEE0979), Color(0xFFFF6A00)))
-                }
-            }
-        }
-    }
-
-    var currentIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(liveTileItems) {
-        if (liveTileItems.isNotEmpty()) {
-            while (true) {
-                delay(6000)
-                currentIndex = (currentIndex + 1) % liveTileItems.size
-            }
-        }
-    }
-
-    val latestVideo = remember(videosList) { videosList.firstOrNull() }
-    val videoThumbnail = rememberVideoTileThumbnail(context, latestVideo?.uri)
-
-    val infiniteTransition = rememberInfiniteTransition(label = "ken_burns")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1.0f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-    val previewHeight = if (isLandscape) 130.dp else 180.dp
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(previewHeight),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            val photosBorderModifier = Modifier
-                .border(1.5.dp, Color.White.copy(alpha = 0.15f))
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .then(photosBorderModifier)
-                    .background(Color(0xFF1E1E1E))
-                    .metroClickable { onNavigateToPhotos() }
-                    .clipToBounds(),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                if (liveTileItems.isNotEmpty()) {
-                    val currentItem = liveTileItems.getOrNull(currentIndex)
-                    AnimatedContent(
-                        targetState = currentItem,
-                        transitionSpec = {
-                            (fadeIn(animationSpec = tween(1000)) + slideInVertically(
-                                animationSpec = tween(1000),
-                                initialOffsetY = { it }
-                            )).togetherWith(
-                                fadeOut(animationSpec = tween(1000)) + slideOutVertically(
-                                    animationSpec = tween(1000),
-                                    targetOffsetY = { -it }
-                                )
-                            )
-                        },
-                        label = "live_tile_transition",
-                        modifier = Modifier.fillMaxSize()
-                    ) { item ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                }
-                        ) {
-                            when (item) {
-                                is LiveTileItem.ImageUri -> {
-                                    AsyncImage(
-                                        model = item.uri,
-                                        contentDescription = null,
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                                is LiveTileItem.Gradient -> {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(LocalZuneAccent.current)
-                                    )
-                                }
-                                null -> {}
-                            }
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(LocalZuneAccent.current)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f)),
-                                startY = 80f
-                            )
-                        )
-                )
-
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(
-                        text = "photos",
-                        style = ZuneTypography.h4.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
-                        color = Color.White
-                    )
-                    Text(
-                        text = "${photosList.size} items",
-                        style = ZuneTypography.body2.copy(fontSize = 11.sp, fontFamily = SegoeUiFontFamily),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
-                }
-            }
-
-            val videosBorderModifier = Modifier
-                .border(1.5.dp, Color.White.copy(alpha = 0.15f))
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .then(videosBorderModifier)
-                    .background(Color(0xFF1E1E1E))
-                    .metroClickable { onNavigateToVideos() }
-                    .clipToBounds(),
-                contentAlignment = Alignment.BottomStart
-            ) {
-                if (videoThumbnail != null) {
-                    Image(
-                        bitmap = videoThumbnail.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(LocalZuneAccent.current)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f)),
-                                startY = 80f
-                            )
-                        )
-                )
-
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .size(28.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
-                        .padding(4.dp)
-                        .align(Alignment.TopEnd)
-                )
-
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    Text(
-                        text = "videos",
-                        style = ZuneTypography.h4.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
-                        color = Color.White
-                    )
-                    Text(
-                        text = "${videosList.size} clips",
-                        style = ZuneTypography.body2.copy(fontSize = 11.sp, fontFamily = SegoeUiFontFamily),
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
-                }
-            }
-        }
-
-        Text(
-            text = "open pictures + videos",
-            style = ZuneTypography.h2.copy(
-                fontFamily = SegoeUiLightFontFamily,
-                fontSize = 24.sp,
-                color = LocalZuneAccent.current
-            ),
-            modifier = Modifier.metroClickable { onNavigateToPhotos() }
-        )
-        Text(
-            text = "view and organize photos and local videos from your device.",
-            style = ZuneTypography.body1,
-            color = ZuneTextSecondary
-        )
-    }
-}
-
-// Private helper function for formatting millisecond track timelines
-private fun formatPanelTime(ms: Long): String {
-    if (ms <= 0) return "0:00"
-    val totalSeconds = ms / 1000
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    return "$minutes:${String.format("%02d", seconds)}"
-}
-
-@Composable
-fun FeaturedSectionView(
-    audioItems: List<AudioItem>,
-    onPlayAlbum: (String) -> Unit,
-    isAeroTheme: Boolean = false
-) {
-    val albums = remember(audioItems) {
-        audioItems.distinctBy { it.album }.shuffled().take(4)
-    }
-
-    Column(
-        modifier = Modifier.padding(horizontal = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        albums.chunked(2).forEach { rowAlbums ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                rowAlbums.forEach { item ->
-                    val cardGlassModifier = Modifier.background(Color(0xFF1E1E1E))
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f)
-                            .then(cardGlassModifier)
-                            .metroClickable { onPlayAlbum(item.album) },
-                        contentAlignment = Alignment.BottomStart
-                    ) {
-                        if (item.albumArtUri != null) {
-                            AsyncImage(
-                                model = item.albumArtUri,
-                                contentDescription = "Album Art",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                        // No Aero overlay box
-                    }
-                }
-                if (rowAlbums.size < 2) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PersonalizeScreen(
-    onBack: () -> Unit,
-    isAeroTheme: Boolean = false,
-    getScrollPosition: (String) -> Pair<Int, Int> = { Pair(0, 0) },
-    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> }
-) {
-    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-        androidx.compose.foundation.Image(
-            painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-            contentDescription = "Back",
-            modifier = Modifier
-                .padding(bottom = 4.dp)
-                .offset(x = (-20).dp, y = (-8).dp)
-                .size(80.dp)
-                .metroClickable { onBack() }
-        )
-
-        Text(
-            text = "SETTINGS",
-            style = ZuneTypography.h4.copy(
-                fontFamily = SegoeUiFontFamily,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = ZuneTextSecondary,
-            modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
-        )
-
-        Text(
-            text = "personalize",
-            style = ZuneTypography.h1.copy(
-                fontFamily = SegoeUiFontFamily,
-                fontSize = 42.sp
-            ),
-            color = Color.White,
-            modifier = Modifier.padding(start = 24.dp, bottom = 12.dp)
-        )
-
-        Box(modifier = Modifier.weight(1f)) {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            var isLauncher by remember { mutableStateOf(isDefaultLauncher(context)) }
-            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-            DisposableEffect(lifecycleOwner) {
-                val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                    if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
-                        isLauncher = isDefaultLauncher(context)
-                    }
-                }
-                lifecycleOwner.lifecycle.addObserver(observer)
-                onDispose {
-                    lifecycleOwner.lifecycle.removeObserver(observer)
-                }
-            }
-
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.weight(1f)) {
-                    PersonalizePage(
-                        getScrollPosition = getScrollPosition,
-                        onScrollPositionChanged = onScrollPositionChanged
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                        .background(Color.White.copy(alpha = 0.05f))
-                        .metroClickable {
-                            openLauncherSelection(context)
-                        }
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "default launcher",
-                            style = ZuneTypography.h4.copy(
-                                fontFamily = SegoeUiFontFamily,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Color.White
-                        )
-                        Text(
-                            text = if (isLauncher) "zune is active" else "tap to set as default launcher",
-                            style = ZuneTypography.body2,
-                            color = if (isLauncher) LocalZuneAccent.current else Color.LightGray
-                        )
-                    }
-                    if (isLauncher) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Active",
-                            tint = LocalZuneAccent.current
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-fun isDefaultLauncher(context: android.content.Context): Boolean {
-    val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
-        addCategory(android.content.Intent.CATEGORY_HOME)
-    }
-    val resolveInfo = context.packageManager.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)
-    return resolveInfo?.activityInfo?.packageName == context.packageName
-}
-
-fun openLauncherSelection(context: android.content.Context) {
-    val intent = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        android.content.Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-    } else {
-        android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
-            addCategory(android.content.Intent.CATEGORY_HOME)
-            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-    }
-    context.startActivity(intent)
 }

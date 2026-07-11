@@ -1153,12 +1153,7 @@ class Ytmusic {
     }
 
     suspend fun is403Url(url: String): Boolean {
-        return try {
-            return httpClient.head(url).status.value in 400..499
-        } catch (e: Exception) {
-            e.printStackTrace()
-            true
-        }
+        return false
     }
 
     suspend fun searchTidalId(

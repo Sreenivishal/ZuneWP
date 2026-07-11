@@ -1,9 +1,34 @@
 package com.zune.player.ui.screens
 
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.filled.Close
+
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.work.WorkManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.workDataOf
+import androidx.work.WorkInfo
+import com.zune.player.data.OnlineSong
+import com.zune.player.data.OnlineAlbum
+import com.zune.player.data.OnlineArtist
+import com.zune.player.data.DownloadWorker
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import kotlinx.coroutines.flow.firstOrNull
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.gestures.detectTapGestures
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -30,6 +55,8 @@ import com.zune.player.ui.theme.ZuneTextPrimary
 import com.zune.player.ui.theme.ZuneTextSecondary
 import com.zune.player.ui.theme.ZuneTypography
 import com.zune.player.ui.theme.SegoeUiFontFamily
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.LocalZuneAccent
 import com.zune.player.ui.theme.AeroBlueOrbGradient
 import coil.compose.AsyncImage
@@ -77,12 +104,18 @@ fun CategoryListScreen(
     onNavigateToNowPlaying: () -> Unit = {},
     onCategoryChanged: (String) -> Unit = {},
     getScrollPosition: (String) -> Pair<Int, Int> = { Pair(0, 0) },
-    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> }
+    onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> },
+    onOnlineTrackClick: (com.zune.player.data.AudioItem) -> Unit = {},
+    onOnlineAddToQueue: (com.zune.player.data.AudioItem) -> Unit = {},
+    onOnlinePlayNext: (com.zune.player.data.AudioItem) -> Unit = {},
+    onOnlineAlbumClick: (com.zune.player.data.OnlineAlbum) -> Unit = {},
+    onOnlineArtistClick: (com.zune.player.data.OnlineArtist) -> Unit = {}
 ) {
-    val categories = listOf("playlists", "songs", "artists", "albums")
+    val context = LocalContext.current
+    val categories = listOf("songs", "playlists", "artists", "albums", "search", "online")
     val initialIndex = categories.indexOf(initialCategory.lowercase()).coerceAtLeast(0)
     val pageCount = 20000
-    val middlePage = 10000
+    val middlePage = (10000 / categories.size) * categories.size
     val pagerState = rememberPagerState(initialPage = middlePage + initialIndex) { pageCount }
     val coroutineScope = rememberCoroutineScope()
     
@@ -95,31 +128,195 @@ fun CategoryListScreen(
     var playlistNameInput by remember { mutableStateOf("") }
     var songToAddToPlaylist by remember { mutableStateOf<com.zune.player.data.AudioItem?>(null) } // songToAddToPlaylist
 
+    // Search and Online states
+    var collectionQuery by remember { mutableStateOf("") }
+    var onlineQuery by remember { mutableStateOf("") }
+    var onlineResults by remember { mutableStateOf<List<OnlineSong>>(emptyList()) }
+    var onlineAlbums by remember { mutableStateOf<List<com.zune.player.data.OnlineAlbum>>(emptyList()) }
+    var onlineArtists by remember { mutableStateOf<List<com.zune.player.data.OnlineArtist>>(emptyList()) }
+    var selectedSearchType by remember { mutableStateOf("songs") }
+    var isSearchingOnline by remember { mutableStateOf(false) }
+
+    val workInfos by WorkManager.getInstance(context)
+        .getWorkInfosByTagFlow("download_song")
+        .collectAsState(initial = emptyList())
+
+    val activeDownloads = remember(workInfos) {
+        workInfos.filter { it.state == WorkInfo.State.RUNNING || it.state == WorkInfo.State.ENQUEUED }
+    }
+
+    val completedWorkIds = remember { mutableSetOf<java.util.UUID>() }
+    val ourEnqueuedWorkIds = remember { mutableSetOf<java.util.UUID>() }
+    val enqueuedTrackTitles = remember { androidx.compose.runtime.mutableStateMapOf<java.util.UUID, String>() }
+
+    val activeDownloadingTitle = remember(activeDownloads, enqueuedTrackTitles) {
+        val activeId = activeDownloads.firstOrNull()?.id
+        if (activeId != null) enqueuedTrackTitles[activeId] else null
+    }
+
+    LaunchedEffect(workInfos) {
+        workInfos.forEach { workInfo ->
+            if (ourEnqueuedWorkIds.contains(workInfo.id) && workInfo.state.isFinished && !completedWorkIds.contains(workInfo.id)) {
+                completedWorkIds.add(workInfo.id)
+                val title = enqueuedTrackTitles[workInfo.id] ?: "Song"
+                if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    android.widget.Toast.makeText(context, "Added \"$title\" to library", android.widget.Toast.LENGTH_SHORT).show()
+                } else if (workInfo.state == WorkInfo.State.FAILED) {
+                    android.widget.Toast.makeText(context, "Failed to download \"$title\"", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                enqueuedTrackTitles.remove(workInfo.id)
+            }
+        }
+    }
+
+    val filteredTracks = remember(collectionQuery, audioItems) {
+        if (collectionQuery.isBlank()) {
+            emptyList()
+        } else {
+            val q = collectionQuery.lowercase().trim()
+            audioItems.filter {
+                it.title.lowercase().contains(q) ||
+                it.artist.lowercase().contains(q) ||
+                it.album.lowercase().contains(q)
+            }.sortedBy { it.title }
+        }
+    }
+
+    fun performOnlineSearch() {
+        if (onlineQuery.isBlank()) return
+        isSearchingOnline = true
+        coroutineScope.launch {
+            try {
+                val searchRepository = org.koin.core.context.GlobalContext.get().get<com.maxrave.domain.repository.SearchRepository>()
+                when (selectedSearchType) {
+                    "songs" -> {
+                        var resultsList = emptyList<com.zune.player.data.OnlineSong>()
+                        val resource = searchRepository.getSearchDataSong(onlineQuery).firstOrNull { r ->
+                            r is com.maxrave.domain.utils.Resource.Success<*> || r is com.maxrave.domain.utils.Resource.Error<*>
+                        }
+                        if (resource is com.maxrave.domain.utils.Resource.Success<*>) {
+                            resultsList = (resource.data as? ArrayList<com.maxrave.domain.data.model.searchResult.songs.SongsResult>)?.map { song ->
+                                com.zune.player.data.OnlineSong(
+                                    trackId = song.videoId.hashCode().toLong(),
+                                    title = song.title ?: "Unknown Title",
+                                    artist = song.artists?.firstOrNull()?.name ?: "Unknown Artist",
+                                    album = song.album?.name ?: "Unknown Album",
+                                    previewUrl = song.videoId,
+                                    artworkUrl = song.thumbnails?.lastOrNull()?.url ?: "",
+                                    durationMs = (song.durationSeconds ?: 0) * 1000L
+                                )
+                            } ?: emptyList()
+                        }
+                        withContext(Dispatchers.Main) {
+                            onlineResults = resultsList
+                            isSearchingOnline = false
+                        }
+                    }
+                    "albums" -> {
+                        var albumsList = emptyList<com.zune.player.data.OnlineAlbum>()
+                        val resource = searchRepository.getSearchDataAlbum(onlineQuery).firstOrNull { r ->
+                            r is com.maxrave.domain.utils.Resource.Success<*> || r is com.maxrave.domain.utils.Resource.Error<*>
+                        }
+                        if (resource is com.maxrave.domain.utils.Resource.Success<*>) {
+                            albumsList = (resource.data as? ArrayList<com.maxrave.domain.data.model.searchResult.albums.AlbumsResult>)?.map { album ->
+                                com.zune.player.data.OnlineAlbum(
+                                    browseId = album.browseId,
+                                    title = album.title,
+                                    artist = album.artists.firstOrNull()?.name ?: "Unknown Artist",
+                                    year = album.year,
+                                    artworkUrl = album.thumbnails.lastOrNull()?.url ?: ""
+                                )
+                            } ?: emptyList()
+                        }
+                        withContext(Dispatchers.Main) {
+                            onlineAlbums = albumsList
+                            isSearchingOnline = false
+                        }
+                    }
+                    "artists" -> {
+                        var artistsList = emptyList<com.zune.player.data.OnlineArtist>()
+                        val resource = searchRepository.getSearchDataArtist(onlineQuery).firstOrNull { r ->
+                            r is com.maxrave.domain.utils.Resource.Success<*> || r is com.maxrave.domain.utils.Resource.Error<*>
+                        }
+                        if (resource is com.maxrave.domain.utils.Resource.Success<*>) {
+                            artistsList = (resource.data as? ArrayList<com.maxrave.domain.data.model.searchResult.artists.ArtistsResult>)?.map { artist ->
+                                com.zune.player.data.OnlineArtist(
+                                    browseId = artist.browseId,
+                                    name = artist.artist,
+                                    subscribers = "",
+                                    artworkUrl = artist.thumbnails.lastOrNull()?.url ?: ""
+                                )
+                            } ?: emptyList()
+                        }
+                        withContext(Dispatchers.Main) {
+                            onlineArtists = artistsList
+                            isSearchingOnline = false
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    isSearchingOnline = false
+                }
+            }
+        }
+    }
+
     val tabWidths = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
+
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                contentDescription = "Back",
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 4.dp)
-                    .offset(x = (-20).dp, y = (-8).dp)
-                    .size(80.dp)
-                    .metroClickable { onBack() }
-            )
-            
-            // Pivot Header
-            Text(
-                text = "COLLECTION",
-                style = ZuneTypography.h4.copy(
-                    fontFamily = SegoeUiFontFamily,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = ZuneTextSecondary,
-                modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 4.dp)
-            )
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    val isForward = com.zune.player.LocalIsForwardTransition.current
+                    if (isForward) {
+                        with(sharedTransitionScope) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = "header_music"),
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                boundsTransform = { _, _ ->
+                                    androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                        stiffness = 150f
+                                    )
+                                },
+                                renderInOverlayDuringTransition = false
+                            ).skipToLookaheadSize()
+                        }
+                    } else {
+                        Modifier
+                    }
+                } else {
+                    Modifier
+                }
+
+                Text(
+                    text = "music",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                        fontSize = 170.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.12f),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                    modifier = Modifier
+                        .offset(x = (-12).dp, y = (-48).dp)
+                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                        .then(sharedModifier)
+                        .metroClickable { onBack() }
+                )
+            }
             
             // Pivot Titles
             Box(
@@ -169,7 +366,6 @@ fun CategoryListScreen(
                         val distance = kotlin.math.abs(pageOffset - virtualIndex)
                         val alpha = (1f - distance * 0.6f).coerceIn(0.4f, 1f)
                         
-                        val isCurrentTab = pagerState.currentPage == virtualIndex
                         val displayTitle = title.uppercase()
                         val displayText = displayTitle
                         val textColor = Color.White.copy(alpha = alpha)
@@ -201,32 +397,349 @@ fun CategoryListScreen(
             }
 
             // Pager Content
+            if (activeDownloadingTitle != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(LocalZuneAccent.current)
+                        .padding(vertical = 8.dp, horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Text(
+                        text = "downloading \"$activeDownloadingTitle\" to library...",
+                        style = ZuneTypography.body2.copy(color = Color.White, fontSize = 13.sp)
+                    )
+                }
+            }
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f)
             ) { page ->
                 val actualPage = (page % categories.size + categories.size) % categories.size
                 val currentCategory = categories[actualPage]
-                val items = remember(currentCategory, playlists, audioItems) { getItemsForCategory(currentCategory) }
                 
-                CategoryPage(
-                    categoryTitle = currentCategory,
-                    items = items,
-                    playlists = playlists,
-                    audioItems = audioItems,
-                    currentPlayingTitle = currentPlayingTitle,
-                    isAeroTheme = isAeroTheme,
-                    onItemClick = { title -> onItemClick(currentCategory, title) },
-                    onPin = { title -> onPin(title) },
-                    onPlayNext = { title -> onPlayNext(currentCategory, title) },
-                    onAddToQueue = { title -> onAddToQueue(currentCategory, title) },
-                    isPinned = isPinned,
-                    onDeletePlaylist = onDeletePlaylist,
-                    onCreateClick = { showCreateDialog = true },
-                    onAddToPlaylistClick = { songToAddToPlaylist = it },
-                    getScrollPosition = getScrollPosition,
-                    onScrollPositionChanged = onScrollPositionChanged
-                )
+                if (currentCategory == "search") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = collectionQuery,
+                            onValueChange = { collectionQuery = it },
+                            placeholder = { Text("search songs, albums", color = Color.White.copy(alpha = 0.4f)) },
+                            trailingIcon = {
+                                if (collectionQuery.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Default.Close,
+                                        contentDescription = "Clear",
+                                        tint = Color.White.copy(alpha = 0.6f),
+                                        modifier = Modifier.metroClickable { collectionQuery = "" }
+                                    )
+                                }
+                            },
+                            singleLine = true,
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                textColor = Color.White,
+                                focusedBorderColor = LocalZuneAccent.current,
+                                unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                                cursorColor = LocalZuneAccent.current,
+                                backgroundColor = Color(0xFF0F0F0F)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        )
+
+                        if (collectionQuery.isBlank()) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "search your collection",
+                                    style = ZuneTypography.body1,
+                                    color = ZuneTextSecondary
+                                )
+                            }
+                        } else if (filteredTracks.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "no results found.",
+                                    style = ZuneTypography.body1,
+                                    color = ZuneTextSecondary
+                                )
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentPadding = PaddingValues(bottom = 32.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                itemsIndexed(filteredTracks, key = { index, track -> "${track.id}_$index" }) { index, track ->
+                                    SearchResultCard(
+                                        track = track,
+                                        onClick = { onItemClick("songs", track.title) },
+                                        onPlayNext = { onPlayNext("songs", track.title) },
+                                        onAddToQueue = { onAddToQueue("songs", track.title) },
+                                        onAddToPlaylistClick = { songToAddToPlaylist = track },
+                                        isCurrentlyPlaying = track.title.equals(currentPlayingTitle, ignoreCase = true)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else if (currentCategory == "online") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = onlineQuery,
+                            onValueChange = { onlineQuery = it },
+                            placeholder = { Text("search online music...", color = Color.White.copy(alpha = 0.4f)) },
+                            trailingIcon = {
+                                if (onlineQuery.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Default.Close,
+                                        contentDescription = "Clear",
+                                        tint = Color.White.copy(alpha = 0.6f),
+                                        modifier = Modifier.metroClickable { onlineQuery = "" }
+                                    )
+                                }
+                            },
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                imeAction = androidx.compose.ui.text.input.ImeAction.Search
+                            ),
+                            keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                onSearch = { performOnlineSearch() }
+                            ),
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                textColor = Color.White,
+                                focusedBorderColor = LocalZuneAccent.current,
+                                unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                                cursorColor = LocalZuneAccent.current,
+                                backgroundColor = Color(0xFF0F0F0F)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp, bottom = 4.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                listOf("songs", "albums", "artists").forEach { type ->
+                                    val isSelected = selectedSearchType == type
+                                    Text(
+                                        text = type,
+                                        style = ZuneTypography.body2.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 15.sp
+                                        ),
+                                        color = if (isSelected) LocalZuneAccent.current else Color.White.copy(alpha = 0.5f),
+                                        modifier = Modifier
+                                            .metroClickable {
+                                                selectedSearchType = type
+                                                if (onlineQuery.isNotBlank()) {
+                                                    performOnlineSearch()
+                                                }
+                                            }
+                                            .padding(vertical = 4.dp, horizontal = 4.dp)
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "search online",
+                                style = ZuneTypography.body2.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+                                color = LocalZuneAccent.current,
+                                modifier = Modifier
+                                    .metroClickable { performOnlineSearch() }
+                                    .padding(vertical = 4.dp, horizontal = 8.dp)
+                            )
+                        }
+
+                        if (isSearchingOnline) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = LocalZuneAccent.current)
+                            }
+                        } else {
+                            val hasResults = when (selectedSearchType) {
+                                "songs" -> onlineResults.isNotEmpty()
+                                "albums" -> onlineAlbums.isNotEmpty()
+                                "artists" -> onlineArtists.isNotEmpty()
+                                else -> false
+                            }
+                            if (!hasResults) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = if (onlineQuery.isEmpty()) "search music online" else "no online results found.",
+                                        style = ZuneTypography.body1,
+                                        color = ZuneTextSecondary
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentPadding = PaddingValues(bottom = 32.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    when (selectedSearchType) {
+                                        "songs" -> {
+                                            itemsIndexed(onlineResults, key = { index, track -> "${track.trackId}_$index" }) { index, track ->
+                                                OnlineSearchResultCard(
+                                                    track = track,
+                                                    onPlayClick = {
+                                                        val playItem = com.zune.player.data.AudioItem(
+                                                            id = -track.trackId,
+                                                            title = track.title,
+                                                            artist = track.artist,
+                                                            album = track.album,
+                                                            uri = android.net.Uri.parse("zune://online/${track.previewUrl}"),
+                                                            albumArtUri = if (track.artworkUrl.isNotEmpty()) android.net.Uri.parse(track.artworkUrl) else null,
+                                                            durationMs = track.durationMs
+                                                        )
+                                                        onOnlineTrackClick(playItem)
+                                                    },
+                                                    onAddToQueueClick = {
+                                                        val queueItem = com.zune.player.data.AudioItem(
+                                                            id = -track.trackId,
+                                                            title = track.title,
+                                                            artist = track.artist,
+                                                            album = track.album,
+                                                            uri = android.net.Uri.parse("zune://online/${track.previewUrl}"),
+                                                            albumArtUri = if (track.artworkUrl.isNotEmpty()) android.net.Uri.parse(track.artworkUrl) else null,
+                                                            durationMs = track.durationMs
+                                                        )
+                                                        onOnlineAddToQueue(queueItem)
+                                                        android.widget.Toast.makeText(context, "Added \"${track.title}\" to queue", android.widget.Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onPlayNextClick = {
+                                                        val playNextItem = com.zune.player.data.AudioItem(
+                                                            id = -track.trackId,
+                                                            title = track.title,
+                                                            artist = track.artist,
+                                                            album = track.album,
+                                                            uri = android.net.Uri.parse("zune://online/${track.previewUrl}"),
+                                                            albumArtUri = if (track.artworkUrl.isNotEmpty()) android.net.Uri.parse(track.artworkUrl) else null,
+                                                            durationMs = track.durationMs
+                                                        )
+                                                        onOnlinePlayNext(playNextItem)
+                                                        android.widget.Toast.makeText(context, "Added \"${track.title}\" to play next", android.widget.Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onDownloadClick = {
+                                                        val data = workDataOf(
+                                                            "trackId" to track.trackId,
+                                                            "title" to track.title,
+                                                            "artist" to track.artist,
+                                                            "album" to track.album,
+                                                            "previewUrl" to track.previewUrl,
+                                                            "artworkUrl" to track.artworkUrl,
+                                                            "durationMs" to track.durationMs
+                                                        )
+                                                        val request = OneTimeWorkRequestBuilder<DownloadWorker>()
+                                                            .setInputData(data)
+                                                            .addTag("download_song")
+                                                            .build()
+                                                        enqueuedTrackTitles[request.id] = track.title
+                                                        ourEnqueuedWorkIds.add(request.id)
+                                                        WorkManager.getInstance(context).enqueue(request)
+                                                        android.widget.Toast.makeText(context, "Started download: \"${track.title}\"", android.widget.Toast.LENGTH_SHORT).show()
+                                                    },
+                                                    onAddToPlaylistClick = {
+                                                        val playItem = com.zune.player.data.AudioItem(
+                                                            id = -track.trackId,
+                                                            title = track.title,
+                                                            artist = track.artist,
+                                                            album = track.album,
+                                                            uri = android.net.Uri.parse("zune://online/${track.previewUrl}"),
+                                                            albumArtUri = if (track.artworkUrl.isNotEmpty()) android.net.Uri.parse(track.artworkUrl) else null,
+                                                            durationMs = track.durationMs
+                                                        )
+                                                        songToAddToPlaylist = playItem
+                                                    }
+                                                )
+                                            }
+                                        }
+                                        "albums" -> {
+                                            itemsIndexed(onlineAlbums, key = { index, album -> "${album.browseId}_$index" }) { index, album ->
+                                                OnlineAlbumSearchResultCard(
+                                                    album = album,
+                                                    onClick = {
+                                                        onOnlineAlbumClick(album)
+                                                    }
+                                                )
+                                            }
+                                        }
+                                        "artists" -> {
+                                            itemsIndexed(onlineArtists, key = { index, artist -> "${artist.browseId}_$index" }) { index, artist ->
+                                                OnlineArtistSearchResultCard(
+                                                    artist = artist,
+                                                    onClick = {
+                                                        onOnlineArtistClick(artist)
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    val items = remember(currentCategory, playlists, audioItems) { getItemsForCategory(currentCategory) }
+                    CategoryPage(
+                        categoryTitle = currentCategory,
+                        items = items,
+                        playlists = playlists,
+                        audioItems = audioItems,
+                        currentPlayingTitle = currentPlayingTitle,
+                        isAeroTheme = isAeroTheme,
+                        onItemClick = { title -> onItemClick(currentCategory, title) },
+                        onPin = { title -> onPin(title) },
+                        onPlayNext = { title -> onPlayNext(currentCategory, title) },
+                        onAddToQueue = { title -> onAddToQueue(currentCategory, title) },
+                        isPinned = isPinned,
+                        onDeletePlaylist = onDeletePlaylist,
+                        onCreateClick = { showCreateDialog = true },
+                        onAddToPlaylistClick = { songToAddToPlaylist = it },
+                        getScrollPosition = getScrollPosition,
+                        onScrollPositionChanged = onScrollPositionChanged
+                    )
+                }
             }
             
             // Persistent Now Playing Bar
@@ -561,6 +1074,9 @@ fun CategoryPage(
                         if (categoryTitle.lowercase() == "albums") (item as com.zune.player.data.AudioItem).album else (item as com.zune.player.data.AudioItem).title
                     } else item as String
                     var showMenu by remember { mutableStateOf(false) }
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val haptic = LocalHapticFeedback.current
+                    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
                     Box(
                         modifier = Modifier
@@ -573,7 +1089,12 @@ fun CategoryPage(
                                 .pointerInput(item) {
                                     detectTapGestures(
                                         onTap = { onItemClick(title) },
-                                        onLongPress = { showMenu = true }
+                                        onLongPress = {
+                                            if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            }
+                                            showMenu = true
+                                        }
                                     )
                                 }
                                 .padding(vertical = 6.dp),
@@ -696,15 +1217,19 @@ fun CategoryPage(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black)
-                    .pointerInput(Unit) { detectTapGestures { showJumpGrid = false } }
+                    .background(Color.Black.copy(alpha = 0.9f))
+                    .pointerInput(Unit) { detectTapGestures { showJumpGrid = false } },
+                contentAlignment = Alignment.BottomCenter
             ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(6),
-                    contentPadding = PaddingValues(top = 48.dp, start = 24.dp, end = 24.dp, bottom = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxSize()
+                    columns = GridCells.Fixed(5),
+                    contentPadding = PaddingValues(start = 24.dp, end = 24.dp, bottom = 48.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .pointerInput(Unit) { /* intercept clicks */ }
                 ) {
                     val availableLetters = groupedItems.filterIsInstance<Char>().toSet()
                     val alphabet = ('a'..'z').toList() + listOf('#')
@@ -756,6 +1281,9 @@ fun AlbumGridCell(
     isPinned: (String) -> Boolean
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
     val isCurrentPlaying = albumItem.album.equals(currentPlayingTitle, ignoreCase = true)
     
     val titleColor = if (isCurrentPlaying) LocalZuneAccent.current else ZuneTextPrimary
@@ -765,7 +1293,12 @@ fun AlbumGridCell(
             .pointerInput(albumItem) {
                 detectTapGestures(
                     onTap = { onItemClick() },
-                    onLongPress = { showMenu = true }
+                    onLongPress = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        showMenu = true
+                    }
                 )
             }
     ) {
@@ -822,3 +1355,5 @@ fun AlbumGridCell(
         }
     }
 }
+
+

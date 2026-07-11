@@ -215,63 +215,28 @@ private val mediaServiceModule =
 
 @UnstableApi
 private fun provideResolvingDataSourceFactory(
-    cacheDataSourceFactory: CacheDataSource.Factory,
-    downloadCache: SimpleCache,
-    playerCache: SimpleCache,
+    upstreamDataSourceFactory: DataSource.Factory,
     dataStoreManager: DataStoreManager,
     streamRepository: StreamRepository,
     coroutineScope: CoroutineScope,
-): DataSource.Factory {
-    val chunkLength = 10 * 512 * 1024L
-    return ResolvingDataSource.Factory(cacheDataSourceFactory) { dataSpec ->
+): ResolvingDataSource.Factory {
+    return ResolvingDataSource.Factory(upstreamDataSourceFactory) { dataSpec ->
         val mediaId = dataSpec.key ?: return@Factory dataSpec
         val cleanMediaId = if (mediaId.startsWith(MERGING_DATA_TYPE.VIDEO)) {
             mediaId.removePrefix(MERGING_DATA_TYPE.VIDEO)
         } else {
             mediaId
         }
-        if (cleanMediaId.startsWith("content:") || cleanMediaId.startsWith("file:") || cleanMediaId.startsWith("/")) {
-            return@Factory dataSpec
-        }
-        Logger.w("Stream", mediaId)
-        Logger.w("Stream", mediaId.startsWith(MERGING_DATA_TYPE.VIDEO).toString())
-        val length = if (dataSpec.length >= 0) dataSpec.length else 1
-        if (downloadCache.isCached(
-                mediaId,
-                dataSpec.position,
-                length,
-            )
+        val uriStr = dataSpec.uri.toString()
+        if (cleanMediaId.startsWith("content:") || cleanMediaId.startsWith("file:") || cleanMediaId.startsWith("/") ||
+            cleanMediaId.startsWith("http:") || cleanMediaId.startsWith("https:") ||
+            uriStr.startsWith("http:") || uriStr.startsWith("https:")
         ) {
-            coroutineScope.launch(Dispatchers.IO) {
-                streamRepository.updateFormat(
-                    if (mediaId.contains(MERGING_DATA_TYPE.VIDEO)) {
-                        mediaId.removePrefix(MERGING_DATA_TYPE.VIDEO)
-                    } else {
-                        mediaId
-                    },
-                )
-            }
-            Logger.w("Stream", "Downloaded $mediaId")
             return@Factory dataSpec
-        }
-        val playerCached = playerCache.isCached(mediaId, dataSpec.position, chunkLength)
-        if (playerCached) {
-            coroutineScope.launch(Dispatchers.IO) {
-                streamRepository.updateFormat(
-                    if (mediaId.contains(MERGING_DATA_TYPE.VIDEO)) {
-                        mediaId.removePrefix(MERGING_DATA_TYPE.VIDEO)
-                    } else {
-                        mediaId
-                    },
-                )
-            }
-            Logger.w("Stream", "Cached $mediaId")
-            // Don't return bare video ID as URI — CacheDataSource.openNextSource()
-            // may need a valid HTTP URL for uncached spans beyond this chunk.
-            // Fall through to resolve actual stream URL.
         }
         var dataSpecReturn: DataSpec = dataSpec
         var resolved = false
+
         runBlocking(Dispatchers.IO) {
             if (mediaId.contains(MERGING_DATA_TYPE.VIDEO)) {
                 val id = mediaId.removePrefix(MERGING_DATA_TYPE.VIDEO)
@@ -280,13 +245,9 @@ private fun provideResolvingDataSourceFactory(
                     if (videoUrl != null && it.expiredTime > now()) {
                         Logger.d("Stream", videoUrl)
                         Logger.w("Stream", "Video from format")
-                        val is403Url = streamRepository.is403Url(videoUrl).firstOrNull() != false
-                        Logger.d("Stream", "is 403 $is403Url")
-                        if (!is403Url) {
-                            dataSpecReturn = dataSpec.withUri(videoUrl.toUri()).subrange(dataSpec.uriPositionOffset, chunkLength)
-                            resolved = true
-                            return@runBlocking
-                        }
+                        dataSpecReturn = dataSpec.withUri(videoUrl.toUri())
+                        resolved = true
+                        return@runBlocking
                     }
                 }
                 streamRepository
@@ -296,10 +257,10 @@ private fun provideResolvingDataSourceFactory(
                         isDownloading = false,
                         isVideo = true,
                     ).lastOrNull()
-                    ?.let {
-                        Logger.d("Stream", it)
+                    ?.let { videoUrl ->
+                        Logger.d("Stream", videoUrl)
                         Logger.w("Stream", "Video")
-                        dataSpecReturn = dataSpec.withUri(it.toUri()).subrange(dataSpec.uriPositionOffset, chunkLength)
+                        dataSpecReturn = dataSpec.withUri(videoUrl.toUri())
                         resolved = true
                     }
             } else {
@@ -308,13 +269,9 @@ private fun provideResolvingDataSourceFactory(
                     if (audioUrl != null && it.expiredTime > now()) {
                         Logger.d("Stream", audioUrl)
                         Logger.w("Stream", "Audio from format")
-                        val is403Url = streamRepository.is403Url(audioUrl).firstOrNull() != false
-                        Logger.d("Stream", "is 403 $is403Url")
-                        if (!is403Url) {
-                            dataSpecReturn = dataSpec.withUri(audioUrl.toUri()).subrange(dataSpec.uriPositionOffset, chunkLength)
-                            resolved = true
-                            return@runBlocking
-                        }
+                        dataSpecReturn = dataSpec.withUri(audioUrl.toUri())
+                        resolved = true
+                        return@runBlocking
                     }
                 }
                 streamRepository
@@ -324,10 +281,10 @@ private fun provideResolvingDataSourceFactory(
                         isDownloading = false,
                         isVideo = false,
                     ).lastOrNull()
-                    ?.let {
-                        Logger.d("Stream", it)
+                    ?.let { audioUrl ->
+                        Logger.d("Stream", audioUrl)
                         Logger.w("Stream", "Audio")
-                        dataSpecReturn = dataSpec.withUri(it.toUri()).subrange(dataSpec.uriPositionOffset, chunkLength)
+                        dataSpecReturn = dataSpec.withUri(audioUrl.toUri())
                         resolved = true
                     }
             }
@@ -430,29 +387,48 @@ private fun provideMediaSourceFactory(
     dataStoreManager: DataStoreManager,
     coroutineScope: CoroutineScope,
 ): DefaultMediaSourceFactory {
-    val resolvingFactory = provideResolvingDataSourceFactory(
-        provideCacheDataSource(
-            downloadCache,
-            playerCache,
-            context,
-            dataStoreManager.getJVMProxy()?.let {
-                Proxy(
-                    when (it.type) {
-                        DataStoreManager.ProxyType.PROXY_TYPE_HTTP -> Proxy.Type.HTTP
-                        DataStoreManager.ProxyType.PROXY_TYPE_SOCKS -> Proxy.Type.SOCKS
-                    },
-                    java.net.InetSocketAddress(it.host, it.port),
-                )
+    val proxy = dataStoreManager.getJVMProxy()?.let {
+        Proxy(
+            when (it.type) {
+                DataStoreManager.ProxyType.PROXY_TYPE_HTTP -> Proxy.Type.HTTP
+                DataStoreManager.ProxyType.PROXY_TYPE_SOCKS -> Proxy.Type.SOCKS
             },
+            java.net.InetSocketAddress(it.host, it.port),
+        )
+    }
+
+    val baseHttpFactory = DefaultDataSource.Factory(
+        context,
+        OkHttpDataSource.Factory(
+            OkHttpClient
+                .Builder()
+                .connectTimeout(30.seconds)
+                .readTimeout(30.seconds)
+                .proxy(proxy)
+                .addInterceptor(
+                    HttpLoggingInterceptor()
+                        .apply {
+                            level = HttpLoggingInterceptor.Level.HEADERS
+                        },
+                ).build(),
         ),
-        downloadCache,
-        playerCache,
+    )
+
+    val resolvingFactory = provideResolvingDataSourceFactory(
+        baseHttpFactory,
         dataStoreManager,
         streamRepository,
         coroutineScope,
     )
+
+    val cacheFactory = provideCacheDataSource(
+        downloadCache,
+        playerCache,
+        resolvingFactory,
+    )
+
     val defaultFactory = DefaultDataSource.Factory(context)
-    val delegatingFactory = DelegatingDataSourceFactory(context, defaultFactory, resolvingFactory)
+    val delegatingFactory = DelegatingDataSourceFactory(context, defaultFactory, cacheFactory)
 
     return DefaultMediaSourceFactory(
         delegatingFactory,
@@ -470,6 +446,7 @@ private fun provideMergingMediaSource(
     dataStoreManager: DataStoreManager,
 ): MergingMediaSourceFactory =
     MergingMediaSourceFactory(
+        context,
         provideMediaSourceFactory(
             context,
             downloadCache,
@@ -512,8 +489,7 @@ private fun provideRendererFactory(context: Context): DefaultRenderersFactory =
 private fun provideCacheDataSource(
     downloadCache: SimpleCache,
     playerCache: SimpleCache,
-    context: Context,
-    proxy: Proxy? = null,
+    upstreamDataSourceFactory: DataSource.Factory,
 ): CacheDataSource.Factory =
     CacheDataSource
         .Factory()
@@ -522,26 +498,7 @@ private fun provideCacheDataSource(
             CacheDataSource
                 .Factory()
                 .setCache(playerCache)
-                .setUpstreamDataSourceFactory(
-                    DefaultDataSource
-                        .Factory(
-                            context,
-                            OkHttpDataSource.Factory(
-                                OkHttpClient
-                                    .Builder()
-                                    .connectTimeout(30.seconds)
-                                    .readTimeout(30.seconds)
-                                    .proxy(
-                                        proxy,
-                                    ).addInterceptor(
-                                        HttpLoggingInterceptor()
-                                            .apply {
-                                                level = HttpLoggingInterceptor.Level.HEADERS
-                                            },
-                                    ).build(),
-                            ),
-                        ),
-                ),
+                .setUpstreamDataSourceFactory(upstreamDataSourceFactory)
         ).setCacheWriteDataSinkFactory(null)
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
 
@@ -553,9 +510,9 @@ private fun provideLoadControl(): LoadControl =
             DEFAULT_MIN_BUFFER_MS * 4,
             DEFAULT_MAX_BUFFER_MS * 4,
             // bufferForPlaybackMs=
-            0,
+            2000,
             // bufferForPlaybackAfterRebufferMs=
-            0,
+            3000,
         ).build()
 
 @UnstableApi

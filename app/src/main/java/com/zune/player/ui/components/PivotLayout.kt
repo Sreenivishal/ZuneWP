@@ -54,6 +54,13 @@ fun PivotLayout(
         onPageSelected(pagerState.currentPage)
     }
 
+    val animatedVisibilityScope = com.zune.player.LocalAnimatedVisibilityScope.current
+    val isTransitionRunning = if (animatedVisibilityScope != null) {
+        animatedVisibilityScope.transition.currentState != animatedVisibilityScope.transition.targetState
+    } else {
+        false
+    }
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -61,6 +68,7 @@ fun PivotLayout(
             state = pagerState,
             contentPadding = PaddingValues(0.dp),
             beyondViewportPageCount = 1,
+            userScrollEnabled = !isTransitionRunning,
             modifier = Modifier.fillMaxSize()
         ) { page ->
             Box(

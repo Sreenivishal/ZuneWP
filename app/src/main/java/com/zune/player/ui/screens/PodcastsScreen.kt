@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +28,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +51,8 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.player.AudioPlayer
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,11 +102,13 @@ fun PodcastsScreen(
     var searchQuery by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<PodcastInfo>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
+    var searchError by remember { mutableStateOf<String?>(null) }
 
     // Active viewed podcast and its parsed episodes
     var activePodcast by remember { mutableStateOf<PodcastInfo?>(null) }
     var episodesList by remember { mutableStateOf<List<PodcastEpisode>>(emptyList()) }
     var isLoadingEpisodes by remember { mutableStateOf(false) }
+    var episodesError by remember { mutableStateOf<String?>(null) }
 
     // Load initial subscriptions
     LaunchedEffect(Unit) {
@@ -111,43 +120,78 @@ fun PodcastsScreen(
         activePodcast = podcast
         episodesList = emptyList()
         isLoadingEpisodes = true
+        episodesError = null
         coroutineScope.launch {
             val xmlText = fetchUrlText(podcast.feedUrl)
+            if (xmlText.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    episodesError = "failed to fetch podcast feed."
+                    isLoadingEpisodes = false
+                }
+                return@launch
+            }
             val parsed = parsePodcastRss(xmlText)
             withContext(Dispatchers.Main) {
-                episodesList = parsed
+                if (parsed.isEmpty()) {
+                    episodesError = "no episodes found or parsing failed."
+                } else {
+                    episodesList = parsed
+                }
                 isLoadingEpisodes = false
             }
         }
     }
 
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = com.zune.player.R.drawable.zune_back),
-                contentDescription = "Back",
+            Box(
                 modifier = Modifier
-                    .padding(bottom = 24.dp)
-                    .offset(x = (-20).dp, y = (-8).dp)
-                    .size(80.dp)
-                    .metroClickable { onBack() }
-            )
-            
-            // Small category header
-            Text(
-                text = if (isAeroTheme) "Podcast Hub" else "PODCASTS",
-                style = ZuneTypography.h4.copy(
-                    fontFamily = SegoeUiLightFontFamily,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = ZuneTextSecondary,
-                modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 4.dp)
-            )
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "header_podcasts"),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            boundsTransform = { _, _ ->
+                                androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
+                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
+                                    stiffness = 150f
+                                )
+                            },
+                            renderInOverlayDuringTransition = false
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
+                Text(
+                    text = "podcasts",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
+                        fontSize = 170.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.12f),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
+                    modifier = Modifier
+                        .offset(x = (-12).dp, y = (-48).dp)
+                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
+                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
+                        .then(sharedModifier)
+                        .metroClickable { onBack() }
+                )
+            }
 
             // Dynamic sliding tabs
             Box(
@@ -187,7 +231,7 @@ fun PodcastsScreen(
                         val alpha = (1f - distance * 0.6f).coerceIn(0.4f, 1f)
                         
                         val isCurrentTab = pagerState.currentPage == index
-                        val displayText = if (isAeroTheme && isCurrentTab) "< $title >" else title
+                        val displayText = if (isAeroTheme && isCurrentTab) "< ${title.uppercase()} >" else title.uppercase()
                         val textColor = Color.White.copy(alpha = alpha)
                         val textStyle = ZuneTypography.h1.copy(
                             fontFamily = SegoeUiLightFontFamily,
@@ -359,40 +403,91 @@ fun PodcastsScreen(
 
                                 Divider(color = Color.White.copy(alpha = 0.08f), thickness = 1.dp)
 
-                                // Episode List or loading
-                                if (isLoadingEpisodes) {
-                                    Box(
-                                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(color = LocalZuneAccent.current)
-                                    }
-                                } else {
-                                    LazyColumn(
-                                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                                        contentPadding = PaddingValues(top = 12.dp, bottom = 96.dp),
-                                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                                    ) {
-                                        itemsIndexed(episodesList) { _, episode ->
-                                            EpisodeRow(
-                                                episode = episode,
-                                                onClick = {
-                                                    val audioItem = AudioItem(
-                                                        id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
-                                                        title = episode.title,
-                                                        artist = active.title,
-                                                        album = active.author,
-                                                        uri = Uri.parse(episode.streamUrl),
-                                                        albumArtUri = Uri.parse(active.artworkUrl),
-                                                        durationMs = parseDuration(episode.duration)
-                                                    )
-                                                    player.play(audioItem)
-                                                    android.widget.Toast.makeText(context, "streaming episode...", android.widget.Toast.LENGTH_SHORT).show()
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
+                                 // Episode List or loading
+                                 if (isLoadingEpisodes) {
+                                     Box(
+                                         modifier = Modifier.weight(1f).fillMaxWidth(),
+                                         contentAlignment = Alignment.Center
+                                     ) {
+                                         CircularProgressIndicator(color = LocalZuneAccent.current)
+                                     }
+                                 } else if (episodesError != null) {
+                                     Box(
+                                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 24.dp),
+                                         contentAlignment = Alignment.Center
+                                     ) {
+                                         Column(
+                                             horizontalAlignment = Alignment.CenterHorizontally,
+                                             verticalArrangement = Arrangement.spacedBy(8.dp)
+                                         ) {
+                                             Text(
+                                                 text = episodesError ?: "",
+                                                 style = ZuneTypography.body1.copy(fontFamily = SegoeUiLightFontFamily),
+                                                 color = ZuneTextSecondary,
+                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                             )
+                                             Text(
+                                                 text = "retry",
+                                                 style = ZuneTypography.body2.copy(fontWeight = FontWeight.Bold),
+                                                 color = LocalZuneAccent.current,
+                                                 modifier = Modifier.metroClickable {
+                                                     loadEpisodes(active)
+                                                 }
+                                             )
+                                         }
+                                     }
+                                 } else {
+                                     LazyColumn(
+                                         modifier = Modifier.weight(1f).fillMaxWidth(),
+                                         contentPadding = PaddingValues(top = 12.dp, bottom = 96.dp),
+                                         verticalArrangement = Arrangement.spacedBy(16.dp)
+                                     ) {
+                                         itemsIndexed(episodesList) { _, episode ->
+                                              EpisodeRow(
+                                                  episode = episode,
+                                                  onPlayClick = {
+                                                      val audioItem = AudioItem(
+                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                          title = episode.title,
+                                                          artist = active.title,
+                                                          album = active.author,
+                                                          uri = Uri.parse(episode.streamUrl),
+                                                          albumArtUri = Uri.parse(active.artworkUrl),
+                                                          durationMs = parseDuration(episode.duration)
+                                                      )
+                                                      player.play(audioItem)
+                                                      android.widget.Toast.makeText(context, "streaming episode...", android.widget.Toast.LENGTH_SHORT).show()
+                                                  },
+                                                  onAddToQueueClick = {
+                                                      val audioItem = AudioItem(
+                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                          title = episode.title,
+                                                          artist = active.title,
+                                                          album = active.author,
+                                                          uri = Uri.parse(episode.streamUrl),
+                                                          albumArtUri = Uri.parse(active.artworkUrl),
+                                                          durationMs = parseDuration(episode.duration)
+                                                      )
+                                                      player.addToQueue(listOf(audioItem))
+                                                      android.widget.Toast.makeText(context, "Added episode to queue", android.widget.Toast.LENGTH_SHORT).show()
+                                                  },
+                                                  onPlayNextClick = {
+                                                      val audioItem = AudioItem(
+                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                          title = episode.title,
+                                                          artist = active.title,
+                                                          album = active.author,
+                                                          uri = Uri.parse(episode.streamUrl),
+                                                          albumArtUri = Uri.parse(active.artworkUrl),
+                                                          durationMs = parseDuration(episode.duration)
+                                                      )
+                                                      player.playNext(listOf(audioItem))
+                                                      android.widget.Toast.makeText(context, "Added episode to play next", android.widget.Toast.LENGTH_SHORT).show()
+                                                  }
+                                              )
+                                         }
+                                     }
+                                 }
                             }
                         }
                     }
@@ -403,65 +498,98 @@ fun PodcastsScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp)
                         ) {
-                            // Search bar
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp)
-                                    .border(1.dp, Color.White.copy(alpha = 0.3f))
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextField(
-                                    value = searchQuery,
-                                    onValueChange = { searchQuery = it },
-                                    placeholder = { Text("search podcasts online...", color = ZuneTextSecondary, style = ZuneTypography.body1.copy(fontSize = 14.sp)) },
-                                    colors = TextFieldDefaults.textFieldColors(
-                                        backgroundColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        textColor = Color.White
-                                    ),
-                                    modifier = Modifier.weight(1f),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                    keyboardActions = KeyboardActions(onSearch = {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = { Text("search podcasts online...", color = Color.White.copy(alpha = 0.4f)) },
+                                trailingIcon = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    ) {
                                         if (searchQuery.isNotEmpty()) {
-                                            isSearching = true
-                                            coroutineScope.launch {
-                                                val term = URLEncoder.encode(searchQuery, "UTF-8")
-                                                val text = fetchUrlText("https://itunes.apple.com/search?media=podcast&term=$term")
-                                                val parsed = parseItunesSearch(text)
-                                                withContext(Dispatchers.Main) {
-                                                    searchResults = parsed
-                                                    isSearching = false
-                                                }
-                                            }
+                                            Icon(
+                                                imageVector = Icons.Default.Close,
+                                                contentDescription = "Clear",
+                                                tint = Color.White.copy(alpha = 0.6f),
+                                                modifier = Modifier.metroClickable { searchQuery = "" }
+                                            )
                                         }
-                                    })
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = "Search",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .clickable {
-                                            if (searchQuery.isNotEmpty()) {
-                                                isSearching = true
-                                                coroutineScope.launch {
-                                                    val term = URLEncoder.encode(searchQuery, "UTF-8")
-                                                    val text = fetchUrlText("https://itunes.apple.com/search?media=podcast&term=$term")
-                                                    val parsed = parseItunesSearch(text)
-                                                    withContext(Dispatchers.Main) {
-                                                        searchResults = parsed
-                                                        isSearching = false
+                                        Icon(
+                                            imageVector = Icons.Default.Search,
+                                            contentDescription = "Search",
+                                            tint = Color.White,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clickable {
+                                                    if (searchQuery.isNotEmpty()) {
+                                                        isSearching = true
+                                                        searchError = null
+                                                        coroutineScope.launch {
+                                                            val term = URLEncoder.encode(searchQuery, "UTF-8")
+                                                            val text = fetchUrlText("https://itunes.apple.com/search?media=podcast&term=$term")
+                                                            if (text.isEmpty()) {
+                                                                withContext(Dispatchers.Main) {
+                                                                    searchError = "network error. check connection."
+                                                                    searchResults = emptyList()
+                                                                    isSearching = false
+                                                                }
+                                                                return@launch
+                                                            }
+                                                            val parsed = parseItunesSearch(text)
+                                                            withContext(Dispatchers.Main) {
+                                                                searchResults = parsed
+                                                                if (parsed.isEmpty()) {
+                                                                    searchError = "no podcasts found matching query."
+                                                                }
+                                                                isSearching = false
+                                                            }
+                                                        }
                                                     }
                                                 }
+                                        )
+                                    }
+                                },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                                keyboardActions = KeyboardActions(onSearch = {
+                                    if (searchQuery.isNotEmpty()) {
+                                        isSearching = true
+                                        searchError = null
+                                        coroutineScope.launch {
+                                            val term = URLEncoder.encode(searchQuery, "UTF-8")
+                                            val text = fetchUrlText("https://itunes.apple.com/search?media=podcast&term=$term")
+                                            if (text.isEmpty()) {
+                                                withContext(Dispatchers.Main) {
+                                                    searchError = "network error. check connection."
+                                                    searchResults = emptyList()
+                                                    isSearching = false
+                                                }
+                                                return@launch
+                                            }
+                                            val parsed = parseItunesSearch(text)
+                                            withContext(Dispatchers.Main) {
+                                                searchResults = parsed
+                                                if (parsed.isEmpty()) {
+                                                    searchError = "no podcasts found matching query."
+                                                }
+                                                isSearching = false
                                             }
                                         }
-                                )
-                            }
+                                    }
+                                }),
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    textColor = Color.White,
+                                    focusedBorderColor = LocalZuneAccent.current,
+                                    unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                                    cursorColor = LocalZuneAccent.current,
+                                    backgroundColor = Color(0xFF0F0F0F)
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp, bottom = 4.dp)
+                            )
 
                             if (isSearching) {
                                 Box(
@@ -469,6 +597,19 @@ fun PodcastsScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     CircularProgressIndicator(color = LocalZuneAccent.current)
+                                }
+                            } else if (searchError != null) {
+                                Box(
+                                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = searchError ?: "",
+                                        style = ZuneTypography.body1.copy(fontFamily = SegoeUiLightFontFamily),
+                                        color = ZuneTextSecondary,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        modifier = Modifier.padding(24.dp)
+                                    )
                                 }
                             } else if (searchResults.isEmpty()) {
                                 Box(
@@ -606,51 +747,95 @@ fun PodcastCard(
 @Composable
 fun EpisodeRow(
     episode: PodcastEpisode,
-    onClick: () -> Unit
+    onPlayClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onPlayNextClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = episode.title,
-            style = ZuneTypography.h2.copy(
-                fontFamily = SegoeUiLightFontFamily,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = Color.White,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = cleanHtml(episode.description),
-            style = ZuneTypography.body2.copy(fontSize = 11.sp),
-            color = ZuneTextSecondary,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    var showMenu by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .pointerInput(episode) {
+                    detectTapGestures(
+                        onTap = { showMenu = true },
+                        onLongPress = {
+                            if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                            showMenu = true
+                        }
+                    )
+                }
+                .padding(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = episode.pubDate.take(16),
-                style = ZuneTypography.caption.copy(fontSize = 10.sp),
-                color = ZuneTextSecondary
+                text = episode.title,
+                style = ZuneTypography.h2.copy(
+                    fontFamily = SegoeUiLightFontFamily,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
-            if (episode.duration.isNotEmpty()) {
+            Text(
+                text = cleanHtml(episode.description),
+                style = ZuneTypography.body2.copy(fontSize = 11.sp),
+                color = ZuneTextSecondary,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = episode.duration,
+                    text = episode.pubDate.take(16),
                     style = ZuneTypography.caption.copy(fontSize = 10.sp),
                     color = ZuneTextSecondary
                 )
+                if (episode.duration.isNotEmpty()) {
+                    Text(
+                        text = episode.duration,
+                        style = ZuneTypography.caption.copy(fontSize = 10.sp),
+                        color = ZuneTextSecondary
+                    )
+                }
+            }
+            Divider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(top = 8.dp))
+        }
+
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false },
+            modifier = Modifier.background(Color(0xFF1A1A1A))
+        ) {
+            DropdownMenuItem(onClick = {
+                showMenu = false
+                onPlayClick()
+            }) {
+                Text("play", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            DropdownMenuItem(onClick = {
+                showMenu = false
+                onAddToQueueClick()
+            }) {
+                Text("add to queue", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            DropdownMenuItem(onClick = {
+                showMenu = false
+                onPlayNextClick()
+            }) {
+                Text("play next", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
         }
-        Divider(color = Color.White.copy(alpha = 0.05f), modifier = Modifier.padding(top = 8.dp))
     }
 }
 

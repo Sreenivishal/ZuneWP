@@ -7,19 +7,24 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import com.maxrave.media3.service.mediasourcefactory.MergingMediaSourceFactory
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class PlaybackService : MediaSessionService() {
+class PlaybackService : MediaSessionService(), KoinComponent {
     private var mediaSession: MediaSession? = null
+    private val mergingMediaSourceFactory: MergingMediaSourceFactory by inject()
+    private val appAudioAttributes: AudioAttributes by inject()
+    private val renderersFactory: DefaultRenderersFactory by inject()
 
     override fun onCreate() {
         super.onCreate()
-        val audioAttributes = AudioAttributes.Builder()
-            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
-            .setUsage(C.USAGE_MEDIA)
-            .build()
 
-        val player = ExoPlayer.Builder(this)
-            .setAudioAttributes(audioAttributes, true)
+        val player = ExoPlayer.Builder(this, renderersFactory)
+            .setMediaSourceFactory(mergingMediaSourceFactory)
+            .setAudioAttributes(appAudioAttributes, true)
+            .setWakeMode(C.WAKE_MODE_NETWORK)
             .build()
             
         val intent = Intent(this, com.zune.player.MainActivity::class.java)

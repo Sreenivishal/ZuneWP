@@ -14,8 +14,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
+import android.content.Context
+
 @UnstableApi
-internal class MergingMediaSourceFactory(
+class MergingMediaSourceFactory(
+    private val context: Context,
     private val defaultMediaSourceFactory: DefaultMediaSourceFactory,
     private val dataStoreManager: DataStoreManager,
 ) : MediaSource.Factory {
@@ -32,12 +35,17 @@ internal class MergingMediaSourceFactory(
     override fun getSupportedTypes(): IntArray = defaultMediaSourceFactory.supportedTypes
 
     override fun createMediaSource(mediaItem: MediaItem): MediaSource {
+        val uriString = mediaItem.localConfiguration?.uri?.toString() ?: ""
+        val isLocalOrHttp = uriString.startsWith("content:") || uriString.startsWith("file:") || uriString.startsWith("/") ||
+                            uriString.startsWith("http:") || uriString.startsWith("https:")
+        if (isLocalOrHttp) {
+            return DefaultMediaSourceFactory(context).createMediaSource(mediaItem)
+        }
+
         Logger.w("Merging Media Source", mediaItem.mediaMetadata.description.toString())
         val getVideo = runBlocking(Dispatchers.IO) { dataStoreManager.watchVideoInsteadOfPlayingAudio.first() } == DataStoreManager.Values.TRUE
         Logger.w("Merging Media Source", getVideo.toString())
-        val uriString = mediaItem.localConfiguration?.uri?.toString() ?: ""
-        val isLocal = uriString.startsWith("content:") || uriString.startsWith("file:") || uriString.startsWith("/")
-        if (mediaItem.mediaMetadata.description == MERGING_DATA_TYPE.VIDEO && getVideo && !isLocal) {
+        if (mediaItem.mediaMetadata.description == MERGING_DATA_TYPE.VIDEO && getVideo) {
             val videoItem =
                 mediaItem
                     .buildUpon()
@@ -51,7 +59,5 @@ internal class MergingMediaSourceFactory(
         } else {
             return defaultMediaSourceFactory.createMediaSource(mediaItem)
         }
-
-//        val default = defaultMediaSourceFactory.createMediaSource(mediaItem.buildUpon().setMediaId("AUDIO-${mediaItem.mediaId}").build())
     }
 }

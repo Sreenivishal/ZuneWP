@@ -1,4 +1,4 @@
-package com.zune.player.data
+﻿package com.zune.player.data
 
 import android.content.ContentUris
 import android.content.Context
@@ -206,5 +206,22 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
             }
             playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
         }
+    }
+
+    suspend fun savePlaylistTracks(playlistName: String, tracks: List<AudioItem>) = withContext(Dispatchers.IO) {
+        val array = JSONArray()
+        tracks.forEach { track ->
+            val obj = JSONObject().apply {
+                put("id", track.id)
+                put("title", track.title)
+                put("artist", track.artist)
+                put("album", track.album)
+                put("uri", track.uri.toString())
+                put("albumArtUri", track.albumArtUri?.toString() ?: "")
+                put("durationMs", track.durationMs)
+            }
+            array.put(obj)
+        }
+        playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
     }
 }

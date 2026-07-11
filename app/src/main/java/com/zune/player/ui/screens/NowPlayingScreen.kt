@@ -56,6 +56,7 @@ import com.zune.player.ui.theme.ZuneTypography
 import com.zune.player.ui.components.metroClickable
 import com.zune.player.player.AudioPlayer
 import com.zune.player.ui.theme.LocalZuneAccent
+import com.zune.player.ui.theme.SegoeUiFontFamily
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
@@ -84,6 +85,7 @@ fun NowPlayingScreen(
     var localCurrentPos by remember { mutableLongStateOf(0L) }
     var seekPreview by remember { mutableStateOf<Float?>(null) }
     var isDragging by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     val currentPos = if (isDragging) localCurrentPos else currentPosFlow
     // Prefer the live ExoPlayer timeline duration over the value stamped on AudioItem
@@ -216,13 +218,20 @@ fun NowPlayingScreen(
                             }
                         )
                     }
-                    .clickable { showLyrics = !showLyrics }
+                    .let {
+                        if (!showLyrics) {
+                            it.clickable { showLyrics = true }
+                        } else {
+                            it
+                        }
+                    }
             ) {
                 if (showLyrics) {
                     com.zune.player.ui.components.SynchronizedLyricsView(
                         lyrics = lyrics,
                         currentLyricIndex = currentLyricIndex,
                         onLyricClick = { timestamp -> player.seekTo(timestamp) },
+                        onDismiss = { showLyrics = false },
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -275,12 +284,15 @@ fun NowPlayingScreen(
                                     }
                                 }
                                 
-                                isDragging = false
                                 val finalProgress = (currentX / width.toFloat()).coerceIn(0f, 1f)
                                 val seekMs = (finalProgress * duration).toLong()
                                 player.seekTo(seekMs)
                                 localCurrentPos = seekMs
                                 seekPreview = null
+                                coroutineScope.launch {
+                                    delay(1200)
+                                    isDragging = false
+                                }
                             }
                         },
                     contentAlignment = Alignment.Center
@@ -391,7 +403,11 @@ fun QueuePanel(
     onMove: (Int, Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val items = remember { androidx.compose.runtime.mutableStateListOf<QueueUiItem>() }
+    val items = remember {
+        androidx.compose.runtime.mutableStateListOf<QueueUiItem>().apply {
+            addAll(queue.map { QueueUiItem(stableId = java.util.UUID.randomUUID().toString(), audioItem = it) })
+        }
+    }
     
     LaunchedEffect(queue) {
         val newItems = mutableListOf<QueueUiItem>()
@@ -418,12 +434,24 @@ fun QueuePanel(
     }
 
     val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    
+    // Auto-scroll to active playing track when the panel opens or track changes
+    LaunchedEffect(currentId) {
+        val index = queue.indexOfFirst { it.id == currentId }
+        if (index >= 0) {
+            lazyListState.animateScrollToItem(index)
+        }
+    }
+
     val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
         items.add(to.index, items.removeAt(from.index))
         onMove(from.index, to.index)
     }
 
     val dragY = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(Unit) {
+        dragY.snapTo(0f)
+    }
     val coroutineScope = rememberCoroutineScope()
 
     val nestedScrollConnection = remember {
@@ -462,13 +490,12 @@ fun QueuePanel(
     Column(
         modifier = Modifier
             .offset { androidx.compose.ui.unit.IntOffset(0, dragY.value.toInt()) }
-            .fillMaxWidth()
-            .fillMaxHeight(0.55f)
+            .fillMaxSize()
             .background(Color(0xFF0C0C0C))
             .nestedScroll(nestedScrollConnection)
     ) {
         // Header
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .pointerInput(Unit) {
@@ -488,13 +515,48 @@ fun QueuePanel(
                         }
                     }
                 }
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("QUEUE", style = ZuneTypography.body1.copy(fontSize = 11.sp, letterSpacing = 2.sp), color = Color.White)
-            Icon(Icons.Default.Close, "Close", tint = Color.White.copy(alpha = 0.5f),
-                modifier = Modifier.size(18.dp).metroClickable { onDismiss() })
+            // 1. Large "playing" watermark text cut off at the top
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(90.dp),
+                contentAlignment = Alignment.BottomStart
+            ) {
+                Text(
+                    text = "playing",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = SegoeUiFontFamily,
+                        fontSize = 120.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Light
+                    ),
+                    color = Color.White.copy(alpha = 0.06f),
+                    modifier = Modifier.offset(y = (-28).dp, x = (-8).dp)
+                )
+            }
+
+            // 2. Track index counter
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val currentIndex = queue.indexOfFirst { it.id == currentId }
+                val currentTrackNum = if (currentIndex >= 0) currentIndex + 1 else 1
+                val totalTracks = queue.size
+
+                Text(
+                    text = "${currentTrackNum} OF ${totalTracks}",
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = SegoeUiFontFamily,
+                        fontSize = 15.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    ),
+                    color = Color.White
+                )
+            }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(Color.White.copy(alpha = 0.07f)))
 
@@ -510,20 +572,78 @@ fun QueuePanel(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(if (isDragging) Color.White.copy(0.07f) else if (item.id == currentId) Color.White.copy(0.04f) else Color.Transparent)
-                            .padding(vertical = 10.dp),
+                            .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.DragHandle, "Drag", tint = Color.White.copy(0.28f),
-                            modifier = Modifier.size(18.dp).draggableHandle())
+                        Icon(
+                            imageVector = Icons.Default.DragHandle,
+                            contentDescription = "Drag",
+                            tint = Color.White.copy(0.28f),
+                            modifier = Modifier
+                                .size(18.dp)
+                                .draggableHandle()
+                        )
+                        
                         Spacer(Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f).metroClickable { onPlayAt(index) }) {
-                            Text(item.title.lowercase(), style = ZuneTypography.body1.copy(fontSize = 14.sp),
-                                color = if (item.id == currentId) accent else Color.White, maxLines = 1)
-                            Text(item.artist.lowercase(), style = ZuneTypography.body1.copy(fontSize = 11.sp),
-                                color = ZuneTextSecondary, maxLines = 1)
+
+                        // Duration on the left side (only for active track, spacer for others)
+                        Box(
+                            modifier = Modifier.width(48.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            if (item.id == currentId) {
+                                Text(
+                                    text = fmtMs(item.durationMs),
+                                    style = androidx.compose.ui.text.TextStyle(
+                                        fontFamily = SegoeUiFontFamily,
+                                        fontSize = 13.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
+                                    ),
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                            }
                         }
-                        Icon(Icons.Default.Close, "Remove", tint = Color.White.copy(0.35f),
-                            modifier = Modifier.size(16.dp).metroClickable { onRemove(index) })
+
+                        // Track Title and Artist / Album details
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .metroClickable { onPlayAt(index) }
+                        ) {
+                            Text(
+                                text = item.title,
+                                style = androidx.compose.ui.text.TextStyle(
+                                    fontFamily = SegoeUiFontFamily,
+                                    fontSize = 18.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                ),
+                                color = if (item.id == currentId) accent else Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            
+                            Text(
+                                text = "${item.artist.uppercase()}   ${item.album.uppercase()}",
+                                style = androidx.compose.ui.text.TextStyle(
+                                    fontFamily = SegoeUiFontFamily,
+                                    fontSize = 11.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
+                                ),
+                                color = Color.White.copy(alpha = 0.5f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Remove",
+                            tint = Color.White.copy(0.35f),
+                            modifier = Modifier
+                                .size(16.dp)
+                                .metroClickable { onRemove(index) }
+                        )
                     }
                 }
             }
