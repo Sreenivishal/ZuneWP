@@ -33,10 +33,16 @@ class AudioPlayer private constructor(private val context: Context) {
         @Volatile
         private var instance: AudioPlayer? = null
 
-        fun getInstance(context: Context): AudioPlayer {
-            return instance ?: synchronized(this) {
+        fun getInstance(context: Context, forceReconnect: Boolean = false): AudioPlayer {
+            val inst = instance ?: synchronized(this) {
                 instance ?: AudioPlayer(context.applicationContext).also { instance = it }
             }
+            if (forceReconnect) {
+                inst.forceReconnect()
+            } else {
+                inst.checkConnection()
+            }
+            return inst
         }
     }
 
@@ -51,6 +57,7 @@ class AudioPlayer private constructor(private val context: Context) {
     private var currentPlaylist = emptyList<AudioItem>()
     private var pendingRestoreItem: AudioItem? = null
     private var pendingRestoreQueue: Pair<List<AudioItem>, Int>? = null
+    private var pendingAction: (() -> Unit)? = null
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
@@ -91,49 +98,84 @@ class AudioPlayer private constructor(private val context: Context) {
     val currentPositionValue: Long get() = mediaController?.currentPosition ?: 0L
     val durationValue: Long get() = mediaController?.duration?.coerceAtLeast(0L) ?: 0L
 
+    private var isConnecting = false
+
     init {
+        connectController()
+    }
+
+    fun checkConnection() {
+        val controller = mediaController
+        if (controller == null || !controller.isConnected) {
+            connectController()
+        }
+    }
+
+    fun forceReconnect() {
+        connectController()
+    }
+
+    private fun connectController() {
+        if (isConnecting) return
+        isConnecting = true
+
+        mediaController?.release()
+        mediaController = null
+
         val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
         controllerFuture.addListener(
             {
-                mediaController = controllerFuture.get()
-                setupControllerListener()
+                try {
+                    mediaController = controllerFuture.get()
+                    setupControllerListener()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    isConnecting = false
+                }
             },
             ContextCompat.getMainExecutor(context)
         )
     }
 
+    private fun updatePlayingState(isPlaying: Boolean) {
+        val controller = mediaController ?: return
+        _isPlaying.value = isPlaying
+        if (isPlaying) {
+            startPollingPosition()
+        } else {
+            positionPollJob?.cancel()
+            _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
+            _duration.value = controller.duration.coerceAtLeast(0L)
+        }
+    }
+
     private fun setupControllerListener() {
         val controller = mediaController ?: return
-        // Sync initial state
-        _shuffleEnabled.value = controller.shuffleModeEnabled
-        _repeatMode.value = controller.repeatMode
-        refreshQueue()
 
-        pendingRestoreItem?.let {
-            applyRestore(it)
-            pendingRestoreItem = null
-        }
-
-        pendingRestoreQueue?.let { (items, index) ->
-            applyRestoreQueue(items, index)
-            pendingRestoreQueue = null
-        }
-
+        // Register listener first so we don't miss any events triggered by initial actions
         controller.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _isPlaying.value = isPlaying
-                if (isPlaying) {
-                    startPollingPosition()
-                } else {
-                    positionPollJob?.cancel()
-                    _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
-                    _duration.value = controller.duration.coerceAtLeast(0L)
-                }
+                updatePlayingState(isPlaying)
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
                 _isBuffering.value = playbackState == Player.STATE_BUFFERING
+                _duration.value = controller.duration.coerceAtLeast(0L)
+                updatePlayingState(controller.isPlaying)
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                updatePlayingState(controller.isPlaying)
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int
+            ) {
+                _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
                 _duration.value = controller.duration.coerceAtLeast(0L)
             }
 
@@ -144,18 +186,39 @@ class AudioPlayer private constructor(private val context: Context) {
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 super.onMediaItemTransition(mediaItem, reason)
-                val mediaId = mediaItem?.mediaId
-                val matchedItem = currentPlaylist.find {
-                    val itemUriStr = it.uri.toString()
-                    val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
-                        itemUriStr.substringAfter("zune://online/")
-                    } else {
-                        itemUriStr
+                val mId = mediaItem?.mediaId
+                if (mId != null) {
+                    var matchedItem = currentPlaylist.find {
+                        val itemUriStr = it.uri.toString()
+                        val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
+                            itemUriStr.substringAfter("zune://online/")
+                        } else {
+                            itemUriStr
+                        }
+                        cleanItemUri == mId
                     }
-                    cleanItemUri == mediaId
-                }
-                if (matchedItem != null) {
-                    _currentAudio.value = matchedItem
+                    if (matchedItem == null && mediaItem != null) {
+                        val meta = mediaItem.mediaMetadata
+                        val isOnline = meta.description?.toString() == com.maxrave.common.MERGING_DATA_TYPE.SONG
+                        val uri = if (isOnline) {
+                            Uri.parse("zune://online/$mId")
+                        } else {
+                            Uri.parse(mId)
+                        }
+                        matchedItem = AudioItem(
+                            id = if (isOnline) -mId.hashCode().toLong() else mId.substringAfterLast("/").toLongOrNull() ?: 0L,
+                            title = meta.title?.toString() ?: "Unknown Title",
+                            artist = meta.artist?.toString() ?: "Unknown Artist",
+                            album = meta.albumTitle?.toString() ?: "Unknown Album",
+                            uri = uri,
+                            albumArtUri = meta.artworkUri,
+                            durationMs = 0L
+                        )
+                        currentPlaylist = currentPlaylist + matchedItem
+                    }
+                    if (matchedItem != null) {
+                        _currentAudio.value = matchedItem
+                    }
                 }
                 _currentPosition.value = controller.currentPosition.coerceAtLeast(0L)
                 _duration.value = controller.duration.coerceAtLeast(0L)
@@ -172,6 +235,63 @@ class AudioPlayer private constructor(private val context: Context) {
                 _repeatMode.value = repeatMode
             }
         })
+
+        // Sync initial state
+        _shuffleEnabled.value = controller.shuffleModeEnabled
+        _repeatMode.value = controller.repeatMode
+        updatePlayingState(controller.isPlaying)
+
+        val currentMediaItem = controller.currentMediaItem
+        val mediaId = currentMediaItem?.mediaId
+        if (mediaId != null) {
+            var matchedItem = currentPlaylist.find {
+                val itemUriStr = it.uri.toString()
+                val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
+                    itemUriStr.substringAfter("zune://online/")
+                } else {
+                    itemUriStr
+                }
+                cleanItemUri == mediaId
+            }
+            if (matchedItem == null) {
+                val meta = currentMediaItem.mediaMetadata
+                val isOnline = meta.description?.toString() == com.maxrave.common.MERGING_DATA_TYPE.SONG
+                val uri = if (isOnline) {
+                    Uri.parse("zune://online/$mediaId")
+                } else {
+                    Uri.parse(mediaId)
+                }
+                matchedItem = AudioItem(
+                    id = if (isOnline) -mediaId.hashCode().toLong() else mediaId.substringAfterLast("/").toLongOrNull() ?: 0L,
+                    title = meta.title?.toString() ?: "Unknown Title",
+                    artist = meta.artist?.toString() ?: "Unknown Artist",
+                    album = meta.albumTitle?.toString() ?: "Unknown Album",
+                    uri = uri,
+                    albumArtUri = meta.artworkUri,
+                    durationMs = 0L
+                )
+                currentPlaylist = currentPlaylist + matchedItem
+            }
+            _currentAudio.value = matchedItem
+        }
+
+        val action = pendingAction
+        if (action != null) {
+            pendingRestoreItem = null
+            pendingRestoreQueue = null
+            action.invoke()
+            pendingAction = null
+        } else {
+            pendingRestoreItem?.let {
+                applyRestore(it)
+                pendingRestoreItem = null
+            }
+
+            pendingRestoreQueue?.let { (items, index) ->
+                applyRestoreQueue(items, index)
+                pendingRestoreQueue = null
+            }
+        }
     }
 
     private fun startPollingPosition() {
@@ -224,7 +344,7 @@ class AudioPlayer private constructor(private val context: Context) {
         for (i in 0 until count) {
             val mi = controller.getMediaItemAt(i)
             val mediaId = mi.mediaId
-            val item = currentPlaylist.find {
+            var item = currentPlaylist.find {
                 val itemUriStr = it.uri.toString()
                 val cleanItemUri = if (it.uri.scheme == "zune" && it.uri.host == "online") {
                     itemUriStr.substringAfter("zune://online/")
@@ -233,7 +353,26 @@ class AudioPlayer private constructor(private val context: Context) {
                 }
                 cleanItemUri == mediaId
             }
-            if (item != null) rebuilt.add(item)
+            if (item == null) {
+                val meta = mi.mediaMetadata
+                val isOnline = meta.description?.toString() == com.maxrave.common.MERGING_DATA_TYPE.SONG
+                val uri = if (isOnline) {
+                    Uri.parse("zune://online/$mediaId")
+                } else {
+                    Uri.parse(mediaId)
+                }
+                item = AudioItem(
+                    id = if (isOnline) -mediaId.hashCode().toLong() else mediaId.substringAfterLast("/").toLongOrNull() ?: 0L,
+                    title = meta.title?.toString() ?: "Unknown Title",
+                    artist = meta.artist?.toString() ?: "Unknown Artist",
+                    album = meta.albumTitle?.toString() ?: "Unknown Album",
+                    uri = uri,
+                    albumArtUri = meta.artworkUri,
+                    durationMs = 0L
+                )
+                currentPlaylist = currentPlaylist + item
+            }
+            rebuilt.add(item)
         }
         _queue.value = rebuilt
 
@@ -243,7 +382,34 @@ class AudioPlayer private constructor(private val context: Context) {
         } else {
             emptyList()
         }
+        persistQueue(rebuilt)
         triggerPreloading()
+    }
+
+    private fun persistQueue(items: List<AudioItem>) {
+        try {
+            val jsonArray = org.json.JSONArray()
+            for (item in items) {
+                val obj = org.json.JSONObject()
+                obj.put("id", item.id)
+                obj.put("title", item.title)
+                obj.put("artist", item.artist)
+                obj.put("album", item.album)
+                obj.put("uri", item.uri.toString())
+                obj.put("albumArtUri", item.albumArtUri?.toString() ?: "")
+                obj.put("durationMs", item.durationMs)
+                jsonArray.put(obj)
+            }
+            val prefs = context.getSharedPreferences("zune_prefs", Context.MODE_PRIVATE)
+            val currentAudioId = _currentAudio.value?.id ?: -1L
+            val currentIndex = items.indexOfFirst { it.id == currentAudioId }
+            prefs.edit()
+                .putString("last_queue_json", jsonArray.toString())
+                .putInt("last_queue_index", currentIndex)
+                .apply()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun registerItems(items: List<AudioItem>) {
@@ -315,6 +481,13 @@ class AudioPlayer private constructor(private val context: Context) {
     }
 
     fun play(item: AudioItem) {
+        pendingRestoreItem = null
+        pendingRestoreQueue = null
+        val controller = mediaController
+        if (controller == null) {
+            pendingAction = { play(item) }
+            return
+        }
         if (_currentAudio.value?.id == item.id) {
             resume()
             return
@@ -322,9 +495,9 @@ class AudioPlayer private constructor(private val context: Context) {
 
         registerItems(listOf(item))
         val mediaItem = buildMediaItem(item)
-        mediaController?.setMediaItem(mediaItem)
-        mediaController?.prepare()
-        mediaController?.play()
+        controller.setMediaItem(mediaItem)
+        controller.prepare()
+        controller.play()
 
         _currentAudio.value = item
         refreshQueue()
@@ -332,6 +505,7 @@ class AudioPlayer private constructor(private val context: Context) {
     }
 
     fun restoreLastPlayed(item: AudioItem) {
+        if (pendingAction != null) return
         if (mediaController != null) {
             applyRestore(item)
         } else {
@@ -351,6 +525,7 @@ class AudioPlayer private constructor(private val context: Context) {
 
     fun restoreLastQueue(items: List<AudioItem>, startIndex: Int) {
         if (items.isEmpty()) return
+        if (pendingAction != null) return
         if (mediaController != null) {
             applyRestoreQueue(items, startIndex)
         } else {
@@ -371,6 +546,13 @@ class AudioPlayer private constructor(private val context: Context) {
 
     fun playList(items: List<AudioItem>, startIndex: Int = 0) {
         if (items.isEmpty()) return
+        pendingRestoreItem = null
+        pendingRestoreQueue = null
+        val controller = mediaController
+        if (controller == null) {
+            pendingAction = { playList(items, startIndex) }
+            return
+        }
 
         if (currentPlaylist == items && _currentAudio.value?.id == items[startIndex].id) {
             resume()
@@ -380,9 +562,9 @@ class AudioPlayer private constructor(private val context: Context) {
         registerItems(items)
         val mediaItems = items.map { buildMediaItem(it) }
         val safeIndex = startIndex.coerceIn(items.indices)
-        mediaController?.setMediaItems(mediaItems, safeIndex, 0)
-        mediaController?.prepare()
-        mediaController?.play()
+        controller.setMediaItems(mediaItems, safeIndex, 0)
+        controller.prepare()
+        controller.play()
 
         _currentAudio.value = items[safeIndex]
         refreshQueue()
@@ -453,7 +635,20 @@ class AudioPlayer private constructor(private val context: Context) {
         }
     }
 
-    fun resume() { mediaController?.play() }
+    fun resume() {
+        val controller = mediaController ?: return
+        if (controller.mediaItemCount == 0 && _currentAudio.value != null) {
+            val items = currentPlaylist.ifEmpty { listOf(_currentAudio.value!!) }
+            val index = items.indexOfFirst { it.id == _currentAudio.value?.id }.coerceAtLeast(0)
+            registerItems(items)
+            val mediaItems = items.map { buildMediaItem(it) }
+            controller.setMediaItems(mediaItems, index, 0)
+        }
+        if (controller.playbackState == Player.STATE_IDLE) {
+            controller.prepare()
+        }
+        controller.play()
+    }
     fun pause() { mediaController?.pause() }
 
     fun togglePlayPause() {

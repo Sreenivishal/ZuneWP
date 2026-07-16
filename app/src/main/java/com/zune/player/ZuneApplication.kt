@@ -23,7 +23,7 @@ class ZuneApplication : Application() {
         try {
             Log.d(TAG, "Initializing Koin Container...")
             startKoin {
-                androidLogger(level = Level.DEBUG)
+                androidLogger(level = if (BuildConfig.DEBUG) Level.DEBUG else Level.ERROR)
                 androidContext(this@ZuneApplication)
                 loadAllModules()
                 loadKoinModules(viewModelModule)

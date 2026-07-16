@@ -19,8 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -325,10 +324,12 @@ fun PicturesAndVideosPagePreview(
                                     )
                                 }
                                 is LiveTileItem.Gradient -> {
+                                    val isWhiteAccent = LocalZuneAccent.current == Color.White || LocalZuneAccent.current.toArgb() == -1
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .background(LocalZuneAccent.current)
+                                            .background(if (isWhiteAccent) Color.Black else LocalZuneAccent.current)
+                                            .then(if (isWhiteAccent) Modifier.border(1.5.dp, Color.White) else Modifier)
                                     )
                                 }
                                 null -> {}
@@ -336,10 +337,12 @@ fun PicturesAndVideosPagePreview(
                         }
                     }
                 } else {
+                    val isWhiteAccent = LocalZuneAccent.current == Color.White || LocalZuneAccent.current.toArgb() == -1
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(LocalZuneAccent.current)
+                            .background(if (isWhiteAccent) Color.Black else LocalZuneAccent.current)
+                            .then(if (isWhiteAccent) Modifier.border(1.5.dp, Color.White) else Modifier)
                     )
                 }
 
@@ -392,10 +395,12 @@ fun PicturesAndVideosPagePreview(
                         contentScale = ContentScale.Crop
                     )
                 } else {
+                    val isWhiteAccent = LocalZuneAccent.current == Color.White || LocalZuneAccent.current.toArgb() == -1
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(LocalZuneAccent.current)
+                            .background(if (isWhiteAccent) Color.Black else LocalZuneAccent.current)
+                            .then(if (isWhiteAccent) Modifier.border(1.5.dp, Color.White) else Modifier)
                     )
                 }
 
@@ -411,7 +416,7 @@ fun PicturesAndVideosPagePreview(
                 )
 
                 Icon(
-                    imageVector = Icons.Default.PlayArrow,
+                    imageVector = ZuneIcons.Play,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier

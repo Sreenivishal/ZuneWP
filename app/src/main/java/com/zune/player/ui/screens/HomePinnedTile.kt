@@ -19,8 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.border
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -184,7 +183,7 @@ fun PinnedTileView(
     val isPhotoOrGalleryApp = remember(tileItem) {
         tileItem.type == "app" && (tileItem.title.lowercase().contains("photo") || tileItem.title.lowercase().contains("gallery"))
     }
-    val shouldLoadPhotos = tileItem.type == "photo" || isPhotoOrGalleryApp
+    val shouldLoadPhotos = isPhotoOrGalleryApp
 
     // Photo cycling slideshow
     val localPhotos = remember { mutableStateListOf<PhotoItem>() }
@@ -469,9 +468,18 @@ fun PinnedTileView(
                                 .clip(innerShape)
                         }
                     } else {
+                        val isWhiteAccent = LocalZuneAccent.current == Color.White || LocalZuneAccent.current.toArgb() == -1
+                        val backImageModel = if (shouldLoadPhotos) backPhotoUri else null
+                        val showWhiteBorder = isWhiteAccent && (if (isFlipped) backImageModel == null else imageModel == null)
+                        val tileBackground = if (isWhiteAccent) Color.Black else LocalZuneAccent.current
+                        val tileModifier = if (showWhiteBorder) {
+                            Modifier.border(width = if (isPlaying) 3.dp else 1.5.dp, color = Color.White)
+                        } else {
+                            if (isPlaying && !isWhiteAccent) Modifier.border(3.dp, LocalZuneAccent.current) else Modifier
+                        }
                         Modifier
-                            .then(if (isPlaying) Modifier.border(3.dp, LocalZuneAccent.current) else Modifier)
-                            .background(LocalZuneAccent.current)
+                            .then(tileModifier)
+                            .background(tileBackground)
                     }
                 )
                 .graphicsLayer {
@@ -737,7 +745,7 @@ fun PinnedTileView(
                 }
 
                 // Title overlay at the bottom
-                if (size > 1 && !isCalendar && !isClock && tileItem.type != "song") {
+                if (size > 1 && !isCalendar && !isClock && tileItem.type != "song" && tileItem.type != "photo") {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -769,7 +777,7 @@ fun PinnedTileView(
                     .metroClickable { onUnpin(tileItem.id) },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Unpin", tint = Color.White, modifier = Modifier.size(18.dp))
+                Icon(ZuneIcons.Close, contentDescription = "Unpin", tint = Color.White, modifier = Modifier.size(18.dp))
             }
 
             Box(
@@ -782,7 +790,7 @@ fun PinnedTileView(
                     .metroClickable { onCycleSize(tileItem.id) },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Resize", tint = Color.White, modifier = Modifier.size(18.dp))
+                Icon(ZuneIcons.Refresh, contentDescription = "Resize", tint = Color.White, modifier = Modifier.size(18.dp))
             }
         }
     }
@@ -1050,8 +1058,6 @@ fun PinnedPage(
                                         }
                                     } else {
                                         Modifier
-                                            .then(if (isPlaying) Modifier.border(3.dp, LocalZuneAccent.current) else Modifier)
-                                            .background(LocalZuneAccent.current)
                                     }
                                 )
                                 .pointerInput(isEditMode, id) {

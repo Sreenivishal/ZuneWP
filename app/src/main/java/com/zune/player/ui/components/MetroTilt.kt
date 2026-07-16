@@ -4,6 +4,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -36,7 +38,7 @@ import com.zune.player.ui.theme.LocalZuneAccent
  * Elements scale down slightly and physically rotate on X/Y axes based on touch position.
  */
 fun Modifier.metroClickable(
-    hapticFeedbackEnabled: Boolean = false,
+    hapticFeedbackEnabled: Boolean = true,
     onClick: () -> Unit
 ) = composed {
     val context = LocalContext.current
@@ -59,26 +61,35 @@ fun Modifier.metroClickable(
     }
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.98f else 1f,
-        animationSpec = tween(durationMillis = 150),
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "MetroTiltScale"
     )
     
     val rotateX by animateFloatAsState(
         targetValue = if (isPressed && itemSize.height > 0) {
             val normalizedY = (tapOffset.y / itemSize.height) - 0.5f
-            -normalizedY * 10f // Toned down tilt angle based on Y
+            -normalizedY * 12f // Toned down tilt angle based on Y
         } else 0f,
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "MetroTiltRotateX"
     )
 
     val rotateY by animateFloatAsState(
         targetValue = if (isPressed && itemSize.width > 0) {
             val normalizedX = (tapOffset.x / itemSize.width) - 0.5f
-            normalizedX * 10f // Toned down tilt angle based on X
+            normalizedX * 12f // Toned down tilt angle based on X
         } else 0f,
-        animationSpec = tween(durationMillis = 150),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "MetroTiltRotateY"
     )
 

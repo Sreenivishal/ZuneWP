@@ -1,6 +1,9 @@
 package com.zune.player.ui.screens
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,11 +13,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDownward
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +43,7 @@ fun AlbumDetailScreen(
     onPlayAll: () -> Unit,
     onShuffleAll: () -> Unit,
     onPlayNextAlbum: () -> Unit = {},
+    onAddToQueueAlbum: () -> Unit = {},
     onTrackClick: (Int) -> Unit,
     currentPlayingTitle: String? = null,
     onPlayNextTrack: (String) -> Unit = {},
@@ -58,25 +58,6 @@ fun AlbumDetailScreen(
     var songToAddToPlaylist by remember { mutableStateOf<com.zune.player.data.AudioItem?>(null) } // songToAddToPlaylist
 
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        // Background Image (Album Art)
-        val firstTrackArt = tracks.firstOrNull()?.albumArtUri
-        AsyncImage(
-            model = firstTrackArt,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .blur(20.dp),
-            contentScale = ContentScale.Crop,
-            alpha = 0.4f
-        )
-        
-        // Dark Gradient/Tint Overlay
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f))
-        )
-
         val sharedTransitionScope = LocalSharedTransitionScope.current
         val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
 
@@ -84,89 +65,140 @@ fun AlbumDetailScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(240.dp)
+                    .metroClickable { onBack() }
             ) {
-                @OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
-                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
-                    with(sharedTransitionScope) {
-                        Modifier.sharedElement(
-                            rememberSharedContentState(key = "header_music"),
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            boundsTransform = { _, _ ->
-                                androidx.compose.animation.core.spring<androidx.compose.ui.geometry.Rect>(
-                                    dampingRatio = androidx.compose.animation.core.Spring.DampingRatioNoBouncy,
-                                    stiffness = 150f
-                                )
-                            },
-                            renderInOverlayDuringTransition = false
-                        ).skipToLookaheadSize()
-                    }
-                } else {
-                    Modifier
+                val firstTrackArt = tracks.firstOrNull()?.albumArtUri
+                if (firstTrackArt != null) {
+                    AsyncImage(
+                        model = firstTrackArt,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.BottomCenter
+                    )
                 }
-
-                Text(
-                    text = "albums",
-                    style = androidx.compose.ui.text.TextStyle(
-                        fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
-                        fontSize = 170.sp
-                    ),
-                    color = Color.White.copy(alpha = 0.12f),
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Clip,
-                    modifier = Modifier
-                        .offset(x = (-12).dp, y = (-48).dp)
-                        .wrapContentWidth(align = androidx.compose.ui.Alignment.Start, unbounded = true)
-                        .wrapContentHeight(align = androidx.compose.ui.Alignment.Top, unbounded = true)
-                        .then(sharedModifier)
-                        .metroClickable { onBack() }
-                )
             }
-            // Header
+            var albumFontSize by remember(albumName) { mutableStateOf(56.sp) }
+            var albumReadyToDraw by remember(albumName) { mutableStateOf(false) }
+
+            var artistFontSize by remember(artistName) { mutableStateOf(32.sp) }
+            var artistReadyToDraw by remember(artistName) { mutableStateOf(false) }
+
+            // Header - Album Name
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, top = 8.dp, bottom = 6.dp),
+                    .padding(start = 24.dp, top = 8.dp, bottom = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = albumName.lowercase(),
-                    style = ZuneTypography.h1.copy(fontSize = 42.sp),
+                    text = albumName.uppercase(),
+                    style = ZuneTypography.h1.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.zune.player.R.font.segoeuithibd)),
+                        fontSize = albumFontSize,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                        letterSpacing = (-1).sp
+                    ),
                     color = LocalZuneAccent.current,
                     maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    onTextLayout = { textLayoutResult ->
+                        if (textLayoutResult.hasVisualOverflow) {
+                            val nextFontSize = (albumFontSize.value - 2f).sp
+                            if (nextFontSize.value >= 11f) {
+                                albumFontSize = nextFontSize
+                            } else {
+                                albumReadyToDraw = true
+                            }
+                        } else {
+                            albumReadyToDraw = true
+                        }
+                    },
+                    modifier = Modifier.drawWithContent {
+                        if (albumReadyToDraw) {
+                            drawContent()
+                        }
+                    }
                 )
             }
 
-            // Play, Shuffle, and Play Next buttons
+            // Header - Artist Name
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(start = 24.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                HeaderAction(
-                    text = "play",
-                    icon = Icons.Default.PlayArrow,
-                    onClick = onPlayAll
+                Text(
+                    text = artistName.uppercase(),
+                    style = ZuneTypography.h2.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.zune.player.R.font.segoeuithibd)),
+                        fontSize = artistFontSize,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        letterSpacing = (-0.5).sp
+                    ),
+                    color = Color.White.copy(alpha = 0.6f),
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    onTextLayout = { textLayoutResult ->
+                        if (textLayoutResult.hasVisualOverflow) {
+                            val nextFontSize = (artistFontSize.value - 1.5f).sp
+                            if (nextFontSize.value >= 11f) {
+                                artistFontSize = nextFontSize
+                            } else {
+                                artistReadyToDraw = true
+                            }
+                        } else {
+                            artistReadyToDraw = true
+                        }
+                    },
+                    modifier = Modifier.drawWithContent {
+                        if (artistReadyToDraw) {
+                            drawContent()
+                        }
+                    }
                 )
-                HeaderAction(
-                    text = "shuffle",
-                    icon = Icons.Default.Shuffle,
-                    onClick = onShuffleAll
-                )
-                HeaderAction(
-                    text = "play next",
-                    icon = Icons.Default.ArrowForward,
-                    onClick = onPlayNextAlbum
-                )
-                if (onDownloadAlbum != null && tracks.isNotEmpty()) {
+            }
+
+            // Play, Shuffle, and Play Next buttons (Header Actions row)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     HeaderAction(
-                        text = "download",
-                        icon = Icons.Default.ArrowDownward,
-                        onClick = onDownloadAlbum
+                        text = "play",
+                        icon = ZuneIcons.Play,
+                        onClick = onPlayAll
                     )
+                    HeaderAction(
+                        text = "shuffle",
+                        icon = ZuneIcons.Shuffle,
+                        onClick = onShuffleAll
+                    )
+                    HeaderAction(
+                        text = "play next",
+                        icon = ZuneIcons.ArrowForward,
+                        onClick = onPlayNextAlbum
+                    )
+                    HeaderAction(
+                        text = "add to queue",
+                        icon = ZuneIcons.QueueMusic,
+                        onClick = onAddToQueueAlbum
+                    )
+                    if (onDownloadAlbum != null && tracks.isNotEmpty()) {
+                        HeaderAction(
+                            text = "download",
+                            icon = ZuneIcons.ArrowDownward,
+                            onClick = onDownloadAlbum
+                        )
+                    }
                 }
             }
 
@@ -297,19 +329,12 @@ fun AlbumTrackCard(
                 .padding(vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = index.toString().padStart(2, '0'),
-                style = ZuneTypography.h1.copy(fontSize = 32.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Thin),
-                color = Color.White.copy(alpha = 0.2f),
-                modifier = Modifier.width(72.dp)
-            )
-            
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = track.title.lowercase(),
+                    text = track.title,
                     style = ZuneTypography.h1.copy(fontSize = 24.sp),
                     color = if (isCurrentlyPlaying) LocalZuneAccent.current else ZuneTextPrimary,
                     maxLines = 1,

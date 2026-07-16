@@ -10,12 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.DragHandle
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +45,7 @@ fun PlaylistDetailScreen(
     onShuffleAll: () -> Unit,
     onPlayNextPlaylist: () -> Unit,
     onAddToQueuePlaylist: () -> Unit,
+    onRenamePlaylist: (String) -> Unit,
     onTrackClick: (Int) -> Unit,
     onMoveTrack: (Int, Int) -> Unit, // from, to
     onPlayNextTrack: (AudioItem) -> Unit,
@@ -90,6 +86,8 @@ fun PlaylistDetailScreen(
     }
 
     var longPressedTrack by remember { mutableStateOf<Pair<Int, AudioItem>?>(null) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var newPlaylistName by remember { mutableStateOf(playlistName) }
 
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
@@ -171,17 +169,17 @@ fun PlaylistDetailScreen(
                 ) {
                     HeaderAction(
                         text = "play",
-                        icon = Icons.Default.PlayArrow,
+                        icon = ZuneIcons.Play,
                         onClick = onPlayAll
                     )
                     HeaderAction(
                         text = "shuffle",
-                        icon = Icons.Default.Shuffle,
+                        icon = ZuneIcons.Shuffle,
                         onClick = onShuffleAll
                     )
                     HeaderAction(
                         text = "play next",
-                        icon = Icons.Default.ArrowForward,
+                        icon = ZuneIcons.ArrowForward,
                         onClick = onPlayNextPlaylist
                     )
                 }
@@ -191,9 +189,89 @@ fun PlaylistDetailScreen(
                 ) {
                     HeaderAction(
                         text = "add to queue",
-                        icon = Icons.Default.ArrowDownward,
+                        icon = ZuneIcons.ArrowDownward,
                         onClick = onAddToQueuePlaylist
                     )
+                    HeaderAction(
+                        text = "rename",
+                        icon = ZuneIcons.Edit,
+                        onClick = {
+                            newPlaylistName = playlistName
+                            showRenameDialog = true
+                        }
+                    )
+                }
+            }
+
+            if (showRenameDialog) {
+                androidx.compose.ui.window.Dialog(
+                    onDismissRequest = { showRenameDialog = false }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF111111))
+                            .border(1.dp, Color.White.copy(alpha = 0.2f))
+                            .padding(24.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "rename playlist",
+                                style = ZuneTypography.h2.copy(
+                                    fontFamily = SegoeUiLightFontFamily,
+                                    fontSize = 28.sp,
+                                    color = Color.White
+                                )
+                            )
+                            
+                            androidx.compose.material.TextField(
+                                value = newPlaylistName,
+                                onValueChange = { newPlaylistName = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontFamily = SegoeUiFontFamily
+                                ),
+                                colors = androidx.compose.material.TextFieldDefaults.textFieldColors(
+                                    backgroundColor = Color(0xFF222222),
+                                    focusedIndicatorColor = LocalZuneAccent.current,
+                                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.3f),
+                                    textColor = Color.White
+                                ),
+                                singleLine = true
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "cancel",
+                                    style = ZuneTypography.body1.copy(fontFamily = SegoeUiFontFamily, color = ZuneTextSecondary),
+                                    modifier = Modifier
+                                        .clickable { showRenameDialog = false }
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "rename",
+                                    style = ZuneTypography.body1.copy(fontFamily = SegoeUiFontFamily, color = LocalZuneAccent.current, fontWeight = FontWeight.Bold),
+                                    modifier = Modifier
+                                        .clickable {
+                                            if (newPlaylistName.isNotBlank()) {
+                                                onRenamePlaylist(newPlaylistName.trim())
+                                                showRenameDialog = false
+                                            }
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -220,68 +298,13 @@ fun PlaylistDetailScreen(
                                 isDragging = isDragging,
                                 draggableHandleModifier = Modifier.draggableHandle(),
                                 onClick = { onTrackClick(index) },
-                                onLongClick = { longPressedTrack = Pair(index, track) },
+                                onPlayNext = { onPlayNextTrack(track) },
+                                onAddToQueue = { onAddToQueueTrack(track) },
+                                onRemove = { onRemoveTrack(index) },
                                 isCurrentlyPlaying = track.title.equals(currentPlayingTitle, ignoreCase = true)
                             )
                         }
                     }
-                }
-            }
-        }
-
-        // Long Press Context Menu
-        if (longPressedTrack != null) {
-            val (idx, track) = longPressedTrack!!
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f))
-                    .clickable { longPressedTrack = null }
-            )
-            
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(Color(0xFF111111))
-                    .drawBehind {
-                        val strokeWidth = 1.dp.toPx()
-                        drawLine(
-                            color = Color.White.copy(alpha = 0.15f),
-                            start = Offset(0f, 0f),
-                            end = Offset(size.width, 0f),
-                            strokeWidth = strokeWidth
-                        )
-                    }
-                    .navigationBarsPadding()
-                    .padding(bottom = 24.dp, top = 8.dp)
-                    .clickable(enabled = false) {}
-            ) {
-                Text(
-                    text = track.title.lowercase(),
-                    style = ZuneTypography.body2.copy(fontSize = 14.sp),
-                    color = ZuneTextSecondary,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-                )
-                
-                DropUpMenuItem(text = "play") {
-                    longPressedTrack = null
-                    onTrackClick(idx)
-                }
-                
-                DropUpMenuItem(text = "play next") {
-                    longPressedTrack = null
-                    onPlayNextTrack(track)
-                }
-                
-                DropUpMenuItem(text = "add to queue") {
-                    longPressedTrack = null
-                    onAddToQueueTrack(track)
-                }
-                
-                DropUpMenuItem(text = "remove from playlist") {
-                    longPressedTrack = null
-                    onRemoveTrack(idx)
                 }
             }
         }
@@ -295,67 +318,95 @@ fun PlaylistTrackItem(
     isDragging: Boolean,
     draggableHandleModifier: Modifier,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
+    onPlayNext: () -> Unit,
+    onAddToQueue: () -> Unit,
+    onRemove: () -> Unit,
     isCurrentlyPlaying: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(if (isDragging) Color.White.copy(0.07f) else Color.Transparent)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.DragHandle,
-            contentDescription = "Drag to reorder",
-            tint = Color.White.copy(alpha = 0.28f),
-            modifier = Modifier
-                .size(24.dp)
-                .then(draggableHandleModifier)
-        )
-        
-        Spacer(modifier = Modifier.width(12.dp))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = track.title.lowercase(),
-                style = ZuneTypography.h4.copy(fontSize = 18.sp),
-                color = if (isCurrentlyPlaying) LocalZuneAccent.current else ZuneTextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = track.artist.lowercase(),
-                style = ZuneTypography.body2.copy(fontSize = 13.sp),
-                color = ZuneTextSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
+    var showMenu by remember { mutableStateOf(false) }
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
-@Composable
-private fun DropUpMenuItem(text: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 14.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Text(
-            text = text.lowercase(),
-            style = ZuneTypography.h2.copy(
-                fontFamily = SegoeUiLightFontFamily,
-                fontSize = 20.sp,
-                color = Color.White
+    Box(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(if (isDragging) Color.White.copy(0.07f) else Color.Transparent)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        }
+                        showMenu = true
+                    }
+                )
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = ZuneIcons.DragHandle,
+                contentDescription = "Drag to reorder",
+                tint = Color.White.copy(alpha = 0.28f),
+                modifier = Modifier
+                    .size(24.dp)
+                    .then(draggableHandleModifier)
             )
-        )
+            
+            Spacer(modifier = Modifier.width(12.dp))
+            
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = track.title.lowercase(),
+                    style = ZuneTypography.h4.copy(fontSize = 18.sp),
+                    color = if (isCurrentlyPlaying) {
+                        val accent = LocalZuneAccent.current
+                        if (accent == Color.White) Color(0xFFD80073) else accent
+                    } else ZuneTextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = track.artist.lowercase(),
+                    style = ZuneTypography.body2.copy(fontSize = 13.sp),
+                    color = ZuneTextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        androidx.compose.material.DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false },
+            modifier = Modifier.background(Color(0xFF1A1A1A))
+        ) {
+            androidx.compose.material.DropdownMenuItem(onClick = {
+                showMenu = false
+                onClick()
+            }) {
+                Text("play", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            androidx.compose.material.DropdownMenuItem(onClick = {
+                showMenu = false
+                onPlayNext()
+            }) {
+                Text("play next", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            androidx.compose.material.DropdownMenuItem(onClick = {
+                showMenu = false
+                onAddToQueue()
+            }) {
+                Text("add to queue", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            androidx.compose.material.DropdownMenuItem(onClick = {
+                showMenu = false
+                onRemove()
+            }) {
+                Text("remove from playlist", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+        }
     }
 }

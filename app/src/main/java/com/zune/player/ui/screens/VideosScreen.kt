@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -21,25 +22,28 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.itemsIndexed as lazyItemsIndexed
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material.Icon
 import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.text.style.TextOverflow
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -239,6 +243,27 @@ fun VideosScreen(
     // Fullscreen player target
     var activePlaybackVideo by remember { mutableStateOf<VideoItem?>(null) }
     var activePlayerVideo by remember { mutableStateOf<VideoItem?>(null) }
+    
+    val localView = androidx.compose.ui.platform.LocalView.current
+    DisposableEffect(activePlaybackVideo) {
+        if (activePlaybackVideo != null) {
+            localView.keepScreenOn = true
+        }
+        onDispose {
+            localView.keepScreenOn = false
+        }
+    }
+    
+    BackHandler(enabled = showJumpSelector || activePlaybackVideo != null || selectedFolder != null) {
+        if (showJumpSelector) {
+            showJumpSelector = false
+        } else if (activePlaybackVideo != null) {
+            activePlaybackVideo = null
+        } else if (selectedFolder != null) {
+            selectedFolder = null
+        }
+    }
+
     LaunchedEffect(activePlaybackVideo) {
         if (activePlaybackVideo != null) {
             activePlayerVideo = activePlaybackVideo
@@ -422,13 +447,27 @@ fun VideosScreen(
                                         Text("no videos found.", color = ZuneTextSecondary, style = ZuneTypography.body1)
                                     }
                                 } else {
-                                    val columns = if (isLandscape) 5 else 3
+                                    val defaultColumns = if (isLandscape) 5 else 3
+                                    var columns by remember(isLandscape) { mutableIntStateOf(defaultColumns) }
+                                    var zoomScale by remember { mutableStateOf(1f) }
                                     androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
                                         columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
                                         state = videoGridState,
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .padding(horizontal = 24.dp),
+                                            .padding(horizontal = 24.dp)
+                                            .pointerInput(isLandscape) {
+                                                detectPinchZoomGesture { zoom ->
+                                                    zoomScale *= zoom
+                                                    if (zoomScale > 1.3f) {
+                                                        columns = (columns - 1).coerceAtLeast(2)
+                                                        zoomScale = 1f
+                                                    } else if (zoomScale < 0.7f) {
+                                                        columns = (columns + 1).coerceAtMost(6)
+                                                        zoomScale = 1f
+                                                    }
+                                                }
+                                            },
                                         contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
                                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -443,6 +482,8 @@ fun VideosScreen(
                                                             .metroClickable { showJumpSelector = true },
                                                         contentAlignment = Alignment.CenterStart
                                                     ) {
+                                                        val accent = LocalZuneAccent.current
+                                                        val headerColor = if (accent == Color.White) Color(0xFFDCDCDC) else accent
                                                         Text(
                                                             text = item.lowercase(),
                                                             style = ZuneTypography.h1.copy(
@@ -450,7 +491,7 @@ fun VideosScreen(
                                                                 fontFamily = SegoeUiFontFamily,
                                                                 fontWeight = FontWeight.Bold
                                                             ),
-                                                            color = Color.White,
+                                                            color = headerColor,
                                                             maxLines = 1
                                                         )
                                                     }
@@ -505,7 +546,11 @@ fun VideosScreen(
                                     val videosInFolder = remember(currentVideosFiltered, selectedFolder) {
                                         currentVideosFiltered.filter { it.folderName == selectedFolder }
                                     }
-                                    Column(modifier = Modifier.fillMaxSize()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black)
+                                    ) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -514,7 +559,7 @@ fun VideosScreen(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.ArrowBack,
+                                                imageVector = ZuneIcons.ArrowBack,
                                                 contentDescription = "back to folders",
                                                 tint = LocalZuneAccent.current,
                                                 modifier = Modifier.size(16.dp)
@@ -527,26 +572,88 @@ fun VideosScreen(
                                             )
                                         }
                                         
-                                        val columns = if (isLandscape) 5 else 3
-                                        androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                                            columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(columns),
+                                        androidx.compose.foundation.lazy.LazyColumn(
                                             modifier = Modifier
                                                 .fillMaxSize()
                                                 .padding(horizontal = 24.dp),
                                             contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                                             verticalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            itemsIndexed(videosInFolder, key = { _, video -> video.id }) { index, video ->
-                                                VideoGridCard(
-                                                    video = video,
-                                                    isAeroTheme = isAeroTheme,
-                                                    onClick = { activePlaybackVideo = video },
-                                                    onLongClick = { longPressedVideo = video }
-                                                )
-                                            }
-                                        }
-                                    }
+                                            lazyItemsIndexed(videosInFolder, key = { _, video -> video.id }) { idx, video ->
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .combinedClickable(
+                                                            onClick = { activePlaybackVideo = video },
+                                                            onLongClick = { longPressedVideo = video }
+                                                        )
+                                                        .padding(vertical = 8.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    // Video thumbnail
+                                                    val context = LocalContext.current
+                                                    val localThumbnail = rememberVideoThumbnail(context, video.uri)
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(width = 80.dp, height = 56.dp)
+                                                            .background(Color(0xFF1E1E1E))
+                                                     ) {
+                                                         if (localThumbnail != null) {
+                                                             androidx.compose.foundation.Image(
+                                                                 bitmap = localThumbnail.asImageBitmap(),
+                                                                 contentDescription = video.title,
+                                                                 contentScale = ContentScale.Crop,
+                                                                 modifier = Modifier.fillMaxSize()
+                                                             )
+                                                         } else if (video.posterUrl != null) {
+                                                             AsyncImage(
+                                                                 model = video.posterUrl,
+                                                                 contentDescription = video.title,
+                                                                 contentScale = ContentScale.Crop,
+                                                                 modifier = Modifier.fillMaxSize()
+                                                             )
+                                                         } else {
+                                                             Canvas(modifier = Modifier.fillMaxSize()) {
+                                                                 drawRect(
+                                                                     brush = Brush.linearGradient(
+                                                                         colors = if (video.gradientColors.size >= 2) video.gradientColors else listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
+                                                                         start = Offset.Zero,
+                                                                         end = Offset(size.width, size.height)
+                                                                     )
+                                                                 )
+                                                             }
+                                                         }
+                                                     }
+
+                                                     Spacer(modifier = Modifier.width(16.dp))
+
+                                                     // Video Title and Duration details
+                                                     Column(
+                                                         modifier = Modifier.weight(1f)
+                                                     ) {
+                                                         Text(
+                                                             text = video.title,
+                                                             style = ZuneTypography.h1.copy(fontSize = 20.sp),
+                                                             color = ZuneTextPrimary,
+                                                             maxLines = 1,
+                                                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                                         )
+                                                         val durationText = remember(video.durationMs) {
+                                                             val secs = video.durationMs / 1000
+                                                             val mins = secs / 60
+                                                             val remainingSecs = secs % 60
+                                                             String.format("%d:%02d", mins, remainingSecs)
+                                                         }
+                                                         Text(
+                                                             text = durationText,
+                                                             style = ZuneTypography.h4.copy(fontSize = 13.sp),
+                                                             color = LocalZuneAccent.current
+                                                         )
+                                                     }
+                                                 }
+                                             }
+                                         }
+                                     }
                                 }
                             }
                             2 -> {
@@ -558,7 +665,7 @@ fun VideosScreen(
                                         trailingIcon = {
                                             if (searchQuery.isNotEmpty()) {
                                                 Icon(
-                                                    imageVector = Icons.Default.Close,
+                                                    imageVector = ZuneIcons.Close,
                                                     contentDescription = "Clear",
                                                     tint = Color.White.copy(alpha = 0.6f),
                                                     modifier = Modifier.metroClickable { searchQuery = "" }
@@ -1002,7 +1109,7 @@ fun VideoListCard(
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawRect(
                             brush = Brush.linearGradient(
-                                colors = video.gradientColors.ifEmpty { listOf(Color(0xFFEE0979), Color(0xFFFF6A00)) },
+                                colors = if (video.gradientColors.size >= 2) video.gradientColors else listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
                                 start = Offset.Zero,
                                 end = Offset(size.width, size.height)
                             )
@@ -1019,7 +1126,7 @@ fun VideoListCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.PlayArrow,
+                    imageVector = ZuneIcons.Play,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(14.dp)
@@ -1067,6 +1174,24 @@ fun FullscreenVideoPlayer(
     var currentPos by remember { mutableStateOf(0L) }
     var duration by remember { mutableStateOf(video.durationMs) }
     
+    var isDraggingSlider by remember { mutableStateOf(false) }
+    var sliderValue by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(currentPos) {
+        if (!isDraggingSlider) {
+            sliderValue = currentPos.toFloat()
+        }
+    }
+
+    // Pause music player when entering video playback
+    LaunchedEffect(Unit) {
+        try {
+            com.zune.player.player.AudioPlayer.getInstance(context).pause()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     var scale by remember { mutableFloatStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     
@@ -1076,6 +1201,14 @@ fun FullscreenVideoPlayer(
     var isMuted by remember { mutableStateOf(false) }
     var showDetails by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
+    
+    // Controls Visibility state & auto-hide
+    var isHUDVisible by remember { mutableStateOf(true) }
+    var brightness by remember { mutableStateOf(1f) }
+    var volume by remember { mutableStateOf(0.8f) }
+    var showSeekOverlay by remember { mutableStateOf<String?>(null) }
+    var showVolumeIndicator by remember { mutableStateOf(false) }
+    var showBrightnessIndicator by remember { mutableStateOf(false) }
     
     val resizeModes = listOf(
         androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT,
@@ -1135,8 +1268,8 @@ fun FullscreenVideoPlayer(
     }
     
     // Dynamically apply mute and playback speed states when modified
-    LaunchedEffect(isMuted, exoPlayer) {
-        exoPlayer?.volume = if (isMuted) 0f else 1f
+    LaunchedEffect(isMuted, volume, exoPlayer) {
+        exoPlayer?.volume = if (isMuted) 0f else volume
     }
     LaunchedEffect(speedIndex, exoPlayer) {
         exoPlayer?.setPlaybackSpeed(speeds[speedIndex])
@@ -1165,8 +1298,25 @@ fun FullscreenVideoPlayer(
         }
     }
     
-    // Controls Visibility state & auto-hide
-    var isHUDVisible by remember { mutableStateOf(true) }
+
+
+    LaunchedEffect(showSeekOverlay) {
+        if (showSeekOverlay != null) {
+            delay(1000)
+            showSeekOverlay = null
+        }
+    }
+    LaunchedEffect(volume) {
+        showVolumeIndicator = true
+        delay(1500)
+        showVolumeIndicator = false
+    }
+    LaunchedEffect(brightness) {
+        showBrightnessIndicator = true
+        delay(1500)
+        showBrightnessIndicator = false
+    }
+    
     LaunchedEffect(isHUDVisible, isPlaying) {
         if (isHUDVisible && isPlaying) {
             delay(4000)
@@ -1262,14 +1412,31 @@ fun FullscreenVideoPlayer(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onDoubleTap = { tapOffset ->
-                            if (scale > 1f) {
-                                scale = 1f
-                                offset = Offset.Zero
+                            val width = size.width
+                            if (tapOffset.x < width * 0.35f) {
+                                exoPlayer?.let { player ->
+                                    val newPos = (player.currentPosition - 10000).coerceAtLeast(0)
+                                    player.seekTo(newPos)
+                                    currentPos = newPos
+                                }
+                                showSeekOverlay = "rewind"
+                            } else if (tapOffset.x > width * 0.65f) {
+                                exoPlayer?.let { player ->
+                                    val newPos = (player.currentPosition + 10000).coerceAtMost(player.duration)
+                                    player.seekTo(newPos)
+                                    currentPos = newPos
+                                }
+                                showSeekOverlay = "fastforward"
                             } else {
-                                scale = 2.5f
-                                val x = (size.width / 2f - tapOffset.x) * 1.5f
-                                val y = (size.height / 2f - tapOffset.y) * 1.5f
-                                offset = Offset(x, y)
+                                if (scale > 1f) {
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                } else {
+                                    scale = 2.5f
+                                    val x = (width / 2f - tapOffset.x) * 1.5f
+                                    val y = (size.height / 2f - tapOffset.y) * 1.5f
+                                    offset = Offset(x, y)
+                                }
                             }
                         },
                         onTap = { isHUDVisible = !isHUDVisible }
@@ -1312,7 +1479,7 @@ fun FullscreenVideoPlayer(
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         drawRect(
                             brush = Brush.radialGradient(
-                                colors = video.gradientColors.ifEmpty { listOf(Color(0xFF333333), Color(0xFF111111)) },
+                                colors = if (video.gradientColors.size >= 2) video.gradientColors else listOf(Color(0xFF333333), Color(0xFF111111)),
                                 center = Offset(size.width / 2f + shift, size.height / 2f),
                                 radius = size.width * 0.8f
                             )
@@ -1324,7 +1491,7 @@ fun FullscreenVideoPlayer(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Movie,
+                            imageVector = ZuneIcons.Movie,
                             contentDescription = null,
                             tint = Color.White.copy(alpha = 0.4f),
                             modifier = Modifier.size(64.dp)
@@ -1348,7 +1515,7 @@ fun FullscreenVideoPlayer(
             }
         }
         
-        // CUSTOM WINDOWS PHONE METRO CONTROLS HUD
+        // CUSTOM YOUTUBE STYLE HUD (Redesigned to authentic Zune Player layout)
         // Top Bar
         AnimatedVisibility(
             visible = isHUDVisible,
@@ -1362,23 +1529,188 @@ fun FullscreenVideoPlayer(
                     .background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.8f), Color.Transparent)))
                     .statusBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 24.dp),
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Top-Left Back Button (Circle with ArrowBack)
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                        .border(1.2.dp, Color.White.copy(alpha = 0.4f), CircleShape)
-                        .clickable { onDismiss() },
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                        .metroClickable { onDismiss() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "close", tint = Color.White, modifier = Modifier.size(18.dp))
+                    Icon(
+                        imageVector = ZuneIcons.ArrowBack,
+                        contentDescription = "go back",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // Top-Right Aspect Ratio Resize Button (Circle with DragHandle/ReOrder D-pad icon)
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                        .metroClickable {
+                            resizeIndex = (resizeIndex + 1) % resizeModes.size
+                            android.widget.Toast.makeText(context, "display: ${resizeLabels[resizeIndex]}", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = ZuneIcons.DragHandle,
+                        contentDescription = "aspect ratio mode",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
         }
-        
-        // Bottom Playback Panel
+
+        // Center HUD Controls (Prev, Play/Pause, Next, Volume Up/Down in D-pad Layout)
+        AnimatedVisibility(
+            visible = isHUDVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            val audioManager = remember { context.getSystemService(android.content.Context.AUDIO_SERVICE) as android.media.AudioManager }
+            Box(
+                modifier = Modifier.size(240.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // 1. Play/Pause Button (CENTER)
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                        .border(2.dp, Color.White, CircleShape)
+                        .metroClickable {
+                            isPlaying = !isPlaying
+                            if (isPlaying) {
+                                try {
+                                    com.zune.player.player.AudioPlayer.getInstance(context).pause()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                            if (!useSimulator && exoPlayer != null) {
+                                if (isPlaying) exoPlayer.play() else exoPlayer.pause()
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) ZuneIcons.Pause else ZuneIcons.Play,
+                        contentDescription = "play/pause",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                // 2. Volume Up (+) (TOP CENTER)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                        .size(44.dp)
+                        .metroClickable {
+                            audioManager.adjustStreamVolume(
+                                android.media.AudioManager.STREAM_MUSIC,
+                                android.media.AudioManager.ADJUST_RAISE,
+                                android.media.AudioManager.FLAG_SHOW_UI
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "+",
+                        color = Color.White,
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = SegoeUiFontFamily
+                        )
+                    )
+                }
+
+                // 3. Volume Down (-) (BOTTOM CENTER)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 8.dp)
+                        .size(44.dp)
+                        .metroClickable {
+                            audioManager.adjustStreamVolume(
+                                android.media.AudioManager.STREAM_MUSIC,
+                                android.media.AudioManager.ADJUST_LOWER,
+                                android.media.AudioManager.FLAG_SHOW_UI
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "—",
+                        color = Color.White,
+                        style = androidx.compose.ui.text.TextStyle(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = SegoeUiFontFamily
+                        )
+                    )
+                }
+
+                // 4. Skip Previous Video (LEFT CENTER)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 8.dp)
+                        .size(48.dp)
+                        .metroClickable {
+                            val currentIndex = videos.indexOf(video)
+                            if (currentIndex > 0) {
+                                onVideoChanged(videos[currentIndex - 1])
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = ZuneIcons.SkipPrevious,
+                        contentDescription = "previous video",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                // 5. Skip Next Video (RIGHT CENTER)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 8.dp)
+                        .size(48.dp)
+                        .metroClickable {
+                            val currentIndex = videos.indexOf(video)
+                            if (currentIndex < videos.size - 1) {
+                                onVideoChanged(videos[currentIndex + 1])
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = ZuneIcons.SkipNext,
+                        contentDescription = "next video",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+        }
+
+        // Bottom Playback Panel (Redesigned Zune Style)
         AnimatedVisibility(
             visible = isHUDVisible,
             enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
@@ -1391,134 +1723,70 @@ fun FullscreenVideoPlayer(
                     .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.85f))))
                     .navigationBarsPadding()
                     .padding(start = 24.dp, end = 24.dp, bottom = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Interactive timeline slider
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                // Title Row on the first line (bold, uppercase, Segoe UI)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = video.title.uppercase(),
+                        style = ZuneTypography.h2.copy(
+                            fontFamily = SegoeUiBoldFontFamily,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = ZuneIcons.MoreHoriz,
+                        contentDescription = "more options",
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier
+                            .size(28.dp)
+                            .metroClickable { showMenu = true }
+                    )
+                }
+
+                // Interactive timeline slider with duration inline on the second line
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "${formatVideoDuration(currentPos)}/${formatVideoDuration(duration)}",
+                        style = ZuneTypography.caption.copy(fontFamily = SegoeUiFontFamily, fontSize = 12.sp),
+                        color = Color.White
+                    )
+
                     Slider(
-                        value = currentPos.toFloat(),
+                        value = sliderValue,
                         onValueChange = { seekValue ->
-                            currentPos = seekValue.toLong()
+                            isDraggingSlider = true
+                            sliderValue = seekValue
+                        },
+                        onValueChangeFinished = {
+                            isDraggingSlider = false
+                            currentPos = sliderValue.toLong()
                             if (!useSimulator && exoPlayer != null) {
-                                exoPlayer.seekTo(seekValue.toLong())
+                                exoPlayer.seekTo(sliderValue.toLong())
                             }
                         },
                         valueRange = 0f..(duration.toFloat().coerceAtLeast(1f)),
                         colors = SliderDefaults.colors(
-                            thumbColor = ZuneAccent,
-                            activeTrackColor = ZuneAccent,
-                            inactiveTrackColor = Color.White.copy(alpha = 0.2f),
+                            thumbColor = Color.White,
+                            activeTrackColor = Color.White,
+                            inactiveTrackColor = Color.White.copy(alpha = 0.3f),
                             activeTickColor = Color.Transparent,
                             inactiveTickColor = Color.Transparent
                         ),
-                        modifier = Modifier.fillMaxWidth().height(16.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = formatVideoDuration(currentPos),
-                            style = ZuneTypography.caption.copy(fontFamily = SegoeUiLightFontFamily),
-                            color = ZuneTextSecondary
-                        )
-                        Text(
-                            text = formatVideoDuration(duration),
-                            style = ZuneTypography.caption.copy(fontFamily = SegoeUiLightFontFamily),
-                            color = ZuneTextSecondary
-                        )
-                    }
-                }
-                
-                // Transport controls row (Circular WP Design) + Three Dot Button
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Skip Back 10s Circular Button
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .border(1.5.dp, Color.White.copy(alpha = 0.7f), CircleShape)
-                                .clickable {
-                                    val seekTo = (currentPos - 10000).coerceAtLeast(0)
-                                    currentPos = seekTo
-                                    if (!useSimulator && exoPlayer != null) {
-                                        exoPlayer.seekTo(seekTo)
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Replay,
-                                contentDescription = "skip back 10s",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.width(32.dp))
-                        
-                        // Main Play/Pause Button
-                        Box(
-                            modifier = Modifier
-                                .size(68.dp)
-                                .border(1.8.dp, Color.White.copy(alpha = 0.9f), CircleShape)
-                                .clickable {
-                                    isPlaying = !isPlaying
-                                    if (!useSimulator && exoPlayer != null) {
-                                        if (isPlaying) exoPlayer.play() else exoPlayer.pause()
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = "play/pause",
-                                tint = Color.White,
-                                modifier = Modifier.size(36.dp)
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.width(32.dp))
-                        
-                        // Skip Forward 10s Circular Button
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .border(1.5.dp, Color.White.copy(alpha = 0.7f), CircleShape)
-                                .clickable {
-                                    val seekTo = (currentPos + 10000).coerceAtMost(duration)
-                                    currentPos = seekTo
-                                    if (!useSimulator && exoPlayer != null) {
-                                        exoPlayer.seekTo(seekTo)
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Forward,
-                                contentDescription = "skip forward 10s",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    // Three Dot Button on the far right
-                    Icon(
-                        imageVector = Icons.Default.MoreHoriz,
-                        contentDescription = "more options",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .size(36.dp)
-                            .metroClickable { showMenu = true }
+                        modifier = Modifier.weight(1f).height(4.dp)
                     )
                 }
             }
@@ -1631,7 +1899,7 @@ fun FullscreenVideoPlayer(
                     onDeleteVideo()
                 }
             }
-        } }
+        }
         
         // Video Details Dialog
         if (showDetails) {
@@ -1709,7 +1977,36 @@ fun FullscreenVideoPlayer(
                 }
             }
         }
+
+        // 1. Brightness filter overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = (1f - brightness).coerceIn(0f, 0.9f)))
+        )
+
+        // 4. Seek overlay (Center)
+        AnimatedVisibility(
+            visible = showSeekOverlay != null,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut(),
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.75f), CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                    .padding(24.dp)
+            ) {
+                Text(
+                    text = if (showSeekOverlay == "rewind") "rewind -10s" else "forward +10s",
+                    color = Color.White,
+                    style = ZuneTypography.body1
+                )
+            }
+        }
     }
+}
 
 
 // 5. Videos Hub Storage Permission Prompt (Refined Windows Phone style)
@@ -2025,7 +2322,7 @@ fun VideoGridCard(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawRect(
                     brush = Brush.linearGradient(
-                        colors = video.gradientColors.ifEmpty { listOf(Color(0xFFEE0979), Color(0xFFFF6A00)) },
+                        colors = if (video.gradientColors.size >= 2) video.gradientColors else listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
                         start = Offset.Zero,
                         end = Offset(size.width, size.height)
                     )
@@ -2040,7 +2337,7 @@ fun VideoGridCard(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.PlayArrow,
+                imageVector = ZuneIcons.Play,
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier.size(14.dp)
@@ -2083,7 +2380,7 @@ fun VideoFolderCard(
                 .fillMaxWidth()
                 .aspectRatio(1.5f)
                 .then(cardGlassModifier),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.BottomStart
         ) {
             if (localThumbnail != null) {
                 androidx.compose.foundation.Image(
@@ -2103,13 +2400,47 @@ fun VideoFolderCard(
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     drawRect(
                         brush = Brush.linearGradient(
-                            colors = firstVideo?.gradientColors?.ifEmpty { listOf(Color(0xFFEE0979), Color(0xFFFF6A00)) } ?: listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
+                            colors = if ((firstVideo?.gradientColors?.size ?: 0) >= 2) firstVideo!!.gradientColors else listOf(Color(0xFFEE0979), Color(0xFFFF6A00)),
                             start = Offset.Zero,
                             end = Offset(size.width, size.height)
                         )
                     )
                 }
             }
+
+            // Dark gradient backing for readability
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .fillMaxHeight(0.55f)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                        )
+                    )
+            )
+
+            // Labels inside the preview
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(10.dp)
+            ) {
+                Text(
+                    text = folderName.uppercase(),
+                    style = ZuneTypography.body1.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${videos.size} VIDEOS",
+                    style = ZuneTypography.caption.copy(fontSize = 10.sp),
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+            }
+
             // Folder icon overlay
             Box(
                 modifier = Modifier
@@ -2120,25 +2451,50 @@ fun VideoFolderCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Folder,
+                    imageVector = ZuneIcons.Folder,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier.size(14.dp)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = folderName.uppercase(),
-            style = ZuneTypography.body1.copy(fontWeight = FontWeight.Bold, fontSize = 14.sp),
-            color = Color.White,
-            maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-        )
-        Text(
-            text = "${videos.size} videos",
-            style = ZuneTypography.caption,
-            color = ZuneTextSecondary
-        )
+    }
+}
+
+private suspend fun PointerInputScope.detectPinchZoomGesture(
+    onGesture: (zoom: Float) -> Unit
+) {
+    awaitEachGesture {
+        var zoom = 1f
+        var pastTouchSlop = false
+        val touchSlop = viewConfiguration.touchSlop
+
+        awaitFirstDown(requireUnconsumed = false)
+        do {
+            val event = awaitPointerEvent()
+            val canceled = event.changes.any { it.isConsumed }
+            if (!canceled) {
+                if (event.changes.size > 1) {
+                    val zoomChange = event.calculateZoom()
+                    if (!pastTouchSlop) {
+                        zoom *= zoomChange
+                        val zoomMotion = Math.abs(1 - zoom)
+                        if (zoomMotion > touchSlop * 0.01f) {
+                            pastTouchSlop = true
+                        }
+                    }
+                    if (pastTouchSlop) {
+                        if (zoomChange != 1f) {
+                            onGesture(zoomChange)
+                        }
+                        event.changes.forEach {
+                            if (it.positionChanged()) {
+                                it.consume()
+                            }
+                        }
+                    }
+                }
+            }
+        } while (!canceled && event.changes.any { it.pressed })
     }
 }

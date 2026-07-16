@@ -79,7 +79,62 @@ internal class ArtistRepositoryImpl(
                 youTube
                     .artist(channelId)
                     .onSuccess { result ->
-                        emit(Resource.Success<ArtistBrowse>(parseArtistData(result)))
+                        val initialBrowse = parseArtistData(result)
+                        
+                        val finalSongs = initialBrowse.songs?.results ?: emptyList()
+
+                        val albumsBrowseId = initialBrowse.albums?.browseId?.toString()
+                        val albumsParams = initialBrowse.albums?.params
+                        val finalAlbums = if (albumsBrowseId != null) {
+                            val albumsResult = youTube.browse(albumsBrowseId, albumsParams)
+                            val parsed = albumsResult.getOrNull()?.items?.flatMap { it.items }?.mapNotNull { item ->
+                                val album = item as? com.maxrave.kotlinytmusicscraper.models.AlbumItem ?: return@mapNotNull null
+                                com.maxrave.domain.data.model.browse.artist.ResultAlbum(
+                                    browseId = album.browseId,
+                                    isExplicit = false,
+                                    thumbnails = listOf(com.maxrave.domain.data.model.searchResult.songs.Thumbnail(544, album.thumbnail, 544)),
+                                    title = album.title,
+                                    year = album.year?.toString() ?: "",
+                                )
+                            }
+                            if (parsed.isNullOrEmpty()) {
+                                initialBrowse.albums?.results ?: emptyList()
+                            } else {
+                                parsed
+                            }
+                        } else {
+                            initialBrowse.albums?.results ?: emptyList()
+                        }
+
+                        val singlesBrowseId = initialBrowse.singles?.browseId
+                        val singlesParams = initialBrowse.singles?.params
+                        val finalSingles = if (singlesBrowseId != null) {
+                            val singlesResult = youTube.browse(singlesBrowseId, singlesParams)
+                            val parsed = singlesResult.getOrNull()?.items?.flatMap { it.items }?.mapNotNull { item ->
+                                val single = item as? com.maxrave.kotlinytmusicscraper.models.AlbumItem ?: return@mapNotNull null
+                                com.maxrave.domain.data.model.browse.artist.ResultSingle(
+                                    browseId = single.browseId,
+                                    thumbnails = listOf(com.maxrave.domain.data.model.searchResult.songs.Thumbnail(544, single.thumbnail, 544)),
+                                    title = single.title,
+                                    year = single.year?.toString() ?: "",
+                                )
+                            }
+                            if (parsed.isNullOrEmpty()) {
+                                initialBrowse.singles?.results ?: emptyList()
+                            } else {
+                                parsed
+                            }
+                        } else {
+                            initialBrowse.singles?.results ?: emptyList()
+                        }
+
+                        val completeBrowse = initialBrowse.copy(
+                            songs = initialBrowse.songs?.copy(results = finalSongs),
+                            albums = initialBrowse.albums?.copy(results = finalAlbums),
+                            singles = initialBrowse.singles?.copy(results = finalSingles)
+                        )
+
+                        emit(Resource.Success<ArtistBrowse>(completeBrowse))
                     }.onFailure { e ->
                         Logger.d("Artist", "Error: ${e.message}")
                         emit(Resource.Error<ArtistBrowse>(e.message.toString()))

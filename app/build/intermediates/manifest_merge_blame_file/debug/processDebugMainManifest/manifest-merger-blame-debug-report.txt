@@ -1,8 +1,8 @@
 1<?xml version="1.0" encoding="utf-8"?>
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.zune.player"
-4    android:versionCode="1"
-5    android:versionName="1.5" >
+4    android:versionCode="3"
+5    android:versionName="3.0.0" >
 6
 7    <uses-sdk
 7-->INJECTED
@@ -54,19 +54,19 @@
 25-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:17:5-72
 25-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:17:22-69
 26    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-26-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:5-81
-26-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:22-78
+26-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:5-81
+26-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:25:22-78
 27
 28    <permission
-28-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:22:5-24:47
+28-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:22:5-24:47
 29        android:name="com.zune.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-29-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:23:9-81
+29-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:23:9-81
 30        android:protectionLevel="signature" />
-30-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:24:9-44
+30-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:24:9-44
 31
 32    <uses-permission android:name="com.zune.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-32-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:5-97
-32-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:22-94
+32-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:5-97
+32-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:26:22-94
 33
 34    <application
 34-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:19:5-115:19
@@ -75,7 +75,7 @@
 36        android:allowBackup="true"
 36-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:22:9-35
 37        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-37-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\548464727c7371f52bc3442e0b0254f0\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
+37-->[androidx.core:core:1.18.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\26f181e2eee0c3239c54802291f00439\workspace\transformed\core-1.18.0\AndroidManifest.xml:28:18-86
 38        android:dataExtractionRules="@xml/data_extraction_rules"
 38-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:23:9-65
 39        android:debuggable="true"
@@ -206,11 +206,11 @@
 104            android:name="androidx.work.impl.foreground.SystemForegroundService"
 104-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:88:13-81
 105            android:directBootAware="false"
-105-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:48:13-44
+105-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:48:13-44
 106            android:enabled="@bool/enable_system_foreground_service_default"
-106-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:49:13-77
+106-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:49:13-77
 107            android:exported="false"
-107-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:50:13-37
+107-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:50:13-37
 108            android:foregroundServiceType="dataSync" />
 108-->C:\Users\Sreenivishal\Documents\zune\app\src\main\AndroidManifest.xml:89:13-53
 109        <service
@@ -260,181 +260,181 @@
 132        </service>
 133
 134        <provider
-134-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:8:9-13:20
+134-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\978c67937e2c5c12897cde3a36fb4c81\workspace\transformed\jetified-library-release\AndroidManifest.xml:8:9-13:20
 135            android:name="org.jetbrains.compose.resources.AndroidContextProvider"
-135-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:9:13-82
+135-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\978c67937e2c5c12897cde3a36fb4c81\workspace\transformed\jetified-library-release\AndroidManifest.xml:9:13-82
 136            android:authorities="com.zune.player.resources.AndroidContextProvider"
-136-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:10:13-84
+136-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\978c67937e2c5c12897cde3a36fb4c81\workspace\transformed\jetified-library-release\AndroidManifest.xml:10:13-84
 137            android:enabled="true"
-137-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:11:13-35
+137-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\978c67937e2c5c12897cde3a36fb4c81\workspace\transformed\jetified-library-release\AndroidManifest.xml:11:13-35
 138            android:exported="false" >
-138-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a6dea9da5dfb4c25ffe2a87fc59fb23b\workspace\transformed\jetified-library-release\AndroidManifest.xml:12:13-37
+138-->[org.jetbrains.compose.components:components-resources-android:1.11.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\978c67937e2c5c12897cde3a36fb4c81\workspace\transformed\jetified-library-release\AndroidManifest.xml:12:13-37
 139        </provider>
 140
 141        <activity
-141-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:23:9-25:39
+141-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ed4be2a68a5d00c730f557bc2ed6fdf\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:23:9-25:39
 142            android:name="androidx.compose.ui.tooling.PreviewActivity"
-142-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:24:13-71
+142-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ed4be2a68a5d00c730f557bc2ed6fdf\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:24:13-71
 143            android:exported="true" />
-143-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a8dfaba7d0e808d70aae2713b1071dec\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:25:13-36
+143-->[androidx.compose.ui:ui-tooling-android:1.12.0-alpha03] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7ed4be2a68a5d00c730f557bc2ed6fdf\workspace\transformed\jetified-ui-tooling\AndroidManifest.xml:25:13-36
 144
 145        <provider
-145-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:29:9-37:20
+145-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:29:9-37:20
 146            android:name="androidx.startup.InitializationProvider"
-146-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:30:13-67
+146-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:30:13-67
 147            android:authorities="com.zune.player.androidx-startup"
-147-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:31:13-68
+147-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:31:13-68
 148            android:exported="false" >
-148-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:32:13-37
+148-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:32:13-37
 149            <meta-data
-149-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:34:13-36:52
+149-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:34:13-36:52
 150                android:name="androidx.work.WorkManagerInitializer"
-150-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:35:17-68
+150-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:35:17-68
 151                android:value="androidx.startup" />
-151-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:36:17-49
+151-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:36:17-49
 152            <meta-data
-152-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+152-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9a23cfc922e62a9fa0429289abffbdb4\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
 153                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-153-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:30:17-75
+153-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9a23cfc922e62a9fa0429289abffbdb4\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:30:17-75
 154                android:value="androidx.startup" />
-154-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c949009b207d6bda38324a43b2e9edb6\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:31:17-49
+154-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\9a23cfc922e62a9fa0429289abffbdb4\workspace\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:31:17-49
 155            <meta-data
-155-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
+155-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71ebff131c38e0b255d7fc0397b2f175\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
 156                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-156-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
+156-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71ebff131c38e0b255d7fc0397b2f175\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
 157                android:value="androidx.startup" />
-157-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\32fa35cb8edf8c255968ccecb152c314\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
+157-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\71ebff131c38e0b255d7fc0397b2f175\workspace\transformed\jetified-lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
 158            <meta-data
-158-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:29:13-31:52
+158-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:29:13-31:52
 159                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-159-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:30:17-85
+159-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:30:17-85
 160                android:value="androidx.startup" />
-160-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:31:17-49
+160-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:31:17-49
 161            <meta-data
-161-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:16:13-18:52
+161-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6d6c724b6484fdb0d9fb2bbe4ff82f1b\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:16:13-18:52
 162                android:name="okhttp3.internal.platform.PlatformInitializer"
-162-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:17:17-77
+162-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6d6c724b6484fdb0d9fb2bbe4ff82f1b\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:17:17-77
 163                android:value="androidx.startup" />
-163-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\c25bd7f1629cf6b8b323bda179b2529f\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:18:17-49
+163-->[com.squareup.okhttp3:okhttp-android:5.3.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\6d6c724b6484fdb0d9fb2bbe4ff82f1b\workspace\transformed\jetified-okhttp-release\AndroidManifest.xml:18:17-49
 164        </provider>
 165
 166        <service
-166-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:39:9-45:35
+166-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:39:9-45:35
 167            android:name="androidx.work.impl.background.systemjob.SystemJobService"
-167-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:40:13-84
+167-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:40:13-84
 168            android:directBootAware="false"
-168-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:41:13-44
+168-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:41:13-44
 169            android:enabled="@bool/enable_system_job_service_default"
-169-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:42:13-70
+169-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:42:13-70
 170            android:exported="true"
-170-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:43:13-36
+170-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:43:13-36
 171            android:permission="android.permission.BIND_JOB_SERVICE" />
-171-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:44:13-69
+171-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:44:13-69
 172
 173        <receiver
-173-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:54:9-59:35
+173-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:54:9-59:35
 174            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
-174-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:55:13-88
+174-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:55:13-88
 175            android:directBootAware="false"
-175-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:56:13-44
+175-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:56:13-44
 176            android:enabled="true"
-176-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:57:13-35
+176-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:57:13-35
 177            android:exported="false" />
-177-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:58:13-37
+177-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:58:13-37
 178        <receiver
-178-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:60:9-69:20
+178-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:60:9-69:20
 179            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
-179-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:61:13-88
+179-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:61:13-88
 180            android:directBootAware="false"
-180-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:62:13-44
+180-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:62:13-44
 181            android:enabled="false"
-181-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:63:13-36
+181-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:63:13-36
 182            android:exported="false" >
-182-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:64:13-37
+182-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:64:13-37
 183            <intent-filter>
-183-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:66:13-68:29
+183-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:66:13-68:29
 184                <action android:name="android.intent.action.BOOT_COMPLETED" />
-184-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:17-79
-184-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:25-76
+184-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:17-79
+184-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:67:25-76
 185            </intent-filter>
 186        </receiver>
 187        <receiver
-187-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:70:9-80:20
+187-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:70:9-80:20
 188            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
-188-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:71:13-78
+188-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:71:13-78
 189            android:directBootAware="false"
-189-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:72:13-44
+189-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:72:13-44
 190            android:enabled="true"
-190-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:73:13-35
+190-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:73:13-35
 191            android:exported="true"
-191-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:74:13-36
+191-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:74:13-36
 192            android:permission="android.permission.DUMP" >
-192-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:75:13-57
+192-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:75:13-57
 193            <intent-filter>
-193-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:77:13-79:29
+193-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:77:13-79:29
 194                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
-194-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:17-88
-194-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\7318990ec80850638775a95ab60a67a1\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:25-85
+194-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:17-88
+194-->[androidx.work:work-runtime:2.11.2] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3e21e21edc3f9e4317d43354a0d14f50\workspace\transformed\work-runtime-2.11.2\AndroidManifest.xml:78:25-85
 195            </intent-filter>
 196        </receiver>
 197
 198        <uses-library
-198-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:23:9-25:40
+198-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:23:9-25:40
 199            android:name="androidx.window.extensions"
-199-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:24:13-54
+199-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:24:13-54
 200            android:required="false" />
-200-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:25:13-37
+200-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:25:13-37
 201        <uses-library
-201-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:26:9-28:40
+201-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:26:9-28:40
 202            android:name="androidx.window.sidecar"
-202-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:27:13-51
+202-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:27:13-51
 203            android:required="false" />
-203-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\65704753cf5b69429b6ecc035f25ec95\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:28:13-37
+203-->[androidx.window:window:1.5.0] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\856197f7c8589afc74fe77ff7d193832\workspace\transformed\jetified-window-1.5.0\AndroidManifest.xml:28:13-37
 204
 205        <service
-205-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:24:9-28:63
+205-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9d3465ae3bf4fef57be3169a4f80f3b\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:24:9-28:63
 206            android:name="androidx.room.MultiInstanceInvalidationService"
-206-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:25:13-74
+206-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9d3465ae3bf4fef57be3169a4f80f3b\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:25:13-74
 207            android:directBootAware="true"
-207-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:26:13-43
+207-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9d3465ae3bf4fef57be3169a4f80f3b\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:26:13-43
 208            android:exported="false" />
-208-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\76f5aceae9f422f85fed952b4f0e8c12\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:27:13-37
+208-->[androidx.room:room-runtime-android:2.8.4] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\d9d3465ae3bf4fef57be3169a4f80f3b\workspace\transformed\jetified-room-runtime\AndroidManifest.xml:27:13-37
 209
 210        <receiver
-210-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:34:9-52:20
+210-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:34:9-52:20
 211            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-211-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:35:13-76
+211-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:35:13-76
 212            android:directBootAware="false"
-212-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:36:13-44
+212-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:36:13-44
 213            android:enabled="true"
-213-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:37:13-35
+213-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:37:13-35
 214            android:exported="true"
-214-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:38:13-36
+214-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:38:13-36
 215            android:permission="android.permission.DUMP" >
-215-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:39:13-57
+215-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:39:13-57
 216            <intent-filter>
-216-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:40:13-42:29
+216-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:40:13-42:29
 217                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-217-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:17-91
-217-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:25-88
+217-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:17-91
+217-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:41:25-88
 218            </intent-filter>
 219            <intent-filter>
-219-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:43:13-45:29
+219-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:43:13-45:29
 220                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-220-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:17-85
-220-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:25-82
+220-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:17-85
+220-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:44:25-82
 221            </intent-filter>
 222            <intent-filter>
-222-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:46:13-48:29
+222-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:46:13-48:29
 223                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-223-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:17-88
-223-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:25-85
+223-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:17-88
+223-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:47:25-85
 224            </intent-filter>
 225            <intent-filter>
-225-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:49:13-51:29
+225-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:49:13-51:29
 226                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-226-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:17-95
-226-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\a18e21dbecdb0d5ccfa419ef15b02e28\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:25-92
+226-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:17-95
+226-->[androidx.profileinstaller:profileinstaller:1.4.1] C:\Users\Sreenivishal\koler\.github\caches\9.3.1\transforms\3efdb4f054c75a604369b7f80871cf53\workspace\transformed\jetified-profileinstaller-1.4.1\AndroidManifest.xml:50:25-92
 227            </intent-filter>
 228        </receiver>
 229    </application>

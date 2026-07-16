@@ -51,6 +51,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
@@ -60,8 +61,19 @@ import com.zune.player.ui.theme.LocalZuneAccent
 import android.content.Context
 import com.zune.player.ui.theme.SegoeUiFontFamily
 import com.zune.player.ui.theme.SegoeUiLightFontFamily
+import com.zune.player.ui.theme.SegoeUiBoldFontFamily
 import com.zune.player.ui.theme.ZuneTextSecondary
+import androidx.compose.ui.graphics.Path
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import fluent.ui.system.icons.FluentIcons
+import fluent.ui.system.icons.regular.*
+import fluent.ui.system.icons.filled.*
+import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -196,8 +208,16 @@ fun MainApp() {
     
     val currentAudio by viewModel.player.currentAudio.collectAsState()
     val isPlaying by viewModel.player.isPlaying.collectAsState()
+
     val pinned by viewModel.pinnedItems.collectAsState()
     val prefs = remember { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
+    LaunchedEffect(currentAudio) {
+        currentAudio?.let { audio ->
+            addToPlaybackHistory(prefs, audio)
+        }
+    }
+
     var selectedBg by remember { mutableStateOf(prefs.getInt("bg_selection", 0)) }
     var accentSource by remember { mutableStateOf(prefs.getString("accent_source", "music") ?: "music") }
     var customAccentColorVal by remember { mutableIntStateOf(prefs.getInt("accent_custom_color", 0xFF0083D7.toInt())) }
@@ -239,6 +259,16 @@ fun MainApp() {
 
     ZuneTheme(dynamicAccent = animatedAccent) {
         var backStack by remember { mutableStateOf(listOf<AppScreen>(AppScreen.Home())) }
+        val artistDetailsCache = remember { mutableStateMapOf<String, Triple<List<com.zune.player.data.OnlineSong>, List<com.zune.player.data.OnlineAlbum>, List<com.zune.player.data.OnlineAlbum>>>() }
+        val albumTracksCache = remember { mutableStateMapOf<String, List<String>>() }
+        LaunchedEffect(backStack) {
+            val hasArtistScreen = backStack.any { it is AppScreen.OnlineArtistDetail }
+            val hasAlbumScreen = backStack.any { it is AppScreen.OnlineAlbumDetail }
+            if (!hasArtistScreen && !hasAlbumScreen) {
+                artistDetailsCache.clear()
+                albumTracksCache.clear()
+            }
+        }
         val currentScreen = backStack.last()
 
         var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -687,6 +717,17 @@ fun MainApp() {
                                         playlistTracks = updated
                                         viewModel.savePlaylistTracks(playlistName, updated)
                                     },
+                                     onRenamePlaylist = { newName ->
+                                         if (newName.isNotBlank()) {
+                                             viewModel.renamePlaylist(playlistName, newName)
+                                             backStack = backStack.toMutableList().apply {
+                                                 val lastIdx = indexOfLast { it is AppScreen.PlaylistDetail && it.playlistName == playlistName }
+                                                 if (lastIdx != -1) {
+                                                     set(lastIdx, AppScreen.PlaylistDetail(newName))
+                                                 }
+                                             }
+                                         }
+                                     },
                                     currentPlayingTitle = playingTitle
                                 )
                             }
@@ -822,7 +863,10 @@ fun MainApp() {
                                         },
                                         onShuffleAll = {
                                             if (albumTracks.isNotEmpty()) {
-                                                viewModel.player.playList(albumTracks.shuffled())
+                                                if (!viewModel.player.shuffleEnabled.value) {
+                                                    viewModel.player.toggleShuffle()
+                                                }
+                                                viewModel.player.playList(albumTracks, albumTracks.indices.random())
                                             }
                                         },
                                         onPlayNextAlbum = {
@@ -884,13 +928,17 @@ fun MainApp() {
                             val artworkUrl = targetScreen.artworkUrl
                             val coroutineScope = rememberCoroutineScope()
                             
-                            var topSongs by remember { mutableStateOf<List<com.zune.player.data.OnlineSong>>(emptyList()) }
-                            var albums by remember { mutableStateOf<List<com.zune.player.data.OnlineAlbum>>(emptyList()) }
-                            var isLoading by remember { mutableStateOf(true) }
-                            LaunchedEffect(browseId) {
-                                 isLoading = true
+                             val cached = artistDetailsCache[browseId]
+                             var topSongs by remember(browseId) { mutableStateOf<List<com.zune.player.data.OnlineSong>>(cached?.first ?: emptyList()) }
+                             var albums by remember(browseId) { mutableStateOf<List<com.zune.player.data.OnlineAlbum>>(cached?.second ?: emptyList()) }
+                             var singles by remember(browseId) { mutableStateOf<List<com.zune.player.data.OnlineAlbum>>(cached?.third ?: emptyList()) }
+                             var isLoading by remember(browseId) { mutableStateOf(cached == null) }
+                             LaunchedEffect(browseId) {
+                                  if (cached != null) return@LaunchedEffect
+                                  isLoading = true
                                  var artistTopSongs = emptyList<com.zune.player.data.OnlineSong>()
                                  var artistAlbums = emptyList<com.zune.player.data.OnlineAlbum>()
+                                 var artistSingles = emptyList<com.zune.player.data.OnlineAlbum>()
                                  try {
                                      val artistRepo = org.koin.core.context.GlobalContext.get().get<com.maxrave.domain.repository.ArtistRepository>()
                                      val resource = artistRepo.getArtistData(browseId).firstOrNull { r ->
@@ -914,7 +962,7 @@ fun MainApp() {
                                                  browseId = album.browseId,
                                                  title = album.title,
                                                  artist = artistName,
-                                                 year = album.year,
+                                                 year = album.year?.toString() ?: "",
                                                  artworkUrl = album.thumbnails.lastOrNull()?.url ?: ""
                                              )
                                          } ?: emptyList()
@@ -923,21 +971,32 @@ fun MainApp() {
                                                  browseId = single.browseId,
                                                  title = single.title,
                                                  artist = artistName,
-                                                 year = single.year,
+                                                 year = single.year?.toString() ?: "",
                                                  artworkUrl = single.thumbnails.lastOrNull()?.url ?: ""
                                              )
                                          } ?: emptyList()
-                                         artistAlbums = albumResults + singleResults
+                                         artistAlbums = albumResults
+                                         artistSingles = singleResults
                                      }
                                  } catch (e: Exception) {
                                      e.printStackTrace()
                                  }
                                  topSongs = artistTopSongs
                                  albums = artistAlbums
+                                 singles = artistSingles
+                                 artistDetailsCache[browseId] = Triple(artistTopSongs, artistAlbums, artistSingles)
                                  isLoading = false
                              }
 
-                            var artistExtractedColor by remember { mutableStateOf(ZuneAccent) }
+                             val artistRepo = remember { org.koin.core.context.GlobalContext.get().get<com.maxrave.domain.repository.ArtistRepository>() }
+                             var isFollowed by remember { mutableStateOf(false) }
+                             LaunchedEffect(browseId) {
+                                 artistRepo.getArtistById(browseId).collect { artistEntity ->
+                                     isFollowed = (artistEntity?.followed == true)
+                                 }
+                             }
+
+                             var artistExtractedColor by remember { mutableStateOf(ZuneAccent) }
                             LaunchedEffect(artworkUrl, selectedBg) {
                                 val newColor = extractDominantColor(context, artworkUrl.ifEmpty { null })
                                 artistExtractedColor = newColor ?: ZuneAccent
@@ -957,7 +1016,24 @@ fun MainApp() {
                                         artworkUrl = artworkUrl,
                                         topSongs = topSongs,
                                         albums = albums,
+                                        singles = singles,
+                                        albumTracksCache = albumTracksCache,
                                         onBack = { navigateBack() },
+                                        isFollowed = isFollowed,
+                                        onFollowToggle = {
+                                            val nextStatus = !isFollowed
+                                            isFollowed = nextStatus
+                                            coroutineScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                                val artistEntity = com.maxrave.domain.data.entities.ArtistEntity(
+                                                    channelId = browseId,
+                                                    name = artistName,
+                                                    thumbnails = artworkUrl,
+                                                    followed = nextStatus
+                                                )
+                                                artistRepo.insertArtist(artistEntity)
+                                                artistRepo.updateFollowedStatus(browseId, if (nextStatus) 1 else 0)
+                                            }
+                                        },
                                         onSongClick = { song ->
                                             val playItem = com.zune.player.data.AudioItem(
                                                 id = -song.trackId,
@@ -983,6 +1059,19 @@ fun MainApp() {
                                             viewModel.player.addToQueue(listOf(queueItem))
                                             android.widget.Toast.makeText(context, "Added \"${song.title}\" to queue", android.widget.Toast.LENGTH_SHORT).show()
                                         },
+                                         onSongPlayNext = { song ->
+                                             val playItem = com.zune.player.data.AudioItem(
+                                                 id = -song.trackId,
+                                                 title = song.title,
+                                                 artist = song.artist,
+                                                 album = song.album,
+                                                 uri = android.net.Uri.parse("zune://online/${song.previewUrl}"),
+                                                 albumArtUri = if (song.artworkUrl.isNotEmpty()) android.net.Uri.parse(song.artworkUrl) else null,
+                                                 durationMs = song.durationMs
+                                             )
+                                             viewModel.player.playNext(listOf(playItem))
+                                             android.widget.Toast.makeText(context, "Added \"" + song.title + "\" to play next", android.widget.Toast.LENGTH_SHORT).show()
+                                         },
                                         onSongAddToPlaylist = { track, playlistName ->
                                             viewModel.addItemToPlaylist(playlistName, track)
                                         },
@@ -1125,18 +1214,20 @@ fun MainApp() {
                 modifier = Modifier.align(Alignment.BottomCenter).systemBarsPadding()
             ) {
                 val fullQueue by viewModel.player.queue.collectAsState()
-                val currentIndex = fullQueue.indexOfFirst { it.id == currentAudio?.id }.coerceAtLeast(0)
-                val displayQueue = fullQueue.drop(currentIndex)
+                val shuffleEnabled by viewModel.player.shuffleEnabled.collectAsState()
 
                 key(queueOpenCount) {
                     QueuePanel(
-                        queue     = displayQueue,
+                        queue     = fullQueue,
                         currentId = currentAudio?.id,
                         accent    = animatedAccent,
-                        onPlayAt  = { viewModel.player.playFromQueue(it + currentIndex) },
-                        onRemove  = { viewModel.player.removeFromQueue(it + currentIndex) },
-                        onMove    = { f, t -> viewModel.player.reorderQueue(f + currentIndex, t + currentIndex) },
-                        onDismiss = { showGlobalQueue = false }
+                        shuffleEnabled = shuffleEnabled,
+                        onToggleShuffle = { viewModel.player.toggleShuffle() },
+                        onPlayAt  = { viewModel.player.playFromQueue(it) },
+                        onRemove  = { viewModel.player.removeFromQueue(it) },
+                        onMove    = { f, t -> viewModel.player.reorderQueue(f, t) },
+                        onDismiss = { showGlobalQueue = false },
+                        onSaveQueueAsPlaylist = { name -> viewModel.saveQueueAsPlaylist(name, fullQueue) }
                     )
                 }
             }
@@ -1155,307 +1246,493 @@ fun MainApp() {
             val volLevel by MainActivity.volumeLevel.collectAsState()
             val volTrigger by MainActivity.volumeTrigger.collectAsState()
             var showVolumePanel by remember { mutableStateOf(false) }
+            var volumePanelInteractionTrigger by remember { mutableStateOf(0L) }
 
-            LaunchedEffect(volTrigger) {
-                if (volTrigger > 0L) {
+            LaunchedEffect(volTrigger, volumePanelInteractionTrigger) {
+                if (volTrigger > 0L || volumePanelInteractionTrigger > 0L) {
                     showVolumePanel = true
-                    delay(3500) // Increase time slightly since it has interactive controls
+                    delay(5000) // Increase time slightly since it has interactive controls
                     showVolumePanel = false
                 }
             }
 
             AnimatedVisibility(
                 visible = showVolumePanel,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
-                exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .statusBarsPadding()
-                    .padding(top = 48.dp, start = 24.dp, end = 24.dp, bottom = 8.dp)
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300)),
+                modifier = Modifier.fillMaxSize()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(androidx.compose.foundation.layout.IntrinsicSize.Min)
-                        .background(Color(0xEE0A0A0A))
-                        .border(1.dp, Color.White.copy(alpha = 0.12f))
-                        .metroClickable {
-                            navigateTo(AppScreen.NowPlaying)
-                            showVolumePanel = false
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Far-left vertical accent bar
-                    Box(
-                        modifier = Modifier
-                            .width(4.dp)
-                            .fillMaxHeight()
-                            .background(animatedAccent)
-                    )
+                val audioManager = remember { context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager }
+                val maxVol = remember { audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC) }
+                val currentPos by viewModel.player.currentPosition.collectAsState()
+                val duration by viewModel.player.duration.collectAsState()
+                val prefs = remember(context) { context.getSharedPreferences("zune_prefs", Context.MODE_PRIVATE) }
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // 1. Volume Number (Accent colored) and Queue Button below it
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 12.dp, top = 8.dp, bottom = 8.dp),
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-                    ) {
-                        Text(
-                            text = String.format("%02d", volLevel.coerceIn(0, 30)),
-                            style = TextStyle(
-                                fontFamily = SegoeUiLightFontFamily,
-                                fontSize = 36.sp,
-                                fontWeight = FontWeight.Light
-                            ),
-                            color = animatedAccent
-                        )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        // Queue Button placed below the volume number
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .border(1.dp, Color.White.copy(alpha = 0.4f), androidx.compose.foundation.shape.CircleShape)
-                                .metroClickable { 
-                                    showGlobalQueue = true
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            androidx.compose.material.Icon(
-                                imageVector = Icons.Default.QueueMusic,
-                                contentDescription = "Queue",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
+                var batteryLevel by remember { mutableIntStateOf(-1) }
+                DisposableEffect(context) {
+                    val receiver = object : android.content.BroadcastReceiver() {
+                        override fun onReceive(ctx: Context?, intent: android.content.Intent?) {
+                            val level = intent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                            val scale = intent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
+                            if (level != -1 && scale != -1) {
+                                batteryLevel = (level.toFloat() / scale.toFloat() * 100f).toInt()
+                            }
                         }
                     }
+                    val filter = android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED)
+                    context.registerReceiver(receiver, filter)
+                    onDispose {
+                        context.unregisterReceiver(receiver)
+                    }
+                }
 
-                    // Divider
-                    Box(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxHeight()
-                            .background(Color.White.copy(alpha = 0.12f))
-                    )
+                var dragAccumulator by remember { mutableStateOf(0f) }
 
-                    // 2. Middle Content (Controls, Title, Artist, Device)
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                    ) {
-                        // Top Row: Controls (Prev, Play/Pause, Next)
-                        Row(
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Prev Button
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .border(1.dp, Color.White.copy(alpha = 0.4f), androidx.compose.foundation.shape.CircleShape)
-                                    .metroClickable { 
-                                        viewModel.player.skipToPrevious()
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                androidx.compose.material.Icon(
-                                    imageVector = Icons.Default.SkipPrevious,
-                                    contentDescription = "Previous",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-
-                            // Play / Pause Button
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .border(1.dp, Color.White.copy(alpha = 0.4f), androidx.compose.foundation.shape.CircleShape)
-                                    .metroClickable { 
-                                        viewModel.player.togglePlayPause()
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                androidx.compose.material.Icon(
-                                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                    contentDescription = if (isPlaying) "Pause" else "Play",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-
-                            // Next Button
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .border(1.dp, Color.White.copy(alpha = 0.4f), androidx.compose.foundation.shape.CircleShape)
-                                    .metroClickable { 
-                                        viewModel.player.skipToNext()
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                androidx.compose.material.Icon(
-                                    imageVector = Icons.Default.SkipNext,
-                                    contentDescription = "Next",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(18.dp)
-                                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.92f))
+                        .pointerInput(maxVol, volLevel) {
+                            detectVerticalDragGestures(
+                                onDragStart = { dragAccumulator = 0f },
+                                onDragEnd = {},
+                                onDragCancel = {}
+                            ) { change, dragAmount ->
+                                change.consume()
+                                dragAccumulator += dragAmount
+                                val threshold = 30f // Sensitivity threshold in pixels
+                                if (Math.abs(dragAccumulator) >= threshold) {
+                                    val steps = (dragAccumulator / threshold).toInt()
+                                    val nextVal = (volLevel - steps).coerceIn(0, 30)
+                                    if (nextVal != volLevel) {
+                                        val currentStreamVol = ((nextVal.toFloat() / 30f) * maxVol.toFloat()).toInt().coerceIn(0, maxVol)
+                                        audioManager.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, currentStreamVol, 0)
+                                        MainActivity.volumeLevel.value = nextVal
+                                        volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    }
+                                    dragAccumulator %= threshold
+                                }
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        // Song Title
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            showVolumePanel = false
+                        }
+                ) {
+                    // 1. Top status bar row (EXIT only)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter)
+                            .statusBarsPadding()
+                            .padding(vertical = 16.dp, horizontal = 24.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {},
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = (currentAudio?.title ?: "No Track").lowercase(),
+                            text = "EXIT",
                             style = TextStyle(
                                 fontFamily = SegoeUiFontFamily,
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Color.White,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
-
-                        // Artist Name
-                        Text(
-                            text = (currentAudio?.artist ?: "Unknown Artist").lowercase(),
-                            style = TextStyle(
-                                fontFamily = SegoeUiFontFamily,
-                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Normal
                             ),
-                            color = Color.White.copy(alpha = 0.6f),
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
-
-                        // Output Device Name
-                        Text(
-                            text = "[ ${getAudioOutputDeviceName(context).uppercase()} ]",
-                            style = TextStyle(
-                                fontFamily = SegoeUiFontFamily,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            ),
-                            color = animatedAccent,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            color = Color.White.copy(alpha = 0.85f),
+                            modifier = Modifier
+                                .metroClickable {
+                                    showVolumePanel = false
+                                }
+                                .padding(8.dp)
                         )
                     }
 
-                    // 3. Album Art Thumbnail (Right)
-                    val artUri = currentAudio?.albumArtUri
-                    if (artUri != null) {
-                        coil.compose.AsyncImage(
-                            model = artUri,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(64.dp)
-                                .border(1.dp, Color.White.copy(alpha = 0.1f)),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
+                    // 2. Large Volume Display (Top Left)
+                    Text(
+                        text = volLevel.coerceIn(0, 30).toString(),
+                        style = TextStyle(
+                            fontFamily = SegoeUiLightFontFamily,
+                            fontSize = 80.sp,
+                            fontWeight = FontWeight.Light
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .statusBarsPadding()
+                            .padding(top = 70.dp, start = 24.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {}
+                    )
+
+                    // 3. Center of screen: Cross controller layout with bold custom canvas-drawn buttons
+                    Box(
+                        modifier = Modifier
+                            .size(340.dp)
+                            .align(Alignment.Center)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Play/Pause circular button (CENTER)
                         Box(
                             modifier = Modifier
-                                .size(64.dp)
-                                .background(Color.White.copy(alpha = 0.03f))
-                                .border(1.dp, Color.White.copy(alpha = 0.1f)),
+                                .size(110.dp)
+                                .border(4.dp, Color.White, shape = CircleShape)
+                                .metroClickable {
+                                    volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                        window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                                    }
+                                    viewModel.player.togglePlayPause()
+                                }
+                                .align(Alignment.Center),
                             contentAlignment = Alignment.Center
                         ) {
-                            androidx.compose.material.Icon(
-                                imageVector = Icons.Default.QueueMusic,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.15f),
-                                modifier = Modifier.size(28.dp)
+                            if (isPlaying) {
+                                // Bold thick Pause lines
+                                Canvas(modifier = Modifier.size(52.dp)) {
+                                    val w = size.width
+                                    val h = size.height
+                                    val barWidth = w * 0.22f
+                                    val barHeight = h * 0.64f
+                                    val top = h * 0.18f
+                                    
+                                    // Left bar
+                                    drawRect(
+                                        color = Color.White,
+                                        topLeft = Offset(w * 0.22f, top),
+                                        size = androidx.compose.ui.geometry.Size(barWidth, barHeight)
+                                    )
+                                    // Right bar
+                                    drawRect(
+                                        color = Color.White,
+                                        topLeft = Offset(w * 0.56f, top),
+                                        size = androidx.compose.ui.geometry.Size(barWidth, barHeight)
+                                    )
+                                }
+                            } else {
+                                // Bold thick Play triangle
+                                Canvas(modifier = Modifier.size(52.dp)) {
+                                    val w = size.width
+                                    val h = size.height
+                                    val path = Path().apply {
+                                        moveTo(w * 0.28f, h * 0.18f)
+                                        lineTo(w * 0.82f, h * 0.5f)
+                                        lineTo(w * 0.28f, h * 0.82f)
+                                        close()
+                                    }
+                                    drawPath(path, color = Color.White)
+                                }
+                            }
+                        }
+
+                        // Plus button (+) (TOP CENTER) - Redesigned to be thick canvas & same bounding size
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = 2.dp)
+                                .size(72.dp)
+                                .metroClickable {
+                                    volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                        window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                                    }
+                                    val nextVal = (volLevel + 1).coerceIn(0, 30)
+                                    val currentStreamVol = ((nextVal.toFloat() / 30f) * maxVol.toFloat()).toInt().coerceIn(0, maxVol)
+                                    audioManager.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, currentStreamVol, 0)
+                                    MainActivity.volumeLevel.value = nextVal
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Canvas(modifier = Modifier.size(44.dp)) {
+                                val thickness = 8.dp.toPx() // Thicker lines
+                                val w = size.width
+                                val h = size.height
+                                // Horizontal bar
+                                drawRect(
+                                    color = Color.White,
+                                    topLeft = Offset(0f, (h - thickness) / 2f),
+                                    size = androidx.compose.ui.geometry.Size(w, thickness)
+                                )
+                                // Vertical bar
+                                drawRect(
+                                    color = Color.White,
+                                    topLeft = Offset((w - thickness) / 2f, 0f),
+                                    size = androidx.compose.ui.geometry.Size(thickness, h)
+                                )
+                            }
+                        }
+
+                        // Minus button (—) (BOTTOM CENTER) - Redesigned to be thick canvas & same bounding size
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 2.dp) // Pushed closer to the bottom edge
+                                .size(72.dp)
+                                .metroClickable {
+                                    volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                        window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                                    }
+                                    val nextVal = (volLevel - 1).coerceIn(0, 30)
+                                    val currentStreamVol = ((nextVal.toFloat() / 30f) * maxVol.toFloat()).toInt().coerceIn(0, maxVol)
+                                    audioManager.setStreamVolume(android.media.AudioManager.STREAM_MUSIC, currentStreamVol, 0)
+                                    MainActivity.volumeLevel.value = nextVal
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Canvas(modifier = Modifier.size(44.dp)) {
+                                val thickness = 8.dp.toPx() // Thicker lines (same as Plus!)
+                                val w = size.width
+                                val h = size.height
+                                // Horizontal bar
+                                drawRect(
+                                    color = Color.White,
+                                    topLeft = Offset(0f, (h - thickness) / 2f),
+                                    size = androidx.compose.ui.geometry.Size(w, thickness)
+                                )
+                            }
+                        }
+
+                        // Previous track button (|<<) (CENTER START)
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .size(80.dp)
+                                .metroClickable {
+                                    volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                        window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                                    }
+                                    viewModel.player.skipToPrevious()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Canvas(modifier = Modifier.size(52.dp)) {
+                                val w = size.width
+                                val h = size.height
+                                
+                                // Left vertical bar
+                                drawRect(
+                                    color = Color.White,
+                                    topLeft = Offset(w * 0.05f, h * 0.15f),
+                                    size = androidx.compose.ui.geometry.Size(w * 0.14f, h * 0.7f)
+                                )
+                                
+                                // First triangle
+                                val path1 = Path().apply {
+                                    moveTo(w * 0.19f, h * 0.5f)
+                                    lineTo(w * 0.55f, h * 0.15f)
+                                    lineTo(w * 0.55f, h * 0.85f)
+                                    close()
+                                }
+                                drawPath(path1, color = Color.White)
+                                
+                                // Second triangle
+                                val path2 = Path().apply {
+                                    moveTo(w * 0.52f, h * 0.5f)
+                                    lineTo(w * 0.88f, h * 0.15f)
+                                    lineTo(w * 0.88f, h * 0.85f)
+                                    close()
+                                }
+                                drawPath(path2, color = Color.White)
+                            }
+                        }
+
+                        // Next track button (>>|) (CENTER END)
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .size(80.dp)
+                                .metroClickable {
+                                    volumePanelInteractionTrigger = System.currentTimeMillis()
+                                    if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                                        window?.decorView?.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+                                    }
+                                    viewModel.player.skipToNext()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Canvas(modifier = Modifier.size(52.dp)) {
+                                val w = size.width
+                                val h = size.height
+                                
+                                // First triangle
+                                val path1 = Path().apply {
+                                    moveTo(w * 0.48f, h * 0.5f)
+                                    lineTo(w * 0.12f, h * 0.15f)
+                                    lineTo(w * 0.12f, h * 0.85f)
+                                    close()
+                                }
+                                drawPath(path1, color = Color.White)
+                                
+                                // Second triangle
+                                val path2 = Path().apply {
+                                    moveTo(w * 0.81f, h * 0.5f)
+                                    lineTo(w * 0.45f, h * 0.15f)
+                                    lineTo(w * 0.45f, h * 0.85f)
+                                    close()
+                                }
+                                drawPath(path2, color = Color.White)
+                                
+                                // Right vertical bar
+                                drawRect(
+                                    color = Color.White,
+                                    topLeft = Offset(w * 0.81f, h * 0.15f),
+                                    size = androidx.compose.ui.geometry.Size(w * 0.14f, h * 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    // 4. Bottom Left: Song Title and Artist Name Column (All Caps)
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .navigationBarsPadding()
+                            .padding(bottom = 32.dp, start = 24.dp)
+                            .fillMaxWidth(0.75f),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Column(
+                            modifier = Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                showVolumePanel = false
+                                showGlobalQueue = true
+                            }
+                        ) {
+                            Text(
+                                text = (currentAudio?.artist ?: "UNKNOWN ARTIST").uppercase(),
+                                style = TextStyle(
+                                    fontFamily = SegoeUiBoldFontFamily,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                ),
+                                color = Color.White,
+                                maxLines = 1
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = (currentAudio?.title ?: "No Track").uppercase(),
+                                style = TextStyle(
+                                    fontFamily = SegoeUiFontFamily,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                color = Color.White.copy(alpha = 0.85f),
+                                maxLines = 1
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+
+
+                        val formatDurationSeek: (Long) -> String = { ms ->
+                            val sec = (ms / 1000) % 60
+                            val min = (ms / 1000) / 60
+                            "%d:%02d".format(min, sec)
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {}
+                        ) {
+                            BoxWithConstraints(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(24.dp)
+                                    .pointerInput(duration) {
+                                        detectTapGestures { offset ->
+                                            val fraction = (offset.x / size.width).coerceIn(0f, 1f)
+                                            viewModel.player.seekTo((fraction * duration).toLong())
+                                            volumePanelInteractionTrigger = System.currentTimeMillis()
+                                        }
+                                    }
+                                    .pointerInput(duration) {
+                                        var dragAccumulator = 0f
+                                        detectHorizontalDragGestures(
+                                            onDragStart = { dragAccumulator = (currentPos.toFloat() / duration.toFloat()) * size.width },
+                                            onDragEnd = {},
+                                            onDragCancel = {}
+                                        ) { change, dragAmount ->
+                                            change.consume()
+                                            dragAccumulator = (dragAccumulator + dragAmount).coerceIn(0f, size.width.toFloat())
+                                            val fraction = dragAccumulator / size.width
+                                            viewModel.player.seekTo((fraction * duration).toLong())
+                                            volumePanelInteractionTrigger = System.currentTimeMillis()
+                                        }
+                                    }
+                            ) {
+                                val progressFraction = if (duration > 0) currentPos.toFloat() / duration.toFloat() else 0f
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(4.dp)
+                                        .align(Alignment.Center)
+                                        .background(Color.White.copy(alpha = 0.3f))
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth(progressFraction)
+                                            .fillMaxHeight()
+                                            .background(Color.White)
+                                    )
+                                }
+                            }
+
+                            Text(
+                                text = "${formatDurationSeek(currentPos)} / ${formatDurationSeek(duration)}",
+                                style = TextStyle(
+                                    fontFamily = SegoeUiFontFamily,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                color = Color.White.copy(alpha = 0.85f)
                             )
                         }
                     }
                 }
             }
 
-            // Global clock overlay (pushed to extreme top right, visible on all screens)
-            SmallClock(
+            // Global clock and battery status row (pushed to extreme top right, visible on all screens)
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 4.dp, end = 16.dp)
-            )
-
-            // Global battery overlay (pushed to extreme top left, visible on all screens)
-            BatteryIndicator(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 4.dp, start = 16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun SmallClock(modifier: Modifier = Modifier) {
-    var timeText by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        val sdf = java.text.SimpleDateFormat("h:mm", java.util.Locale.getDefault())
-        while (true) {
-            timeText = sdf.format(java.util.Date()).lowercase()
-            kotlinx.coroutines.delay(1000)
-        }
-    }
-    Text(
-        text = timeText,
-        style = TextStyle(
-            fontFamily = SegoeUiFontFamily,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal
-        ),
-        color = Color.White.copy(alpha = 0.85f),
-        modifier = modifier
-    )
-}
-
-@Composable
-fun BatteryIndicator(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    var batteryLevel by remember { mutableIntStateOf(-1) }
-    
-    DisposableEffect(context) {
-        val receiver = object : android.content.BroadcastReceiver() {
-            override fun onReceive(ctx: Context?, intent: android.content.Intent?) {
-                val level = intent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
-                val scale = intent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
-                if (level != -1 && scale != -1) {
-                    batteryLevel = (level.toFloat() / scale.toFloat() * 100f).toInt()
-                }
+                    .padding(top = 4.dp, end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                AudioDeviceIndicator()
+                BatteryIndicator()
+                SmallClock()
             }
         }
-        val filter = android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED)
-        context.registerReceiver(receiver, filter)
-        onDispose {
-            context.unregisterReceiver(receiver)
-        }
-    }
-    
-    if (batteryLevel != -1) {
-        Text(
-            text = "$batteryLevel%",
-            style = TextStyle(
-                fontFamily = SegoeUiFontFamily,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal
-            ),
-            color = Color.White.copy(alpha = 0.85f),
-            modifier = modifier
-        )
     }
 }
 
-
 @Composable
+
+
+
+
 fun ZuneHDScreensaver(
     currentAudio: com.zune.player.data.AudioItem?,
     onDismiss: () -> Unit
@@ -1724,22 +2001,6 @@ fun ParallaxBackground(selectedBg: Int, horizontalScrollOffset: androidx.compose
                     )
                 )
         )
-    } else {
-        // Pure black selectedBg == 0 -> subtle premium ambient accent glow in top-left
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            accent.copy(alpha = 0.08f),
-                            Color.Transparent
-                        ),
-                        center = Offset(0f, 0f),
-                        radius = 1800f
-                    )
-                )
-        )
     }
 }
 
@@ -1884,3 +2145,216 @@ private fun getAudioOutputDeviceName(context: android.content.Context): String {
         return "Speaker"
     }
 }
+
+@Composable
+fun SmallClock(modifier: Modifier = Modifier) {
+    var timeText by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        val sdf = java.text.SimpleDateFormat("h:mm", java.util.Locale.getDefault())
+        while (true) {
+            timeText = sdf.format(java.util.Date()).lowercase()
+            kotlinx.coroutines.delay(1000)
+        }
+    }
+    Text(
+        text = timeText,
+        style = TextStyle(
+            fontFamily = SegoeUiFontFamily,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal
+        ),
+        color = Color.White.copy(alpha = 0.85f),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun BatteryIndicator(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    var batteryLevel by remember { mutableIntStateOf(-1) }
+    var isCharging by remember { mutableStateOf(false) }
+    
+    DisposableEffect(context) {
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: android.content.Intent?) {
+                val level = intent?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                val scale = intent?.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1) ?: -1
+                val status = intent?.getIntExtra(android.os.BatteryManager.EXTRA_STATUS, -1) ?: -1
+                isCharging = status == android.os.BatteryManager.BATTERY_STATUS_CHARGING ||
+                             status == android.os.BatteryManager.BATTERY_STATUS_FULL
+                if (level != -1 && scale != -1) {
+                    batteryLevel = (level.toFloat() / scale.toFloat() * 100f).toInt()
+                }
+            }
+        }
+        val filter = android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED)
+        context.registerReceiver(receiver, filter)
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+    
+    if (batteryLevel != -1) {
+        val batteryIcon = remember<androidx.compose.ui.graphics.vector.ImageVector>(batteryLevel, isCharging) {
+            if (isCharging) {
+                FluentIcons.Regular.BatteryCharge
+            } else {
+                val step = (batteryLevel / 10).coerceIn(0, 10)
+                when (step) {
+                    0 -> FluentIcons.Regular.Battery0
+                    1 -> FluentIcons.Regular.Battery1
+                    2 -> FluentIcons.Regular.Battery2
+                    3 -> FluentIcons.Regular.Battery3
+                    4 -> FluentIcons.Regular.Battery4
+                    5 -> FluentIcons.Regular.Battery5
+                    6 -> FluentIcons.Regular.Battery6
+                    7 -> FluentIcons.Regular.Battery7
+                    8 -> FluentIcons.Regular.Battery8
+                    9 -> FluentIcons.Regular.Battery9
+                    10 -> FluentIcons.Regular.Battery10
+                    else -> FluentIcons.Regular.Battery10
+                }
+            }
+        }
+        androidx.compose.material.Icon(
+            imageVector = batteryIcon,
+            contentDescription = "battery $batteryLevel%",
+            tint = Color.White.copy(alpha = 0.85f),
+            modifier = modifier.size(16.dp)
+        )
+    }
+}
+
+@Composable
+fun AudioDeviceIndicator(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    var isBluetoothActive by remember { mutableStateOf(false) }
+    var isHeadphoneActive by remember { mutableStateOf(false) }
+
+    DisposableEffect(context) {
+        val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
+        
+        val updateDevices = {
+            if (audioManager != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    val devices = audioManager.getDevices(android.media.AudioManager.GET_DEVICES_OUTPUTS)
+                    val types = devices.filter { it.isSink }.map { it.type }
+                    isBluetoothActive = types.contains(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP) ||
+                                       types.contains(android.media.AudioDeviceInfo.TYPE_BLUETOOTH_SCO) ||
+                                       types.contains(android.media.AudioDeviceInfo.TYPE_BLE_HEADSET) ||
+                                       types.contains(android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER)
+                    isHeadphoneActive = types.contains(android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES) ||
+                                       types.contains(android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET) ||
+                                       types.contains(android.media.AudioDeviceInfo.TYPE_USB_HEADSET)
+                } else {
+                    @Suppress("DEPRECATION")
+                    isBluetoothActive = audioManager.isBluetoothA2dpOn
+                    @Suppress("DEPRECATION")
+                    isHeadphoneActive = audioManager.isWiredHeadsetOn
+                }
+            }
+        }
+
+        updateDevices()
+
+        val callback = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            object : android.media.AudioDeviceCallback() {
+                override fun onAudioDevicesAdded(addedDevices: Array<out android.media.AudioDeviceInfo>?) {
+                    updateDevices()
+                }
+
+                override fun onAudioDevicesRemoved(removedDevices: Array<out android.media.AudioDeviceInfo>?) {
+                    updateDevices()
+                }
+            }
+        } else null
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M && callback != null) {
+            audioManager?.registerAudioDeviceCallback(callback, null)
+        }
+
+        onDispose {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M && callback != null) {
+                audioManager?.unregisterAudioDeviceCallback(callback)
+            }
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+    ) {
+        if (isBluetoothActive) {
+            androidx.compose.material.Icon(
+                imageVector = FluentIcons.Regular.Bluetooth,
+                contentDescription = "Bluetooth",
+                tint = Color.White.copy(alpha = 0.85f),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        if (isHeadphoneActive) {
+            androidx.compose.material.Icon(
+                imageVector = FluentIcons.Regular.Headphones,
+                contentDescription = "Headphones",
+                tint = Color.White.copy(alpha = 0.85f),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+fun getPlaybackHistory(prefs: android.content.SharedPreferences): List<com.zune.player.data.AudioItem> {
+    val jsonStr = prefs.getString("playback_history_json", null) ?: return emptyList()
+    try {
+        val jsonArray = org.json.JSONArray(jsonStr)
+        val list = mutableListOf<com.zune.player.data.AudioItem>()
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            val albumArtUriStr = obj.optString("albumArtUri", "")
+            list.add(
+                com.zune.player.data.AudioItem(
+                    id = obj.getLong("id"),
+                    title = obj.getString("title"),
+                    artist = obj.getString("artist"),
+                    album = obj.getString("album"),
+                    uri = android.net.Uri.parse(obj.getString("uri")),
+                    albumArtUri = if (albumArtUriStr.isNotEmpty()) android.net.Uri.parse(albumArtUriStr) else null,
+                    durationMs = obj.optLong("durationMs", 0L)
+                )
+            )
+        }
+        return list
+    } catch (e: Exception) {
+        return emptyList()
+    }
+}
+
+fun addToPlaybackHistory(prefs: android.content.SharedPreferences, item: com.zune.player.data.AudioItem) {
+    if (!prefs.getBoolean("history_enabled", true)) {
+        prefs.edit().remove("playback_history_json").apply()
+        return
+    }
+    val currentHistory = getPlaybackHistory(prefs).toMutableList()
+    currentHistory.removeAll { it.title.lowercase() == item.title.lowercase() && it.artist.lowercase() == item.artist.lowercase() }
+    currentHistory.add(0, item)
+    val limitedHistory = currentHistory.take(12)
+    try {
+        val jsonArray = org.json.JSONArray()
+        for (hist in limitedHistory) {
+            val obj = org.json.JSONObject()
+            obj.put("id", hist.id)
+            obj.put("title", hist.title)
+            obj.put("artist", hist.artist)
+            obj.put("album", hist.album)
+            obj.put("uri", hist.uri.toString())
+            obj.put("albumArtUri", hist.albumArtUri?.toString() ?: "")
+            obj.put("durationMs", hist.durationMs)
+            jsonArray.put(obj)
+        }
+        prefs.edit().putString("playback_history_json", jsonArray.toString()).apply()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+

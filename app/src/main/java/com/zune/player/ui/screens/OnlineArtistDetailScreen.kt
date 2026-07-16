@@ -1,6 +1,8 @@
 package com.zune.player.ui.screens
 
 import android.net.Uri
+import kotlinx.coroutines.flow.first
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,37 +50,67 @@ fun OnlineArtistDetailScreen(
     onBack: () -> Unit,
     onSongClick: (OnlineSong) -> Unit,
     onSongAddToQueue: (OnlineSong) -> Unit,
+    onSongPlayNext: (OnlineSong) -> Unit,
     onSongAddToPlaylist: (AudioItem, String) -> Unit,
     onAlbumClick: (OnlineAlbum) -> Unit,
     playlists: List<String>,
     currentPlayingTitle: String? = null,
     onSongDownload: ((OnlineSong) -> Unit)? = null,
-    onAlbumDownload: ((OnlineAlbum) -> Unit)? = null
+    onAlbumDownload: ((OnlineAlbum) -> Unit)? = null,
+    isFollowed: Boolean = false,
+    onFollowToggle: () -> Unit = {},
+    singles: List<OnlineAlbum> = emptyList(),
+    albumTracksCache: androidx.compose.runtime.snapshots.SnapshotStateMap<String, List<String>> = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateMapOf() }
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val pages = listOf("songs", "albums")
+    val pages = listOf("songs", "albums", "singles & EPs")
     val pagerState = rememberPagerState(initialPage = 0) { pages.size }
     val tabWidths = remember { mutableStateMapOf<Int, Float>() }
     var songToAddToPlaylist by remember { mutableStateOf<AudioItem?>(null) }
 
+    LaunchedEffect(albums, singles) {
+        val allItems = albums + singles
+        if (allItems.isNotEmpty()) {
+            allItems.forEach { item ->
+                if (!albumTracksCache.containsKey(item.browseId)) {
+                    launch(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val albumRepo = org.koin.core.context.GlobalContext.get().get<com.maxrave.domain.repository.AlbumRepository>()
+                            val resource = albumRepo.getAlbumData(item.browseId).first { r ->
+                                r is com.maxrave.domain.utils.Resource.Success || r is com.maxrave.domain.utils.Resource.Error
+                            }
+                            if (resource is com.maxrave.domain.utils.Resource.Success) {
+                                val titles = resource.data?.tracks?.map { it.title }
+                                if (titles != null) {
+                                    albumTracksCache[item.browseId] = titles
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        // Blur background
+        // Background photo
         if (artworkUrl.isNotEmpty()) {
             AsyncImage(
                 model = artworkUrl,
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .blur(20.dp),
+                    .fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                alpha = 0.35f
+                alpha = 0.25f
             )
         }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
+                .background(Color.Black.copy(alpha = 0.7f))
         )
 
         val sharedTransitionScope = LocalSharedTransitionScope.current
@@ -128,6 +160,9 @@ fun OnlineArtistDetailScreen(
                 )
             }
             // Header Row: Artist Name
+            var artistFontSize by remember(artistName) { mutableStateOf(56.sp) }
+            var artistReadyToDraw by remember(artistName) { mutableStateOf(false) }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -135,12 +170,54 @@ fun OnlineArtistDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = artistName.lowercase(),
-                    style = ZuneTypography.h1.copy(fontSize = 56.sp),
+                    text = artistName.uppercase(),
+                    style = ZuneTypography.h1.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily(androidx.compose.ui.text.font.Font(com.zune.player.R.font.segoeuithibd)),
+                        fontSize = artistFontSize,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                        letterSpacing = (-1).sp
+                    ),
                     color = LocalZuneAccent.current,
                     maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                    onTextLayout = { textLayoutResult ->
+                        if (textLayoutResult.hasVisualOverflow) {
+                            val nextFontSize = (artistFontSize.value - 2f).sp
+                            if (nextFontSize.value >= 11f) {
+                                artistFontSize = nextFontSize
+                            } else {
+                                artistReadyToDraw = true
+                            }
+                        } else {
+                            artistReadyToDraw = true
+                        }
+                    },
+                    modifier = Modifier.drawWithContent {
+                        if (artistReadyToDraw) {
+                            drawContent()
+                        }
+                    }
                 )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, top = 4.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .border(1.5.dp, Color.White.copy(alpha = 0.6f))
+                        .metroClickable { onFollowToggle() }
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = if (isFollowed) "UNFOLLOW" else "FOLLOW",
+                        style = ZuneTypography.h4.copy(fontSize = 11.sp, fontFamily = SegoeUiBoldFontFamily),
+                        color = Color.White
+                    )
+                }
             }
 
             // Tabs/Pivots: songs, albums
@@ -181,7 +258,7 @@ fun OnlineArtistDetailScreen(
                         val alpha = (1f - distance * 0.6f).coerceIn(0.4f, 1f)
 
                         Text(
-                            text = title,
+                            text = title.uppercase(),
                             style = ZuneTypography.h2.copy(
                                 fontFamily = SegoeUiLightFontFamily,
                                 fontSize = 32.sp
@@ -228,6 +305,7 @@ fun OnlineArtistDetailScreen(
                                         index = index + 1,
                                         onClick = { onSongClick(song) },
                                         onAddToQueue = { onSongAddToQueue(song) },
+                                        onPlayNext = { onSongPlayNext(song) },
                                         onAddToPlaylist = {
                                             val playItem = AudioItem(
                                                 id = -song.trackId,
@@ -262,8 +340,34 @@ fun OnlineArtistDetailScreen(
                                 itemsIndexed(albums, key = { index, album -> "${album.browseId}_$index" }) { index, album ->
                                     ArtistAlbumCard(
                                         album = album,
+                                        songs = topSongs,
+                                        albumSongsList = albumTracksCache[album.browseId],
                                         onClick = { onAlbumClick(album) },
                                         onDownloadAlbum = onAlbumDownload?.let { { it(album) } }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    2 -> {
+                        // Singles List
+                        if (singles.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("no singles found", style = ZuneTypography.body1, color = ZuneTextSecondary)
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
+                                contentPadding = PaddingValues(bottom = 32.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                itemsIndexed(singles, key = { index, single -> "${single.browseId}_$index" }) { index, single ->
+                                    ArtistAlbumCard(
+                                        album = single,
+                                        songs = topSongs,
+                                        albumSongsList = albumTracksCache[single.browseId],
+                                        onClick = { onAlbumClick(single) },
+                                        onDownloadAlbum = onAlbumDownload?.let { { it(single) } }
                                     )
                                 }
                             }
@@ -342,6 +446,7 @@ fun ArtistSongCard(
     index: Int,
     onClick: () -> Unit,
     onAddToQueue: () -> Unit,
+    onPlayNext: () -> Unit,
     onAddToPlaylist: () -> Unit,
     isCurrentlyPlaying: Boolean,
     onDownload: (() -> Unit)? = null,
@@ -381,9 +486,12 @@ fun ArtistSongCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = song.title.lowercase(),
+                    text = song.title,
                     style = ZuneTypography.h4.copy(fontSize = 24.sp),
-                    color = if (isCurrentlyPlaying) LocalZuneAccent.current else ZuneTextPrimary,
+                    color = if (isCurrentlyPlaying) {
+                        val accent = LocalZuneAccent.current
+                        if (accent == Color.White) Color(0xFFD80073) else accent
+                    } else ZuneTextPrimary,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
@@ -424,6 +532,12 @@ fun ArtistSongCard(
             }
             DropdownMenuItem(onClick = {
                 showMenu = false
+                onPlayNext()
+            }) {
+                Text("play next", style = ZuneTypography.body1, color = ZuneTextPrimary)
+            }
+            DropdownMenuItem(onClick = {
+                showMenu = false
                 onAddToPlaylist()
             }) {
                 Text("add to playlist", style = ZuneTypography.body1, color = ZuneTextPrimary)
@@ -435,6 +549,8 @@ fun ArtistSongCard(
 @Composable
 fun ArtistAlbumCard(
     album: OnlineAlbum,
+    songs: List<OnlineSong>,
+    albumSongsList: List<String>?,
     onClick: () -> Unit,
     onDownloadAlbum: (() -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -443,6 +559,20 @@ fun ArtistAlbumCard(
     val context = androidx.compose.ui.platform.LocalContext.current
     val haptic = LocalHapticFeedback.current
     val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
+    val albumSongs = remember(songs, album.title) {
+        songs.filter { it.album.equals(album.title, ignoreCase = true) }
+    }
+
+    val displaySongs = remember(albumSongsList, albumSongs) {
+        if (albumSongsList != null) {
+            albumSongsList
+        } else if (albumSongs.isNotEmpty()) {
+            albumSongs.map { it.title }
+        } else {
+            emptyList()
+        }
+    }
 
     Box(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -459,40 +589,55 @@ fun ArtistAlbumCard(
                         }
                     )
                 }
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.Top
         ) {
             if (album.artworkUrl.isNotEmpty()) {
                 AsyncImage(
                     model = album.artworkUrl,
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.size(110.dp),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(110.dp)
                         .background(Color(0xFF1E1E1E))
                 )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
-                    text = album.title.lowercase(),
-                    style = ZuneTypography.h4.copy(fontSize = 24.sp),
+                    text = album.title.uppercase(),
+                    style = ZuneTypography.h4.copy(fontSize = 22.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
                     color = ZuneTextPrimary,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     text = album.year,
-                    style = ZuneTypography.body2,
+                    style = ZuneTypography.body2.copy(fontFamily = SegoeUiLightFontFamily),
                     color = ZuneTextSecondary,
                     maxLines = 1
                 )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                displaySongs.take(5).forEach { songTitle ->
+                    Text(
+                        text = songTitle,
+                        style = ZuneTypography.body2.copy(fontSize = 12.sp),
+                        color = ZuneTextSecondary,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
             }
         }
 

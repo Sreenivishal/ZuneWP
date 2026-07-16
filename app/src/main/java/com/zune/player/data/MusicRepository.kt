@@ -1,4 +1,4 @@
-﻿package com.zune.player.data
+package com.zune.player.data
 
 import android.content.ContentUris
 import android.content.Context
@@ -166,8 +166,29 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
         }
     }
 
-    suspend fun addToPlaylist(playlistName: String, item: AudioItem) = withContext(Dispatchers.IO) {
+    suspend fun renamePlaylist(oldName: String, newName: String) = withContext(Dispatchers.IO) {
+        val current = getPlaylists().toMutableList()
+        val index = current.indexOf(oldName)
+        if (index != -1 && !current.contains(newName)) {
+            current[index] = newName
+            val array = JSONArray()
+            current.forEach { array.put(it) }
+            
+            val oldTracksJson = playlistPrefs.getString("playlist_tracks_$oldName", "") ?: ""
+            playlistPrefs.edit().run {
+                putString("playlists_list", array.toString())
+                remove("playlist_tracks_$oldName")
+                putString("playlist_tracks_$newName", oldTracksJson)
+                apply()
+            }
+        }
+    }
+
+    suspend fun addToPlaylist(playlistName: String, item: AudioItem): Boolean = withContext(Dispatchers.IO) {
         val tracks = getPlaylistTracks(playlistName).toMutableList()
+        if (tracks.any { it.id == item.id }) {
+            return@withContext false
+        }
         tracks.add(item)
         
         val array = JSONArray()
@@ -184,6 +205,7 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
             array.put(obj)
         }
         playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
+        true
     }
 
     suspend fun removeFromPlaylist(playlistName: String, audioId: Long) = withContext(Dispatchers.IO) {

@@ -6,6 +6,8 @@ import androidx.compose.ui.text.style.TextOverflow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -110,11 +112,27 @@ fun HomeScreen(
     val prefs = remember { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
     var selectedBg by remember { mutableStateOf(prefs.getInt("bg_selection", 0)) }
     var showFeaturedSection by remember { mutableStateOf(prefs.getBoolean("show_featured_section", true)) }
+    var activePinnedSongForOptions by remember { mutableStateOf<AudioItem?>(null) }
+
+    var historyEnabled by remember { mutableStateOf(prefs.getBoolean("history_enabled", true)) }
+    var historyList by remember { mutableStateOf(emptyList<AudioItem>()) }
+
+    fun refreshHistory() {
+        historyEnabled = prefs.getBoolean("history_enabled", true)
+        historyList = if (historyEnabled) com.zune.player.getPlaybackHistory(prefs) else emptyList()
+    }
+
+    val currentAudioFlowItem by player.currentAudio.collectAsState()
+    LaunchedEffect(currentAudioFlowItem) {
+        refreshHistory()
+    }
 
     DisposableEffect(prefs) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "show_featured_section") {
                 showFeaturedSection = prefs.getBoolean("show_featured_section", true)
+            } else if (key == "history_enabled") {
+                refreshHistory()
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
@@ -467,7 +485,9 @@ fun HomeScreen(
                                 when (tile.type) {
                                     "song" -> {
                                         val song = audioItems.find { it.id == tile.id }
-                                        if (song != null) onPlaySong(song)
+                                        if (song != null) {
+                                            activePinnedSongForOptions = song
+                                        }
                                     }
                                     "photo" -> {
                                         onNavigateToPhotos(tile.id xor 0x1000000000000000L)
@@ -535,6 +555,79 @@ fun HomeScreen(
                                 isAeroTheme = isAeroTheme
                             )
                         }
+
+                        if (historyEnabled) {
+                            // History sub-section
+                            val historyTitleStyle = if (isAeroTheme) {
+                                ZuneTypography.h2.copy(
+                                    fontSize = 48.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    letterSpacing = 0.sp,
+                                    brush = AeroBlueOrbGradient
+                                )
+                            } else {
+                                ZuneTypography.h4.copy(
+                                    fontSize = 50.sp,
+                                    fontFamily = SegoeUiLightFontFamily,
+                                    fontWeight = FontWeight.Light
+                                )
+                            }
+                            val historyTitleColor = if (isAeroTheme) Color.Unspecified else Color.White
+                            val historyTitlePadding = if (isAeroTheme) {
+                                Modifier.padding(start = 24.dp, bottom = 12.dp, top = 24.dp)
+                            } else {
+                                Modifier.padding(start = 24.dp, end = 0.dp, top = 24.dp, bottom = 0.dp)
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(historyTitlePadding),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "History",
+                                    style = historyTitleStyle,
+                                    color = historyTitleColor,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+
+                            if (historyList.isEmpty()) {
+                                Text(
+                                    text = "no recently played songs",
+                                    style = ZuneTypography.body2.copy(fontFamily = SegoeUiFontFamily),
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 24.dp)
+                                )
+                            } else {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState())
+                                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    historyList.take(12).forEach { item ->
+                                        Box(
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .background(Color(0xFF1E1E1E))
+                                                .metroClickable { onPlaySong(item) }
+                                        ) {
+                                            if (item.albumArtUri != null) {
+                                                AsyncImage(
+                                                    model = item.albumArtUri,
+                                                    contentDescription = "Album Art",
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 1 -> Column(modifier = Modifier.fillMaxSize()) {
@@ -555,6 +648,121 @@ fun HomeScreen(
             }
         }
 
+        if (activePinnedSongForOptions != null) {
+            val song = activePinnedSongForOptions!!
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.85f))
+                    .clickable { activePinnedSongForOptions = null },
+                contentAlignment = Alignment.Center
+            ) {
+                // Blurred background using a copy of album art
+                AsyncImage(
+                    model = song.albumArtUri,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(40.dp)
+                        .graphicsLayer { alpha = 0.35f }
+                )
+                
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .clickable(enabled = false) {}
+                ) {
+                    // Enlarged Album Art
+                    Box(
+                        modifier = Modifier
+                            .size(280.dp)
+                            .background(Color(0xFF1C1C1C))
+                            .border(2.dp, LocalZuneAccent.current)
+                    ) {
+                        AsyncImage(
+                            model = song.albumArtUri,
+                            contentDescription = "Album Art",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = song.title.uppercase(),
+                        style = ZuneTypography.h1.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                        color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = song.artist.uppercase(),
+                        style = ZuneTypography.body1,
+                        color = ZuneTextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    // Options
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.width(280.dp)
+                    ) {
+                        Text(
+                            text = "play",
+                            style = ZuneTypography.h1.copy(fontSize = 32.sp, fontFamily = SegoeUiLightFontFamily),
+                            color = Color.White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .metroClickable {
+                                    player.playList(listOf(song))
+                                    activePinnedSongForOptions = null
+                                }
+                        )
+                        Text(
+                            text = "play next",
+                            style = ZuneTypography.h1.copy(fontSize = 32.sp, fontFamily = SegoeUiLightFontFamily),
+                            color = Color.White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .metroClickable {
+                                    player.playNext(listOf(song))
+                                    activePinnedSongForOptions = null
+                                }
+                        )
+                        Text(
+                            text = "add to queue",
+                            style = ZuneTypography.h1.copy(fontSize = 32.sp, fontFamily = SegoeUiLightFontFamily),
+                            color = Color.White,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .metroClickable {
+                                    player.addToQueue(listOf(song))
+                                    activePinnedSongForOptions = null
+                                }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "cancel",
+                            style = ZuneTypography.body1.copy(fontSize = 20.sp, color = Color.White.copy(alpha = 0.6f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .metroClickable {
+                                    activePinnedSongForOptions = null
+                                }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -677,37 +885,7 @@ fun NowPlayingPanel(
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
-                        )
-                    )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .align(Alignment.BottomStart)
-            ) {
-                Text(
-                    text = currentItem?.title?.lowercase() ?: " ",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = SegoeUiFontFamily,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
-                if (currentItem != null) {
-                    Text(
-                        text = (currentItem?.artist?.lowercase() ?: "").let { if (it.isNotBlank()) "by $it" else "" },
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 14.sp,
-                        fontFamily = SegoeUiFontFamily,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                }
-            }
+
         }
     }
 }
@@ -852,6 +1030,7 @@ fun MusicPage(
                 )
             }
         }
+
     }
 }
 
@@ -1046,6 +1225,7 @@ fun PersonalizePage(
 
     val metroColors = remember {
         listOf(
+            Color(0xFFFFFFFF), // White Accent
             Color(0xFFE5A600), // Gold / Amber
             Color(0xFF8CBF26), // Lime Green
             Color(0xFF0083D7), // Sky Blue / Aero Blue
@@ -1284,6 +1464,91 @@ fun PersonalizePage(
         }
 
         item(span = { GridItemSpan(2) }) {
+            var npBgType by remember { mutableIntStateOf(prefs.getInt("np_bg_type", 0)) }
+            var localAlbumsStyle by remember { mutableStateOf(prefs.getString("local_albums_layout_style", "grid") ?: "grid") }
+            
+            DisposableEffect(prefs) {
+                val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key == "np_bg_type") {
+                        npBgType = prefs.getInt("np_bg_type", 0)
+                    } else if (key == "local_albums_layout_style") {
+                        localAlbumsStyle = prefs.getString("local_albums_layout_style", "grid") ?: "grid"
+                    }
+                }
+                prefs.registerOnSharedPreferenceChangeListener(listener)
+                onDispose {
+                    prefs.unregisterOnSharedPreferenceChangeListener(listener)
+                }
+            }
+            
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Now Playing Backdrop setting
+                Column {
+                    Text(
+                        text = "NOW PLAYING BACKDROP",
+                        style = ZuneTypography.h4.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                        color = ZuneTextSecondary,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                        Text(
+                            text = "ambient",
+                            color = if (npBgType == 0) Color.White else Color.Gray,
+                            style = ZuneTypography.body2.copy(fontWeight = if (npBgType == 0) FontWeight.Bold else FontWeight.Normal),
+                            modifier = Modifier.metroClickable {
+                                prefs.edit().putInt("np_bg_type", 0).apply()
+                            }
+                        )
+                        Text(
+                            text = "pure black",
+                            color = if (npBgType == 1) Color.White else Color.Gray,
+                            style = ZuneTypography.body2.copy(fontWeight = if (npBgType == 1) FontWeight.Bold else FontWeight.Normal),
+                            modifier = Modifier.metroClickable {
+                                prefs.edit().putInt("np_bg_type", 1).apply()
+                            }
+                        )
+                        Text(
+                            text = "artist photo",
+                            color = if (npBgType == 2) Color.White else Color.Gray,
+                            style = ZuneTypography.body2.copy(fontWeight = if (npBgType == 2) FontWeight.Bold else FontWeight.Normal),
+                            modifier = Modifier.metroClickable {
+                                prefs.edit().putInt("np_bg_type", 2).apply()
+                            }
+                        )
+                    }
+                }
+                
+                // Local Albums layout setting
+                Column {
+                    Text(
+                        text = "LOCAL ALBUMS LAYOUT",
+                        style = ZuneTypography.h4.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                        color = ZuneTextSecondary,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                        Text(
+                            text = "grid",
+                            color = if (localAlbumsStyle == "grid") Color.White else Color.Gray,
+                            style = ZuneTypography.body2.copy(fontWeight = if (localAlbumsStyle == "grid") FontWeight.Bold else FontWeight.Normal),
+                            modifier = Modifier.metroClickable {
+                                prefs.edit().putString("local_albums_layout_style", "grid").apply()
+                            }
+                        )
+                        Text(
+                            text = "song preview",
+                            color = if (localAlbumsStyle == "song_preview") Color.White else Color.Gray,
+                            style = ZuneTypography.body2.copy(fontWeight = if (localAlbumsStyle == "song_preview") FontWeight.Bold else FontWeight.Normal),
+                            modifier = Modifier.metroClickable {
+                                prefs.edit().putString("local_albums_layout_style", "song_preview").apply()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        item(span = { GridItemSpan(2) }) {
             var hapticEnabled by remember { mutableStateOf(prefs.getBoolean("haptic_feedback_enabled", true)) }
             
             DisposableEffect(prefs) {
@@ -1320,6 +1585,49 @@ fun PersonalizePage(
                         style = ZuneTypography.body2.copy(fontWeight = if (!hapticEnabled) FontWeight.Bold else FontWeight.Normal),
                         modifier = Modifier.metroClickable {
                             prefs.edit().putBoolean("haptic_feedback_enabled", false).apply()
+                        }
+                    )
+                }
+            }
+        }
+
+        item(span = { GridItemSpan(2) }) {
+            var historyEnabledSetting by remember { mutableStateOf(prefs.getBoolean("history_enabled", true)) }
+            
+            DisposableEffect(prefs) {
+                val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key == "history_enabled") {
+                        historyEnabledSetting = prefs.getBoolean("history_enabled", true)
+                    }
+                }
+                prefs.registerOnSharedPreferenceChangeListener(listener)
+                onDispose {
+                    prefs.unregisterOnSharedPreferenceChangeListener(listener)
+                }
+            }
+            
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp)) {
+                Text(
+                    text = "PLAYBACK HISTORY TRACKING",
+                    style = ZuneTypography.h4.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = SegoeUiFontFamily),
+                    color = ZuneTextSecondary,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    Text(
+                        text = "on",
+                        color = if (historyEnabledSetting) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (historyEnabledSetting) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("history_enabled", true).apply()
+                        }
+                    )
+                    Text(
+                        text = "off",
+                        color = if (!historyEnabledSetting) Color.White else Color.Gray,
+                        style = ZuneTypography.body2.copy(fontWeight = if (!historyEnabledSetting) FontWeight.Bold else FontWeight.Normal),
+                        modifier = Modifier.metroClickable {
+                            prefs.edit().putBoolean("history_enabled", false).remove("playback_history_json").apply()
                         }
                     )
                 }

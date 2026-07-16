@@ -10,6 +10,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -25,8 +26,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -211,7 +211,7 @@ fun AppsScreen(
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = ZuneIcons.Close,
                             contentDescription = "Clear",
                             tint = Color.White.copy(alpha = 0.6f),
                             modifier = Modifier.metroClickable { searchQuery = "" }
@@ -261,22 +261,25 @@ fun AppsScreen(
                         }) { item ->
                             when (item) {
                                 is Char -> {
+                                    val accent = LocalZuneAccent.current
                                     Box(
                                         modifier = Modifier
                                             .padding(top = 16.dp, bottom = 4.dp)
                                             .size(42.dp)
-                                            .background(LocalZuneAccent.current)
+                                            .background(Color(0xFF151515))
+                                            .border(width = 1.5.dp, color = accent)
                                             .metroClickable { showJumpGrid = true },
-                                        contentAlignment = Alignment.Center
+                                        contentAlignment = Alignment.BottomEnd
                                     ) {
                                         Text(
-                                            text = item.toString(),
+                                            text = item.toString().lowercase(),
                                             style = ZuneTypography.h2.copy(
                                                 fontFamily = SegoeUiFontFamily,
                                                 fontSize = 20.sp,
                                                 fontWeight = FontWeight.Bold
                                             ),
-                                            color = Color.White
+                                            color = Color.White,
+                                            modifier = Modifier.padding(bottom = 2.dp, end = 6.dp)
                                         )
                                     }
                                 }
@@ -340,10 +343,19 @@ fun AppsScreen(
                     val alphabet = ('a'..'z').toList() + listOf('#')
                     items(alphabet, key = { it }) { letter ->
                         val hasItems = availableLetters.contains(letter)
-                        Box(
-                            modifier = Modifier
+                        val accent = LocalZuneAccent.current
+                        val modifierWithBorder = if (hasItems) {
+                            Modifier
                                 .aspectRatio(1f)
-                                .background(if (hasItems) LocalZuneAccent.current else Color(0xFF222222))
+                                .background(Color(0xFF151515))
+                                .border(width = 1.5.dp, color = accent)
+                        } else {
+                            Modifier
+                                .aspectRatio(1f)
+                                .background(Color(0xFF151515))
+                        }
+                        Box(
+                            modifier = modifierWithBorder
                                 .metroClickable {
                                     if (hasItems) {
                                         showJumpGrid = false
@@ -355,16 +367,17 @@ fun AppsScreen(
                                         }
                                     }
                                 },
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.BottomEnd
                         ) {
                             Text(
-                                text = letter.toString(),
+                                text = letter.toString().lowercase(),
                                 style = ZuneTypography.h2.copy(
                                     fontFamily = SegoeUiFontFamily,
-                                    fontSize = 20.sp,
+                                    fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = if (hasItems) Color.White else Color.White.copy(alpha = 0.3f)
+                                color = if (hasItems) Color.White else Color.White.copy(alpha = 0.25f),
+                                modifier = Modifier.padding(bottom = 6.dp, end = 10.dp)
                             )
                         }
                     }
@@ -415,11 +428,12 @@ fun AppRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // App Icon Box (Fit content scale, square tile background)
+            val isWhiteAccent = LocalZuneAccent.current == Color.White
             Box(
                 modifier = Modifier
                     .size(42.dp)
-                    .background(LocalZuneAccent.current)
+                    .background(if (isWhiteAccent) Color.Black else LocalZuneAccent.current)
+                    .then(if (isWhiteAccent) Modifier.border(1.dp, Color.White) else Modifier)
                     .clip(RectangleShape),
                 contentAlignment = Alignment.Center
             ) {

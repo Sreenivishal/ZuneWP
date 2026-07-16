@@ -146,14 +146,14 @@ internal fun parseArtistData(data: ArtistPage): ArtistBrowse {
     Logger.d("ArtistParser", "listSingle: ${listSingle.size}")
     Logger.d("ArtistParser", "listRelated: ${listRelated.size}")
     return ArtistBrowse(
-        albums = Albums(browseId = "", results = listAlbum, params = ""),
+        albums = Albums(browseId = albumSection?.moreEndpoint?.browseId ?: "", results = listAlbum, params = albumSection?.moreEndpoint?.params ?: ""),
         channelId = data.artist.id,
         description = data.description,
         name = data.artist.title,
         radioId = data.artist.radioEndpoint?.toYouTubeWatchEndpoint(),
         related = Related(browseId = "", results = listRelated),
         shuffleId = data.artist.shuffleEndpoint?.toYouTubeWatchEndpoint(),
-        singles = Singles(browseId = "", params = "", results = listSingle),
+        singles = Singles(browseId = singleSection?.moreEndpoint?.browseId ?: "", params = singleSection?.moreEndpoint?.params ?: "", results = listSingle),
         songs = Songs(browseId = songSection?.moreEndpoint?.browseId, results = listSong),
         subscribed = false,
         subscribers = data.subscribers,

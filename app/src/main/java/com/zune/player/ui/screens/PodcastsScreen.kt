@@ -18,17 +18,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Podcasts
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -91,7 +87,7 @@ fun PodcastsScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val pages = listOf("subscribed", "episodes", "search")
+    val pages = listOf("subscribed", "search")
     val pagerState = androidx.compose.foundation.pager.rememberPagerState(initialPage = 0) { pages.size }
     val tabWidths = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
 
@@ -103,12 +99,25 @@ fun PodcastsScreen(
     var searchResults by remember { mutableStateOf<List<PodcastInfo>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
     var searchError by remember { mutableStateOf<String?>(null) }
+    
+    // Episode filter search state
+    var episodeSearchQuery by remember { mutableStateOf("") }
 
     // Active viewed podcast and its parsed episodes
     var activePodcast by remember { mutableStateOf<PodcastInfo?>(null) }
     var episodesList by remember { mutableStateOf<List<PodcastEpisode>>(emptyList()) }
     var isLoadingEpisodes by remember { mutableStateOf(false) }
     var episodesError by remember { mutableStateOf<String?>(null) }
+
+    BackHandler(enabled = pagerState.currentPage > 0 || activePodcast != null) {
+        if (activePodcast != null) {
+            activePodcast = null
+        } else if (pagerState.currentPage > 0) {
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+            }
+        }
+    }
 
     // Load initial subscriptions
     LaunchedEffect(Unit) {
@@ -286,22 +295,20 @@ fun PodcastsScreen(
                                 )
                             }
                         } else {
-                            LazyColumn(
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(2),
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(horizontal = 24.dp),
                                 contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 itemsIndexed(subscribedPodcasts) { _, podcast ->
-                                    PodcastCard(
+                                    PodcastGridCard(
                                         podcast = podcast,
-                                        isAeroTheme = isAeroTheme,
                                         onClick = {
                                             loadEpisodes(podcast)
-                                            coroutineScope.launch {
-                                                pagerState.animateScrollToPage(1)
-                                            }
                                         }
                                     )
                                 }
@@ -309,189 +316,6 @@ fun PodcastsScreen(
                         }
                     }
                     1 -> {
-                        // "episodes" detail page
-                        val active = activePodcast
-                        if (active == null) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "select a podcast to view episodes",
-                                    style = ZuneTypography.body1.copy(fontFamily = SegoeUiLightFontFamily),
-                                    color = ZuneTextSecondary
-                                )
-                            }
-                        } else {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 24.dp)
-                            ) {
-                                // Header Info
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Cover Art
-                                    AsyncImage(
-                                        model = active.artworkUrl,
-                                        contentDescription = active.title,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .background(Color(0xFF1E1E1E))
-                                            .border(1.dp, Color.White.copy(alpha = 0.15f))
-                                    )
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = active.title,
-                                            style = ZuneTypography.h2.copy(
-                                                fontFamily = SegoeUiLightFontFamily,
-                                                fontSize = 20.sp,
-                                                fontWeight = FontWeight.Bold
-                                            ),
-                                            color = Color.White,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = active.author,
-                                            style = ZuneTypography.body2.copy(fontSize = 13.sp),
-                                            color = ZuneTextSecondary,
-                                            maxLines = 1
-                                        )
-                                        
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        
-                                        // Subscribe Button
-                                        val isSubscribed = subscribedPodcasts.any { it.feedUrl == active.feedUrl }
-                                        Row(
-                                            modifier = Modifier
-                                                .border(1.dp, if (isSubscribed) Color.White.copy(alpha = 0.3f) else LocalZuneAccent.current)
-                                                .clickable {
-                                                    val currentList = subscribedPodcasts.toMutableList()
-                                                    if (isSubscribed) {
-                                                        currentList.removeAll { it.feedUrl == active.feedUrl }
-                                                    } else {
-                                                        currentList.add(active)
-                                                    }
-                                                    subscribedPodcasts = currentList
-                                                    saveSubscriptions(context, currentList)
-                                                }
-                                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = if (isSubscribed) Icons.Default.Check else Icons.Default.Add,
-                                                contentDescription = if (isSubscribed) "subscribed" else "subscribe",
-                                                tint = if (isSubscribed) Color.White.copy(alpha = 0.5f) else Color.White,
-                                                modifier = Modifier.size(14.dp)
-                                            )
-                                            Text(
-                                                text = if (isSubscribed) "subscribed" else "subscribe",
-                                                style = ZuneTypography.caption.copy(fontSize = 11.sp),
-                                                color = Color.White
-                                            )
-                                        }
-                                    }
-                                }
-
-                                Divider(color = Color.White.copy(alpha = 0.08f), thickness = 1.dp)
-
-                                 // Episode List or loading
-                                 if (isLoadingEpisodes) {
-                                     Box(
-                                         modifier = Modifier.weight(1f).fillMaxWidth(),
-                                         contentAlignment = Alignment.Center
-                                     ) {
-                                         CircularProgressIndicator(color = LocalZuneAccent.current)
-                                     }
-                                 } else if (episodesError != null) {
-                                     Box(
-                                         modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 24.dp),
-                                         contentAlignment = Alignment.Center
-                                     ) {
-                                         Column(
-                                             horizontalAlignment = Alignment.CenterHorizontally,
-                                             verticalArrangement = Arrangement.spacedBy(8.dp)
-                                         ) {
-                                             Text(
-                                                 text = episodesError ?: "",
-                                                 style = ZuneTypography.body1.copy(fontFamily = SegoeUiLightFontFamily),
-                                                 color = ZuneTextSecondary,
-                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                             )
-                                             Text(
-                                                 text = "retry",
-                                                 style = ZuneTypography.body2.copy(fontWeight = FontWeight.Bold),
-                                                 color = LocalZuneAccent.current,
-                                                 modifier = Modifier.metroClickable {
-                                                     loadEpisodes(active)
-                                                 }
-                                             )
-                                         }
-                                     }
-                                 } else {
-                                     LazyColumn(
-                                         modifier = Modifier.weight(1f).fillMaxWidth(),
-                                         contentPadding = PaddingValues(top = 12.dp, bottom = 96.dp),
-                                         verticalArrangement = Arrangement.spacedBy(16.dp)
-                                     ) {
-                                         itemsIndexed(episodesList) { _, episode ->
-                                              EpisodeRow(
-                                                  episode = episode,
-                                                  onPlayClick = {
-                                                      val audioItem = AudioItem(
-                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
-                                                          title = episode.title,
-                                                          artist = active.title,
-                                                          album = active.author,
-                                                          uri = Uri.parse(episode.streamUrl),
-                                                          albumArtUri = Uri.parse(active.artworkUrl),
-                                                          durationMs = parseDuration(episode.duration)
-                                                      )
-                                                      player.play(audioItem)
-                                                      android.widget.Toast.makeText(context, "streaming episode...", android.widget.Toast.LENGTH_SHORT).show()
-                                                  },
-                                                  onAddToQueueClick = {
-                                                      val audioItem = AudioItem(
-                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
-                                                          title = episode.title,
-                                                          artist = active.title,
-                                                          album = active.author,
-                                                          uri = Uri.parse(episode.streamUrl),
-                                                          albumArtUri = Uri.parse(active.artworkUrl),
-                                                          durationMs = parseDuration(episode.duration)
-                                                      )
-                                                      player.addToQueue(listOf(audioItem))
-                                                      android.widget.Toast.makeText(context, "Added episode to queue", android.widget.Toast.LENGTH_SHORT).show()
-                                                  },
-                                                  onPlayNextClick = {
-                                                      val audioItem = AudioItem(
-                                                          id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
-                                                          title = episode.title,
-                                                          artist = active.title,
-                                                          album = active.author,
-                                                          uri = Uri.parse(episode.streamUrl),
-                                                          albumArtUri = Uri.parse(active.artworkUrl),
-                                                          durationMs = parseDuration(episode.duration)
-                                                      )
-                                                      player.playNext(listOf(audioItem))
-                                                      android.widget.Toast.makeText(context, "Added episode to play next", android.widget.Toast.LENGTH_SHORT).show()
-                                                  }
-                                              )
-                                         }
-                                     }
-                                 }
-                            }
-                        }
-                    }
-                    2 -> {
                         // "search" page
                         Column(
                             modifier = Modifier
@@ -510,14 +334,14 @@ fun PodcastsScreen(
                                     ) {
                                         if (searchQuery.isNotEmpty()) {
                                             Icon(
-                                                imageVector = Icons.Default.Close,
+                                                imageVector = ZuneIcons.Close,
                                                 contentDescription = "Clear",
                                                 tint = Color.White.copy(alpha = 0.6f),
                                                 modifier = Modifier.metroClickable { searchQuery = "" }
                                             )
                                         }
                                         Icon(
-                                            imageVector = Icons.Default.Search,
+                                            imageVector = ZuneIcons.Search,
                                             contentDescription = "Search",
                                             tint = Color.White,
                                             modifier = Modifier
@@ -634,9 +458,6 @@ fun PodcastsScreen(
                                             isAeroTheme = isAeroTheme,
                                             onClick = {
                                                 loadEpisodes(podcast)
-                                                coroutineScope.launch {
-                                                    pagerState.animateScrollToPage(1)
-                                                }
                                             }
                                         )
                                     }
@@ -648,28 +469,288 @@ fun PodcastsScreen(
             }
         }
 
-        // Circular back arrow action button at the bottom center
+        // Standalone Podcast Episode Screen Overlay (Slides in from the right edge)
+        AnimatedVisibility(
+            visible = activePodcast != null,
+            enter = slideInHorizontally(initialOffsetX = { it }) + fadeIn(),
+            exit = slideOutHorizontally(targetOffsetX = { it }) + fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            val active = activePodcast
+            if (active != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp)
+                    ) {
+                        // Title/Back Bar styled like Playlist/Album details
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = ZuneIcons.ArrowBack,
+                                contentDescription = "back",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .metroClickable { activePodcast = null }
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "podcast series",
+                                style = ZuneTypography.h2.copy(fontFamily = SegoeUiLightFontFamily, fontSize = 24.sp),
+                                color = ZuneTextSecondary
+                            )
+                        }
+
+                        // Header Info
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Cover Art
+                            AsyncImage(
+                                model = active.artworkUrl,
+                                contentDescription = active.title,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .background(Color(0xFF1E1E1E))
+                                    .border(1.dp, Color.White.copy(alpha = 0.15f))
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = active.title,
+                                    style = ZuneTypography.h2.copy(
+                                        fontFamily = SegoeUiLightFontFamily,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Color.White,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = active.author,
+                                    style = ZuneTypography.body2.copy(fontSize = 13.sp),
+                                    color = ZuneTextSecondary,
+                                    maxLines = 1
+                                )
+                                
+                                Spacer(modifier = Modifier.height(4.dp))
+                                
+                                // Subscribe Button
+                                val isSubscribed = subscribedPodcasts.any { it.feedUrl == active.feedUrl }
+                                Row(
+                                    modifier = Modifier
+                                        .border(1.dp, if (isSubscribed) Color.White.copy(alpha = 0.3f) else LocalZuneAccent.current)
+                                        .clickable {
+                                            val currentList = subscribedPodcasts.toMutableList()
+                                            if (isSubscribed) {
+                                                currentList.removeAll { it.feedUrl == active.feedUrl }
+                                            } else {
+                                                currentList.add(active)
+                                            }
+                                            subscribedPodcasts = currentList
+                                            saveSubscriptions(context, currentList)
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSubscribed) ZuneIcons.Check else ZuneIcons.Add,
+                                        contentDescription = if (isSubscribed) "subscribed" else "subscribe",
+                                        tint = if (isSubscribed) Color.White.copy(alpha = 0.5f) else Color.White,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = if (isSubscribed) "subscribed" else "subscribe",
+                                        style = ZuneTypography.caption.copy(fontSize = 11.sp),
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+
+                        // Episode filter query input
+                        OutlinedTextField(
+                            value = episodeSearchQuery,
+                            onValueChange = { episodeSearchQuery = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            placeholder = { Text("filter episodes...", color = Color.White.copy(alpha = 0.4f)) },
+                            singleLine = true,
+                            trailingIcon = {
+                                if (episodeSearchQuery.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = ZuneIcons.Close,
+                                        contentDescription = "Clear",
+                                        tint = Color.White.copy(alpha = 0.6f),
+                                        modifier = Modifier.metroClickable { episodeSearchQuery = "" }
+                                    )
+                                }
+                            }
+                        )
+
+                        Divider(color = Color.White.copy(alpha = 0.08f), thickness = 1.dp)
+
+                        // Episode List or loading
+                        if (isLoadingEpisodes) {
+                            Box(
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(color = LocalZuneAccent.current)
+                            }
+                        } else if (episodesError != null) {
+                            Box(
+                                modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = episodesError ?: "",
+                                        style = ZuneTypography.body1.copy(fontFamily = SegoeUiLightFontFamily),
+                                        color = ZuneTextSecondary,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                    Text(
+                                        text = "retry",
+                                        style = ZuneTypography.body2.copy(fontWeight = FontWeight.Bold),
+                                        color = LocalZuneAccent.current,
+                                        modifier = Modifier.metroClickable {
+                                            loadEpisodes(active)
+                                        }
+                                    )
+                                }
+                            }
+                        } else {
+                            val filteredEpisodes = remember(episodeSearchQuery, episodesList) {
+                                if (episodeSearchQuery.isBlank()) {
+                                    episodesList
+                                } else {
+                                    val q = episodeSearchQuery.lowercase().trim()
+                                    episodesList.filter {
+                                        it.title.lowercase().contains(q) || it.description.lowercase().contains(q)
+                                    }
+                                }
+                            }
+
+                            LazyColumn(
+                                modifier = Modifier.weight(1f).fillMaxWidth(),
+                                contentPadding = PaddingValues(top = 12.dp, bottom = 96.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                itemsIndexed(filteredEpisodes) { _, episode ->
+                                    EpisodeRow(
+                                        episode = episode,
+                                        onPlayClick = {
+                                            val audioItem = AudioItem(
+                                                id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                title = episode.title,
+                                                artist = active.title,
+                                                album = active.author,
+                                                uri = Uri.parse(episode.streamUrl),
+                                                albumArtUri = Uri.parse(active.artworkUrl),
+                                                durationMs = parseDuration(episode.duration)
+                                            )
+                                            player.play(audioItem)
+                                            android.widget.Toast.makeText(context, "streaming episode...", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        onAddToQueueClick = {
+                                            val audioItem = AudioItem(
+                                                id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                title = episode.title,
+                                                artist = active.title,
+                                                album = active.author,
+                                                uri = Uri.parse(episode.streamUrl),
+                                                albumArtUri = Uri.parse(active.artworkUrl),
+                                                durationMs = parseDuration(episode.duration)
+                                            )
+                                            player.addToQueue(listOf(audioItem))
+                                            android.widget.Toast.makeText(context, "Added episode to queue", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        onPlayNextClick = {
+                                            val audioItem = AudioItem(
+                                                id = java.lang.Math.abs(episode.streamUrl.hashCode().toLong()),
+                                                title = episode.title,
+                                                artist = active.title,
+                                                album = active.author,
+                                                uri = Uri.parse(episode.streamUrl),
+                                                albumArtUri = Uri.parse(active.artworkUrl),
+                                                durationMs = parseDuration(episode.duration)
+                                            )
+                                            player.playNext(listOf(audioItem))
+                                            android.widget.Toast.makeText(context, "Added episode to play next", android.widget.Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+}
+
+@Composable
+fun PodcastGridCard(
+    podcast: PodcastInfo,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clickable { onClick() }
+            .border(1.dp, Color.White.copy(alpha = 0.08f))
+    ) {
+        AsyncImage(
+            model = podcast.artworkUrl,
+            contentDescription = podcast.title,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize().background(Color(0xFF1C1C1C))
+        )
+        
         Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
+                .align(Alignment.BottomCenter)
+                .background(Color.Black.copy(alpha = 0.7f))
+                .padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .border(4.dp, Color.White, CircleShape)
-                    .metroClickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "back",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+            Text(
+                text = podcast.title.uppercase(),
+                style = TextStyle(
+                    fontFamily = SegoeUiBoldFontFamily,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

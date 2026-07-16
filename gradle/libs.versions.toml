@@ -87,6 +87,7 @@ commonsIo = "2.5"
 packagedeps = "0.2.5"
 conveyor = "2.0"
 vaqua = "13"
+fluentui-icons = "1.0.1"
 
 [libraries]
 desugaring = { group = "com.android.tools", name = "desugar_jdk_libs_nio", version.ref = "desugaring"}
@@ -233,6 +234,7 @@ androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "w
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging-common" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 vaqua = { module = "org.violetlib:vaqua", version.ref = "vaqua" }
+fluentui-system-icons = { module = "io.github.niyajali:fluentui-system-icons", version.ref = "fluentui-icons" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android" }

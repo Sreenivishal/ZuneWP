@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
+import com.zune.player.ui.theme.ZuneIcons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -347,6 +345,8 @@ fun SearchScreen(
 
             // Downloading active progress indicator
             if (activeDownloadingTitle != null) {
+                val isWhiteAccent = LocalZuneAccent.current == Color.White
+                val contentColor = if (isWhiteAccent) Color.Black else Color.White
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -356,13 +356,13 @@ fun SearchScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CircularProgressIndicator(
-                        color = Color.White,
+                        color = contentColor,
                         modifier = Modifier.size(16.dp),
                         strokeWidth = 2.dp
                     )
                     Text(
                         text = "downloading \"$activeDownloadingTitle\" to library...",
-                        style = ZuneTypography.body2.copy(color = Color.White, fontSize = 13.sp)
+                        style = ZuneTypography.body2.copy(color = contentColor, fontSize = 13.sp)
                     )
                 }
             }
@@ -390,7 +390,7 @@ fun SearchScreen(
                                 trailingIcon = {
                                     if (collectionQuery.isNotEmpty()) {
                                         Icon(
-                                            imageVector = Icons.Default.Close,
+                                            imageVector = ZuneIcons.Close,
                                             contentDescription = "Clear",
                                             tint = Color.White.copy(alpha = 0.6f),
                                             modifier = Modifier.metroClickable { collectionQuery = "" }
@@ -472,7 +472,7 @@ fun SearchScreen(
                                 trailingIcon = {
                                     if (onlineQuery.isNotEmpty()) {
                                         Icon(
-                                            imageVector = Icons.Default.Close,
+                                            imageVector = ZuneIcons.Close,
                                             contentDescription = "Clear",
                                             tint = Color.White.copy(alpha = 0.6f),
                                             modifier = Modifier.metroClickable { onlineQuery = "" }
@@ -857,37 +857,40 @@ fun OnlineAlbumSearchResultCard(
         modifier = modifier
             .fillMaxWidth()
             .metroClickable { onClick() }
-            .padding(vertical = 10.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (album.artworkUrl.isNotEmpty()) {
             AsyncImage(
                 model = album.artworkUrl,
                 contentDescription = null,
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(110.dp),
                 contentScale = ContentScale.Crop
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(110.dp)
                     .background(Color(0xFF1E1E1E))
             )
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             Text(
-                text = album.title.lowercase(),
-                style = ZuneTypography.h4.copy(fontSize = 24.sp),
+                text = album.title.uppercase(),
+                style = ZuneTypography.h4.copy(fontSize = 22.sp, fontWeight = FontWeight.Bold),
                 color = ZuneTextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                text = "${album.artist} • ${album.year}".lowercase(),
-                style = ZuneTypography.body2,
+                text = "${album.artist} • ${album.year}".uppercase(),
+                style = ZuneTypography.body2.copy(fontFamily = SegoeUiLightFontFamily),
                 color = ZuneTextSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -1000,7 +1003,10 @@ fun SearchResultCard(
                 Text(
                     text = track.title.lowercase(),
                     style = ZuneTypography.h4.copy(fontSize = 20.sp),
-                    color = if (isCurrentlyPlaying) LocalZuneAccent.current else ZuneTextPrimary,
+                    color = if (isCurrentlyPlaying) {
+                    val accent = LocalZuneAccent.current
+                    if (accent == Color.White) Color(0xFFD80073) else accent
+                } else ZuneTextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

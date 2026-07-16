@@ -4,41 +4,7 @@
             "outputFile": "com.zune.player.app-mergeDebugResources-2:/values-lt/values-lt.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\48697dc06eb453bec67be42a115f298e\\workspace\\transformed\\appcompat-1.7.1\\res\\values-lt\\values-lt.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,221,325,438,525,627,749,832,912,1006,1102,1199,1295,1398,1494,1592,1688,1782,1876,1959,2068,2176,2276,2386,2491,2597,2773,2874",
-                        "endColumns": "115,103,112,86,101,121,82,79,93,95,96,95,102,95,97,95,93,93,82,108,107,99,109,104,105,175,100,83",
-                        "endOffsets": "216,320,433,520,622,744,827,907,1001,1097,1194,1290,1393,1489,1587,1683,1777,1871,1954,2063,2171,2271,2381,2486,2592,2768,2869,2953"
-                    },
-                    "to": {
-                        "startLines": "23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,216",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "983,1099,1203,1316,1403,1505,1627,1710,1790,1884,1980,2077,2173,2276,2372,2470,2566,2660,2754,2837,2946,3054,3154,3264,3369,3475,3651,19557",
-                        "endColumns": "115,103,112,86,101,121,82,79,93,95,96,95,102,95,97,95,93,93,82,108,107,99,109,104,105,175,100,83",
-                        "endOffsets": "1094,1198,1311,1398,1500,1622,1705,1785,1879,1975,2072,2168,2271,2367,2465,2561,2655,2749,2832,2941,3049,3149,3259,3364,3470,3646,3747,19636"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\548464727c7371f52bc3442e0b0254f0\\workspace\\transformed\\core-1.18.0\\res\\values-lt\\values-lt.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,153,263,362,465,576,686,806",
-                        "endColumns": "97,109,98,102,110,109,119,100",
-                        "endOffsets": "148,258,357,460,571,681,801,902"
-                    },
-                    "to": {
-                        "startLines": "52,53,54,55,56,57,58,222",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3976,4074,4184,4283,4386,4497,4607,20033",
-                        "endColumns": "97,109,98,102,110,109,119,100",
-                        "endOffsets": "4069,4179,4278,4381,4492,4602,4722,20129"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\1de37ee215f7564bb1fdc54d6f2cdf2b\\workspace\\transformed\\jetified-media3-exoplayer-1.10.1\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\76ad32b7bea93646859d09365e62e8e6\\workspace\\transformed\\jetified-media3-exoplayer-1.10.1\\res\\values-lt\\values-lt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
@@ -55,24 +21,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\db84cf3d7dfbd53f0c2310d2ba90ea71\\workspace\\transformed\\jetified-foundation\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\d10aafdb2b6770a84a04a9a7a9812c1f\\workspace\\transformed\\appcompat-1.7.1\\res\\values-lt\\values-lt.xml",
                     "from": {
-                        "startLines": "2,3,4",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "55,171,259",
-                        "endColumns": "115,87,87",
-                        "endOffsets": "166,254,342"
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,221,325,438,525,627,749,832,912,1006,1102,1199,1295,1398,1494,1592,1688,1782,1876,1959,2068,2176,2276,2386,2491,2597,2773,2874",
+                        "endColumns": "115,103,112,86,101,121,82,79,93,95,96,95,102,95,97,95,93,93,82,108,107,99,109,104,105,175,100,83",
+                        "endOffsets": "216,320,433,520,622,744,827,907,1001,1097,1194,1290,1393,1489,1587,1683,1777,1871,1954,2063,2171,2271,2381,2486,2592,2768,2869,2953"
                     },
                     "to": {
-                        "startLines": "50,226,227",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "3752,20419,20507",
-                        "endColumns": "115,87,87",
-                        "endOffsets": "3863,20502,20590"
+                        "startLines": "23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,216",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "983,1099,1203,1316,1403,1505,1627,1710,1790,1884,1980,2077,2173,2276,2372,2470,2566,2660,2754,2837,2946,3054,3154,3264,3369,3475,3651,19557",
+                        "endColumns": "115,103,112,86,101,121,82,79,93,95,96,95,102,95,97,95,93,93,82,108,107,99,109,104,105,175,100,83",
+                        "endOffsets": "1094,1198,1311,1398,1500,1622,1705,1785,1879,1975,2072,2168,2271,2367,2465,2561,2655,2749,2832,2941,3049,3149,3259,3364,3470,3646,3747,19636"
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\14507cb8b8a240913a4ee12a3bcc1095\\workspace\\transformed\\jetified-material\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\fa7bf9de0bf3af767984fd2003b4946b\\workspace\\transformed\\jetified-ui\\res\\values-lt\\values-lt.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "107,215,308,392,490,595,690,767,858,945,1029,1115,1203,1278,1366,1443,1520,1595,1675,1758",
+                        "endColumns": "107,92,83,97,104,94,76,90,86,83,85,87,74,87,76,76,74,79,82,125",
+                        "endOffsets": "210,303,387,485,590,685,762,853,940,1024,1110,1198,1273,1361,1438,1515,1590,1670,1753,1879"
+                    },
+                    "to": {
+                        "startLines": "51,59,60,61,63,64,132,133,212,213,214,215,217,218,219,220,221,223,224,225",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "3868,4727,4820,4904,5080,5185,10586,10663,19212,19299,19383,19469,19641,19716,19804,19881,19958,20134,20214,20297",
+                        "endColumns": "107,92,83,97,104,94,76,90,86,83,85,87,74,87,76,76,74,79,82,121",
+                        "endOffsets": "3971,4815,4899,4997,5180,5275,10658,10749,19294,19378,19464,19552,19711,19799,19876,19953,20028,20209,20292,20414"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\322ef268e963e248dae81474a5499c4d\\workspace\\transformed\\jetified-material\\res\\values-lt\\values-lt.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -89,7 +72,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\3c9740ceed8e2d41544fca23a6e30b01\\workspace\\transformed\\jetified-media3-session-1.10.1\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\12eca517b50856a650e95f91f5cf7ef0\\workspace\\transformed\\jetified-media3-session-1.10.1\\res\\values-lt\\values-lt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -106,7 +89,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\0cd0b01414800027743fc11a24b2ca81\\workspace\\transformed\\jetified-material3\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\c349b7e4cd0fe3834696f40b57963d15\\workspace\\transformed\\jetified-material3\\res\\values-lt\\values-lt.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -123,7 +106,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\9784081bc8d4833d20e184a2dec6ce98\\workspace\\transformed\\jetified-media3-ui-1.10.1\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\26f181e2eee0c3239c54802291f00439\\workspace\\transformed\\core-1.18.0\\res\\values-lt\\values-lt.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,153,263,362,465,576,686,806",
+                        "endColumns": "97,109,98,102,110,109,119,100",
+                        "endOffsets": "148,258,357,460,571,681,801,902"
+                    },
+                    "to": {
+                        "startLines": "52,53,54,55,56,57,58,222",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3976,4074,4184,4283,4386,4497,4607,20033",
+                        "endColumns": "97,109,98,102,110,109,119,100",
+                        "endOffsets": "4069,4179,4278,4381,4492,4602,4722,20129"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\6b3771eda57d86231d8b12c07f6f018f\\workspace\\transformed\\jetified-media3-ui-1.10.1\\res\\values-lt\\values-lt.xml",
                     "from": {
                         "startLines": "2,11,17,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -142,20 +142,20 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\ffb2eb0bc26cd05243f1cdcc8183aa7e\\workspace\\transformed\\jetified-ui\\res\\values-lt\\values-lt.xml",
+                    "source": "C:\\Users\\Sreenivishal\\koler\\.github\\caches\\9.3.1\\transforms\\280a6881ddfdcbab606f19fb4e6ad3e5\\workspace\\transformed\\jetified-foundation\\res\\values-lt\\values-lt.xml",
                     "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "107,215,308,392,490,595,690,767,858,945,1029,1115,1203,1278,1366,1443,1520,1595,1675,1758",
-                        "endColumns": "107,92,83,97,104,94,76,90,86,83,85,87,74,87,76,76,74,79,82,125",
-                        "endOffsets": "210,303,387,485,590,685,762,853,940,1024,1110,1198,1273,1361,1438,1515,1590,1670,1753,1879"
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,171,259",
+                        "endColumns": "115,87,87",
+                        "endOffsets": "166,254,342"
                     },
                     "to": {
-                        "startLines": "51,59,60,61,63,64,132,133,212,213,214,215,217,218,219,220,221,223,224,225",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "3868,4727,4820,4904,5080,5185,10586,10663,19212,19299,19383,19469,19641,19716,19804,19881,19958,20134,20214,20297",
-                        "endColumns": "107,92,83,97,104,94,76,90,86,83,85,87,74,87,76,76,74,79,82,121",
-                        "endOffsets": "3971,4815,4899,4997,5180,5275,10658,10749,19294,19378,19464,19552,19711,19799,19876,19953,20028,20209,20292,20414"
+                        "startLines": "50,226,227",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "3752,20419,20507",
+                        "endColumns": "115,87,87",
+                        "endOffsets": "3863,20502,20590"
                     }
                 }
             ]

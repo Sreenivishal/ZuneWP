@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = MusicRepository(application)
-    val player = AudioPlayer.getInstance(application)
+    val player = AudioPlayer.getInstance(application, forceReconnect = true)
     
     private val _audioItems = MutableStateFlow<List<AudioItem>>(emptyList())
     val audioItems: StateFlow<List<AudioItem>> = _audioItems.asStateFlow()
@@ -27,6 +27,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val _pinnedItems = MutableStateFlow<List<Pair<Long, Int>>>(emptyList())
     val pinnedItems: StateFlow<List<Pair<Long, Int>>> = _pinnedItems.asStateFlow()
 
+    private val artistRepo = org.koin.core.context.GlobalContext.get().get<com.maxrave.domain.repository.ArtistRepository>()
+    private val _followedArtists = MutableStateFlow<List<com.maxrave.domain.data.entities.ArtistEntity>>(emptyList())
+    val followedArtists: StateFlow<List<com.maxrave.domain.data.entities.ArtistEntity>> = _followedArtists.asStateFlow()
+
     init {
         viewModelScope.launch {
             player.currentAudio.collect { item ->
@@ -34,6 +38,11 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                     val prefs = application.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
                     prefs.edit().putLong("last_played_id", item.id).apply()
                 }
+            }
+        }
+        viewModelScope.launch {
+            artistRepo.getFollowedArtists().collect { artists ->
+                _followedArtists.value = artists
             }
         }
     }
@@ -45,13 +54,53 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             _playlists.value = repository.getPlaylists()
             loadPinned()
             
-            // Restore last played track
             val prefs = getApplication<Application>().getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE)
-            val lastPlayedId = prefs.getLong("last_played_id", -1L)
-            if (lastPlayedId != -1L) {
-                val lastItem = _audioItems.value.find { it.id == lastPlayedId }
-                if (lastItem != null && player.currentAudio.value == null) {
-                    player.restoreLastPlayed(lastItem)
+            val queueJson = prefs.getString("last_queue_json", null)
+            val lastQueueIndex = prefs.getInt("last_queue_index", 0)
+            
+            var queueRestored = false
+            if (!queueJson.isNullOrEmpty() && player.currentAudio.value == null) {
+                try {
+                    val jsonArray = org.json.JSONArray(queueJson)
+                    val itemsList = mutableListOf<AudioItem>()
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
+                        val id = obj.getLong("id")
+                        val title = obj.getString("title")
+                        val artist = obj.getString("artist")
+                        val album = obj.optString("album", "")
+                        val uriStr = obj.getString("uri")
+                        val albumArtUriStr = obj.optString("albumArtUri", "")
+                        val durationMs = obj.optLong("durationMs", 0L)
+                        
+                        itemsList.add(
+                            AudioItem(
+                                id = id,
+                                title = title,
+                                artist = artist,
+                                album = album,
+                                uri = android.net.Uri.parse(uriStr),
+                                albumArtUri = if (albumArtUriStr.isEmpty()) null else android.net.Uri.parse(albumArtUriStr),
+                                durationMs = durationMs
+                            )
+                        )
+                    }
+                    if (itemsList.isNotEmpty()) {
+                        player.restoreLastQueue(itemsList, lastQueueIndex)
+                        queueRestored = true
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            
+            if (!queueRestored) {
+                val lastPlayedId = prefs.getLong("last_played_id", -1L)
+                if (lastPlayedId != -1L) {
+                    val lastItem = _audioItems.value.find { it.id == lastPlayedId }
+                    if (lastItem != null && player.currentAudio.value == null) {
+                        player.restoreLastPlayed(lastItem)
+                    }
                 }
             }
             
@@ -62,7 +111,8 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     fun getItemsForCategory(category: String): List<Any> {
         val items = audioItems.value
         return when (category.lowercase()) {
-            "artists" -> items.map { it.artist }.distinct().sorted()
+            // "artists" -> items.map { it.artist }.distinct().sorted()
+            "artists" -> followedArtists.value
             "albums" -> {
                 val grouped = items.groupBy { it.album }
                 grouped.keys.sorted().mapNotNull { grouped[it]?.firstOrNull() }
@@ -88,10 +138,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val items = resolveItems(category, itemTitle)
             if (items.isNotEmpty()) {
-                player.playList(items.shuffled())
                 if (!player.shuffleEnabled.value) {
                     player.toggleShuffle()
                 }
+                player.playList(items, items.indices.random())
             }
         }
     }
@@ -133,6 +183,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun saveQueueAsPlaylist(name: String, queue: List<AudioItem>) {
+        viewModelScope.launch {
+            repository.createPlaylist(name)
+            repository.savePlaylistTracks(name, queue)
+            loadMusic()
+        }
+    }
+
     fun deletePlaylist(name: String) {
         viewModelScope.launch {
             repository.deletePlaylist(name)
@@ -140,10 +198,22 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun renamePlaylist(oldName: String, newName: String) {
+        viewModelScope.launch {
+            repository.renamePlaylist(oldName, newName)
+            loadMusic()
+        }
+    }
+
     fun addItemToPlaylist(playlistName: String, item: AudioItem) {
         viewModelScope.launch {
-            repository.addToPlaylist(playlistName, item)
+            val added = repository.addToPlaylist(playlistName, item)
             _playlists.value = repository.getPlaylists()
+            if (added) {
+                android.widget.Toast.makeText(getApplication(), "added to playlist", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                android.widget.Toast.makeText(getApplication(), "song is already in this playlist", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
