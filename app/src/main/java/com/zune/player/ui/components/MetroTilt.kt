@@ -30,6 +30,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import com.zune.player.ui.theme.LocalZuneAccent
 
@@ -45,6 +46,8 @@ fun Modifier.metroClickable(
     val haptic = LocalHapticFeedback.current
     val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
 
+    val view = LocalView.current
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -55,7 +58,7 @@ fun Modifier.metroClickable(
         if (isPressed) {
             val hapticEnabled = prefs.getBoolean("haptic_feedback_enabled", true)
             if (hapticFeedbackEnabled && hapticEnabled) {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                view.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
             }
         }
     }
@@ -114,6 +117,82 @@ fun Modifier.metroClickable(
             onClick = onClick
         )
 }
+
+/**
+ * Simulates the true Windows Phone / Zune UI 3D "tilt" effect based on a manual MutableInteractionSource.
+ * Useful for widgets that handle custom gesture detectors (like detectTapGestures).
+ */
+fun Modifier.metroTilt(
+    interactionSource: MutableInteractionSource
+) = composed {
+    val context = LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+    val view = LocalView.current
+
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    var tapOffset by remember { mutableStateOf(Offset.Zero) }
+    var itemSize by remember { mutableStateOf(IntSize.Zero) }
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            val hapticEnabled = prefs.getBoolean("haptic_feedback_enabled", true)
+            if (hapticEnabled) {
+                view.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            }
+        }
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "MetroTiltScale"
+    )
+    
+    val rotateX by animateFloatAsState(
+        targetValue = if (isPressed && itemSize.height > 0) {
+            val normalizedY = (tapOffset.y / itemSize.height) - 0.5f
+            -normalizedY * 15f
+        } else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "MetroTiltRotateX"
+    )
+
+    val rotateY by animateFloatAsState(
+        targetValue = if (isPressed && itemSize.width > 0) {
+            val normalizedX = (tapOffset.x / itemSize.width) - 0.5f
+            normalizedX * 15f
+        } else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "MetroTiltRotateY"
+    )
+
+    this
+        .onSizeChanged { itemSize = it }
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            rotationX = rotateX
+            rotationY = rotateY
+            cameraDistance = 12f * density
+        }
+        .pointerInput(Unit) {
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                tapOffset = down.position
+            }
+        }
+}
+
 
 
 

@@ -47,6 +47,14 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun reloadFollowedArtists() {
+        viewModelScope.launch {
+            artistRepo.getFollowedArtists().collect { artists ->
+                _followedArtists.value = artists
+            }
+        }
+    }
+
     fun loadMusic() {
         viewModelScope.launch {
             _isLoading.value = true

@@ -18,6 +18,7 @@ import com.zune.player.ui.screens.CategoryListScreen
 import com.zune.player.ui.screens.HomeScreen
 import com.zune.player.ui.screens.NowPlayingScreen
 import com.zune.player.ui.screens.PhotosScreen
+import com.zune.player.ui.screens.PhotoAlbumDetailScreen
 import com.zune.player.ui.screens.VideosScreen
 import com.zune.player.ui.screens.AppsScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -175,6 +176,7 @@ sealed class AppScreen {
     data class AlbumDetail(val albumName: String) : AppScreen()
     object Search : AppScreen()
     data class Photos(val initialPhotoId: Long? = null) : AppScreen()
+    data class PhotoAlbumDetail(val albumName: String) : AppScreen()
     data class Videos(val initialVideoId: Long? = null) : AppScreen()
     object Podcasts : AppScreen()
     data class OnlineAlbumDetail(val browseId: String, val albumName: String, val artistName: String, val artworkUrl: String) : AppScreen()
@@ -261,12 +263,26 @@ fun MainApp() {
         var backStack by remember { mutableStateOf(listOf<AppScreen>(AppScreen.Home())) }
         val artistDetailsCache = remember { mutableStateMapOf<String, Triple<List<com.zune.player.data.OnlineSong>, List<com.zune.player.data.OnlineAlbum>, List<com.zune.player.data.OnlineAlbum>>>() }
         val albumTracksCache = remember { mutableStateMapOf<String, List<String>>() }
+        val artistDetailSelectedTab = remember { mutableStateMapOf<String, Int>() }
+        val artistDetailSongsScroll = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
+        val artistDetailAlbumsScroll = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
+        val artistDetailSinglesScroll = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
+        var photosSelectedTab by remember { mutableIntStateOf(0) }
+        
         LaunchedEffect(backStack) {
             val hasArtistScreen = backStack.any { it is AppScreen.OnlineArtistDetail }
             val hasAlbumScreen = backStack.any { it is AppScreen.OnlineAlbumDetail }
             if (!hasArtistScreen && !hasAlbumScreen) {
                 artistDetailsCache.clear()
                 albumTracksCache.clear()
+                artistDetailSelectedTab.clear()
+                artistDetailSongsScroll.clear()
+                artistDetailAlbumsScroll.clear()
+                artistDetailSinglesScroll.clear()
+            }
+            val hasPhotosScreen = backStack.any { it is AppScreen.Photos || it is AppScreen.PhotoAlbumDetail }
+            if (!hasPhotosScreen) {
+                photosSelectedTab = 0
             }
         }
         val currentScreen = backStack.last()
@@ -358,6 +374,7 @@ fun MainApp() {
                         is AppScreen.AlbumDetail -> "album_detail_${screen.albumName}"
                         is AppScreen.Search -> "search"
                         is AppScreen.Photos -> "photos"
+                        is AppScreen.PhotoAlbumDetail -> "photo_album_detail_${screen.albumName}"
                         is AppScreen.Videos -> "videos"
                         is AppScreen.Podcasts -> "podcasts"
                         is AppScreen.OnlineAlbumDetail -> "online_album_detail_${screen.browseId}"
@@ -452,6 +469,7 @@ fun MainApp() {
                             val isDetailTransition = (
                                  previousScreen is AppScreen.PlaylistDetail || currentScreen is AppScreen.PlaylistDetail ||
                                  previousScreen is AppScreen.AlbumDetail || currentScreen is AppScreen.AlbumDetail ||
+                                 previousScreen is AppScreen.PhotoAlbumDetail || currentScreen is AppScreen.PhotoAlbumDetail ||
                                  previousScreen is AppScreen.OnlineAlbumDetail || currentScreen is AppScreen.OnlineAlbumDetail ||
                                  previousScreen is AppScreen.OnlineArtistDetail || currentScreen is AppScreen.OnlineArtistDetail
                              )
@@ -691,11 +709,15 @@ fun MainApp() {
                                         viewModel.playCategoryShuffle("playlists", playlistName)
                                     },
                                     onPlayNextPlaylist = {
-                                        viewModel.playCategoryNext("playlists", playlistName)
-                                    },
-                                    onAddToQueuePlaylist = {
-                                        viewModel.addCategoryToQueue("playlists", playlistName)
-                                    },
+                                         if (playlistTracks.isNotEmpty()) {
+                                             viewModel.player.playNext(playlistTracks)
+                                         }
+                                     },
+                                     onAddToQueuePlaylist = {
+                                         if (playlistTracks.isNotEmpty()) {
+                                             viewModel.player.addToQueue(playlistTracks)
+                                         }
+                                     },
                                     onTrackClick = { index ->
                                         viewModel.player.playList(playlistTracks, index)
                                     },
@@ -706,11 +728,11 @@ fun MainApp() {
                                         viewModel.savePlaylistTracks(playlistName, updated)
                                     },
                                     onPlayNextTrack = { track ->
-                                        viewModel.playCategoryNext("songs", track.title)
-                                    },
-                                    onAddToQueueTrack = { track ->
-                                        viewModel.addCategoryToQueue("songs", track.title)
-                                    },
+                                         viewModel.player.playNext(listOf(track))
+                                     },
+                                     onAddToQueueTrack = { track ->
+                                         viewModel.player.addToQueue(listOf(track))
+                                     },
                                     onRemoveTrack = { index ->
                                         val updated = playlistTracks.toMutableList()
                                         updated.removeAt(index)
@@ -738,8 +760,13 @@ fun MainApp() {
                             LaunchedEffect(albumName) {
                                 albumTracks = viewModel.getAlbumTracks(albumName)
                             }
-                            val artistName = albumTracks.firstOrNull()?.artist ?: "unknown artist"
-                            val albumArtUri = albumTracks.firstOrNull()?.albumArtUri
+                            val audioItems by viewModel.audioItems.collectAsState()
+                            val artistName = remember(albumName, audioItems) {
+                                audioItems.firstOrNull { it.album.equals(albumName, ignoreCase = true) }?.artist ?: "unknown artist"
+                            }
+                            val albumArtUri = remember(albumName, audioItems) {
+                                audioItems.firstOrNull { it.album.equals(albumName, ignoreCase = true) }?.albumArtUri
+                            }
                             
                             var albumExtractedColor by remember { mutableStateOf(ZuneAccent) }
                             LaunchedEffect(albumArtUri) {
@@ -754,7 +781,6 @@ fun MainApp() {
                             
                             val playlists by viewModel.playlists.collectAsState()
                             val pinned by viewModel.pinnedItems.collectAsState()
-                            val audioItems by viewModel.audioItems.collectAsState()
 
                             CompositionLocalProvider(com.zune.player.ui.theme.LocalZuneAccent provides albumAccent) {
                                 com.zune.player.ui.screens.AlbumDetailScreen(
@@ -762,6 +788,7 @@ fun MainApp() {
                                     artistName = artistName,
                                     tracks = albumTracks,
                                     onBack = { navigateBack() },
+                                    albumArtUri = albumArtUri,
                                     onPlayAll = {
                                         viewModel.playCategoryQueue("albums", albumName)
                                     },
@@ -849,6 +876,9 @@ fun MainApp() {
                             
                             val playlists by viewModel.playlists.collectAsState()
 
+                            val artworkUri = remember(artworkUrl) {
+                                if (artworkUrl.isNotEmpty()) android.net.Uri.parse(artworkUrl) else null
+                            }
                             CompositionLocalProvider(com.zune.player.ui.theme.LocalZuneAccent provides albumAccent) {
                                 Box(modifier = Modifier.fillMaxSize()) {
                                     com.zune.player.ui.screens.AlbumDetailScreen(
@@ -856,6 +886,7 @@ fun MainApp() {
                                         artistName = artistName,
                                         tracks = albumTracks,
                                         onBack = { navigateBack() },
+                                        albumArtUri = artworkUri,
                                         onPlayAll = {
                                             if (albumTracks.isNotEmpty()) {
                                                 viewModel.player.playList(albumTracks)
@@ -1032,6 +1063,7 @@ fun MainApp() {
                                                 )
                                                 artistRepo.insertArtist(artistEntity)
                                                 artistRepo.updateFollowedStatus(browseId, if (nextStatus) 1 else 0)
+                                                viewModel.reloadFollowedArtists()
                                             }
                                         },
                                         onSongClick = { song ->
@@ -1087,6 +1119,17 @@ fun MainApp() {
                                         },
                                         playlists = playlists,
                                         currentPlayingTitle = playingTitle,
+                                        initialPage = artistDetailSelectedTab[browseId] ?: 0,
+                                        onPageChanged = { page -> artistDetailSelectedTab[browseId] = page },
+                                        songsListScrollIndex = artistDetailSongsScroll[browseId]?.first ?: 0,
+                                        songsListScrollOffset = artistDetailSongsScroll[browseId]?.second ?: 0,
+                                        onSongsListScrollChanged = { idx, offset -> artistDetailSongsScroll[browseId] = Pair(idx, offset) },
+                                        albumsListScrollIndex = artistDetailAlbumsScroll[browseId]?.first ?: 0,
+                                        albumsListScrollOffset = artistDetailAlbumsScroll[browseId]?.second ?: 0,
+                                        onAlbumsListScrollChanged = { idx, offset -> artistDetailAlbumsScroll[browseId] = Pair(idx, offset) },
+                                        singlesListScrollIndex = artistDetailSinglesScroll[browseId]?.first ?: 0,
+                                        singlesListScrollOffset = artistDetailSinglesScroll[browseId]?.second ?: 0,
+                                        onSinglesListScrollChanged = { idx, offset -> artistDetailSinglesScroll[browseId] = Pair(idx, offset) },
                                         onSongDownload = { song ->
                                             val playItem = com.zune.player.data.AudioItem(
                                                 id = -song.trackId,
@@ -1154,8 +1197,22 @@ fun MainApp() {
                                     isAeroTheme = selectedBg == R.drawable.bg_4,
                                     pinnedIds = pinned.map { it.first },
                                     initialPhotoId = targetScreen.initialPhotoId,
+                                    initialPage = photosSelectedTab,
+                                    onPageChanged = { photosSelectedTab = it },
                                     onPin = { viewModel.pinSong(it) },
                                     onUnpin = { viewModel.unpinSong(it) },
+                                    onAlbumClick = { albumName ->
+                                        navigateTo(AppScreen.PhotoAlbumDetail(albumName))
+                                    },
+                                    onBack = { navigateBack() }
+                                )
+                            }
+                        }
+                        is AppScreen.PhotoAlbumDetail -> {
+                            Box(Modifier.systemBarsPadding()) {
+                                PhotoAlbumDetailScreen(
+                                    albumName = targetScreen.albumName,
+                                    isAeroTheme = selectedBg == R.drawable.bg_4,
                                     onBack = { navigateBack() }
                                 )
                             }
@@ -1941,6 +1998,7 @@ private fun isForwardTransition(initial: AppScreen, target: AppScreen): Boolean 
             is AppScreen.OnlineAlbumDetail -> 2
             is AppScreen.OnlineArtistDetail -> 2
             is AppScreen.Photos -> 2
+            is AppScreen.PhotoAlbumDetail -> 2
             is AppScreen.Videos -> 2
             is AppScreen.Podcasts -> 2
             is AppScreen.NowPlaying -> 3

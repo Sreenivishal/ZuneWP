@@ -109,7 +109,7 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
             try {
                 val array = JSONArray(jsonStr)
                 for (i in 0 until array.length()) {
-                    list.add(array.getString(i))
+                    list.add(array.getString(i).uppercase().trim())
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -119,7 +119,8 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
     }
 
     suspend fun getPlaylistTracks(playlistName: String): List<AudioItem> = withContext(Dispatchers.IO) {
-        val jsonStr = playlistPrefs.getString("playlist_tracks_$playlistName", "") ?: ""
+        val upperName = playlistName.uppercase().trim()
+        val jsonStr = playlistPrefs.getString("playlist_tracks_$upperName", "") ?: ""
         val tracks = mutableListOf<AudioItem>()
         if (jsonStr.isNotEmpty()) {
             try {
@@ -146,46 +147,51 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
     }
 
     suspend fun createPlaylist(name: String) = withContext(Dispatchers.IO) {
+        val upperName = name.uppercase().trim()
         val current = getPlaylists().toMutableList()
-        if (!current.contains(name)) {
-            current.add(name)
+        if (!current.contains(upperName)) {
+            current.add(upperName)
             val array = JSONArray()
             current.forEach { array.put(it) }
             playlistPrefs.edit().putString("playlists_list", array.toString()).apply()
-            playlistPrefs.edit().putString("playlist_tracks_$name", JSONArray().toString()).apply()
+            playlistPrefs.edit().putString("playlist_tracks_$upperName", JSONArray().toString()).apply()
         }
     }
 
     suspend fun deletePlaylist(playlistName: String) = withContext(Dispatchers.IO) {
+        val upperName = playlistName.uppercase().trim()
         val current = getPlaylists().toMutableList()
-        if (current.remove(playlistName)) {
+        if (current.remove(upperName)) {
             val array = JSONArray()
             current.forEach { array.put(it) }
             playlistPrefs.edit().putString("playlists_list", array.toString()).apply()
-            playlistPrefs.edit().remove("playlist_tracks_$playlistName").apply()
+            playlistPrefs.edit().remove("playlist_tracks_$upperName").apply()
         }
     }
 
     suspend fun renamePlaylist(oldName: String, newName: String) = withContext(Dispatchers.IO) {
+        val upperOld = oldName.uppercase().trim()
+        val upperNew = newName.uppercase().trim()
         val current = getPlaylists().toMutableList()
-        val index = current.indexOf(oldName)
-        if (index != -1 && !current.contains(newName)) {
-            current[index] = newName
+        val index = current.indexOf(upperOld)
+        if (index != -1 && !current.contains(upperNew)) {
+            current[index] = upperNew
             val array = JSONArray()
             current.forEach { array.put(it) }
             
-            val oldTracksJson = playlistPrefs.getString("playlist_tracks_$oldName", "") ?: ""
+            val oldTracksJson = playlistPrefs.getString("playlist_tracks_$upperOld", "") ?: ""
             playlistPrefs.edit().run {
                 putString("playlists_list", array.toString())
-                remove("playlist_tracks_$oldName")
-                putString("playlist_tracks_$newName", oldTracksJson)
+                remove("playlist_tracks_$upperOld")
+                putString("playlist_tracks_$upperNew", oldTracksJson)
                 apply()
             }
         }
     }
 
     suspend fun addToPlaylist(playlistName: String, item: AudioItem): Boolean = withContext(Dispatchers.IO) {
-        val tracks = getPlaylistTracks(playlistName).toMutableList()
+        val upperName = playlistName.uppercase().trim()
+        val tracks = getPlaylistTracks(upperName).toMutableList()
         if (tracks.any { it.id == item.id }) {
             return@withContext false
         }
@@ -204,12 +210,13 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
             }
             array.put(obj)
         }
-        playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
+        playlistPrefs.edit().putString("playlist_tracks_$upperName", array.toString()).apply()
         true
     }
 
     suspend fun removeFromPlaylist(playlistName: String, audioId: Long) = withContext(Dispatchers.IO) {
-        val tracks = getPlaylistTracks(playlistName).toMutableList()
+        val upperName = playlistName.uppercase().trim()
+        val tracks = getPlaylistTracks(upperName).toMutableList()
         val index = tracks.indexOfFirst { it.id == audioId }
         if (index != -1) {
             tracks.removeAt(index)
@@ -226,11 +233,12 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
                 }
                 array.put(obj)
             }
-            playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
+            playlistPrefs.edit().putString("playlist_tracks_$upperName", array.toString()).apply()
         }
     }
 
     suspend fun savePlaylistTracks(playlistName: String, tracks: List<AudioItem>) = withContext(Dispatchers.IO) {
+        val upperName = playlistName.uppercase().trim()
         val array = JSONArray()
         tracks.forEach { track ->
             val obj = JSONObject().apply {
@@ -244,6 +252,6 @@ class MusicRepository(private val context: Context) : org.koin.core.component.Ko
             }
             array.put(obj)
         }
-        playlistPrefs.edit().putString("playlist_tracks_$playlistName", array.toString()).apply()
+        playlistPrefs.edit().putString("playlist_tracks_$upperName", array.toString()).apply()
     }
 }

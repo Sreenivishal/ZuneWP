@@ -33,6 +33,7 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.data.OnlineSong
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
@@ -853,6 +854,20 @@ fun OnlineAlbumSearchResultCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(key = "album_art_${album.title}"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -864,7 +879,7 @@ fun OnlineAlbumSearchResultCard(
             AsyncImage(
                 model = album.artworkUrl,
                 contentDescription = null,
-                modifier = Modifier.size(110.dp),
+                modifier = Modifier.size(110.dp).then(sharedModifier).paperTexture(),
                 contentScale = ContentScale.Crop
             )
         } else {
@@ -905,6 +920,20 @@ fun OnlineArtistSearchResultCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+    val sharedTextModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(key = "artist_name_${artist.name}"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -935,7 +964,8 @@ fun OnlineArtistSearchResultCard(
                 style = ZuneTypography.h4.copy(fontSize = 24.sp),
                 color = ZuneTextPrimary,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.then(sharedTextModifier)
             )
             Text(
                 text = artist.subscribers.lowercase(),

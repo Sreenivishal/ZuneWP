@@ -49,6 +49,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.metroTilt
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.ui.theme.ZuneTextPrimary
 import com.zune.player.ui.theme.ZuneTextSecondary
 import com.zune.player.ui.theme.ZuneTypography
@@ -1077,6 +1079,7 @@ fun CategoryListScreen(
 }
 
 
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
 @Composable
 fun CategoryPage(
     categoryTitle: String,
@@ -1098,6 +1101,8 @@ fun CategoryPage(
     onOnlineTrackClick: (com.zune.player.data.AudioItem) -> Unit = {},
     onOnlineArtistClick: (com.zune.player.data.OnlineArtist) -> Unit = {}
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     val key = "category_${categoryTitle.lowercase()}"
     val initialPos = remember(key) { getScrollPosition(key) }
     val scrollState = androidx.compose.foundation.lazy.rememberLazyListState(
@@ -1406,6 +1411,26 @@ fun CategoryPage(
                                  Spacer(modifier = Modifier.width(12.dp))
                              }
                             
+                            val sharedTextModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                                with(sharedTransitionScope) {
+                                    if (isArtistEntity) {
+                                        Modifier.sharedElement(
+                                            rememberSharedContentState(key = "artist_name_$title"),
+                                            animatedVisibilityScope = animatedVisibilityScope
+                                        )
+                                    } else if (categoryTitle.lowercase() == "playlists") {
+                                        Modifier.sharedElement(
+                                            rememberSharedContentState(key = "playlist_title_$title"),
+                                            animatedVisibilityScope = animatedVisibilityScope
+                                        )
+                                    } else {
+                                        Modifier
+                                    }
+                                }
+                            } else {
+                                Modifier
+                            }
+
                             Column(modifier = Modifier.weight(1f)) {
                                 val isCurrentPlaying = title.equals(currentPlayingTitle, ignoreCase = true)
                                 val titleColor = if (isCurrentPlaying) LocalZuneAccent.current else ZuneTextPrimary
@@ -1416,7 +1441,8 @@ fun CategoryPage(
                                     style = ZuneTypography.h4.copy(fontSize = 24.sp),
                                     color = titleColor,
                                     maxLines = 1,
-                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    modifier = Modifier.then(sharedTextModifier)
                                 )
                                 if (isSong && categoryTitle.lowercase() == "songs") {
                                     val audioItem = item as com.zune.player.data.AudioItem
@@ -1589,11 +1615,33 @@ fun AlbumGridCell(
     val context = androidx.compose.ui.platform.LocalContext.current
     val haptic = LocalHapticFeedback.current
     val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+    
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(key = "album_art_${albumItem.album}"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
  
     Box(
         modifier = modifier
+            .metroTilt(interactionSource)
             .pointerInput(albumItem) {
                 detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
                     onTap = { onItemClick() },
                     onLongPress = {
                         if (prefs.getBoolean("haptic_feedback_enabled", true)) {
@@ -1615,7 +1663,7 @@ fun AlbumGridCell(
                     AsyncImage(
                         model = albumItem.albumArtUri,
                         contentDescription = "Album Art",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().then(sharedModifier).paperTexture(),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -1668,10 +1716,24 @@ fun LocalAlbumSongPreviewCard(
                 .metroClickable { onAlbumClick() }
         ) {
             if (albumItem.albumArtUri != null) {
+                val sharedTransitionScope = LocalSharedTransitionScope.current
+                val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+                val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "album_art_${albumItem.album}"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
+                    }
+                } else {
+                    Modifier
+                }
+
                 AsyncImage(
                     model = albumItem.albumArtUri,
                     contentDescription = albumItem.album,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().then(sharedModifier).paperTexture(),
                     contentScale = ContentScale.Crop
                 )
             }

@@ -57,6 +57,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,6 +76,8 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import com.zune.player.ui.components.PivotLayout
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.metroTilt
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
@@ -1071,13 +1075,31 @@ fun VideoListCard(
     // Load local frame thumbnail asynchronously
     val localThumbnail = rememberVideoThumbnail(context, video.uri)
 
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+            .metroTilt(interactionSource)
+            .pointerInput(video) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() },
+                    onLongPress = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        onLongClick()
+                    }
+                )
+            }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1093,7 +1115,7 @@ fun VideoListCard(
                     bitmap = localThumbnail.asImageBitmap(),
                     contentDescription = video.title,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().paperTexture()
                 )
             } else {
                 val thumbnailModel = video.posterUrl
@@ -1103,7 +1125,7 @@ fun VideoListCard(
                         contentDescription = video.title,
                         contentScale = ContentScale.Crop,
                         onError = { isError = true },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().paperTexture()
                     )
                 } else {
                     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -2293,15 +2315,33 @@ fun VideoGridCard(
         Modifier.background(Color(0xFF1E1E1E))
     }
 
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.5f)
             .then(cardGlassModifier)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            ),
+            .metroTilt(interactionSource)
+            .pointerInput(video) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() },
+                    onLongPress = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        onLongClick()
+                    }
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         if (localThumbnail != null) {
@@ -2309,14 +2349,14 @@ fun VideoGridCard(
                 bitmap = localThumbnail.asImageBitmap(),
                 contentDescription = video.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().paperTexture()
             )
         } else if (video.posterUrl != null) {
             AsyncImage(
                 model = video.posterUrl,
                 contentDescription = video.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().paperTexture()
             )
         } else {
             Canvas(modifier = Modifier.fillMaxSize()) {

@@ -42,9 +42,12 @@ import com.zune.player.ui.theme.ZuneTextSecondary
 import com.zune.player.ui.theme.ZuneTypography
 import com.zune.player.ui.components.metroClickable
 import com.zune.player.player.AudioPlayer
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.LocalZuneAccent
 import com.zune.player.ui.theme.SegoeUiFontFamily
 import com.zune.player.ui.theme.SegoeUiLightFontFamily
+import com.zune.player.ui.theme.SegoeUiBoldFontFamily
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -130,7 +133,14 @@ fun NowPlayingScreen(
         } else {
             snap()
         },
-        label = "SwipeOffsetAnimation"
+        label = "SwipeOffset"
+    )
+
+    val isPaused = !isPlaying
+    val flipRotation by animateFloatAsState(
+        targetValue = if (isPaused) 180f else 0f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "LiveTileFlipAnimation"
     )
 
     var showLyrics by remember { mutableStateOf(false) }
@@ -320,7 +330,7 @@ fun NowPlayingScreen(
                     .background(Color(0xFF1C1C1C))
                     .graphicsLayer {
                         translationX = animatedSwipeOffset
-                        rotationY = (animatedSwipeOffset / size.width) * -15f
+                        rotationY = flipRotation + (animatedSwipeOffset / size.width) * -15f
                         alpha = (1f - kotlin.math.abs(animatedSwipeOffset) / size.width).coerceIn(0.5f, 1f)
                         scaleX = playPauseScale
                         scaleY = playPauseScale
@@ -348,39 +358,75 @@ fun NowPlayingScreen(
                             },
                             onDoubleTap = { offset ->
                                 val halfWidth = size.width / 2
-                                val currentPositionVal = currentPositionState.value
-                                val durationVal = durationState.value
+                                val currentPositionStateVal = currentPositionState.value
+                                val durationStateVal = durationState.value
                                 if (offset.x < halfWidth) {
-                                    val newPos = (currentPositionVal - 10000L).coerceAtLeast(0L)
+                                    val newPos = (currentPositionStateVal - 10000L).coerceAtLeast(0L)
                                     player.seekTo(newPos)
                                 } else {
-                                    val newPos = (currentPositionVal + 10000L).coerceAtMost(durationVal)
+                                    val newPos = (currentPositionStateVal + 10000L).coerceAtMost(durationStateVal)
                                     player.seekTo(newPos)
                                 }
                             }
                         )
                     }
             ) {
-                if (showLyrics) {
-                    com.zune.player.ui.components.SynchronizedLyricsView(
-                        lyrics = lyrics,
-                        currentLyricIndex = activeLyricIndex,
-                        onLyricClick = { timestamp -> player.seekTo(timestamp) },
-                        onDismiss = { showLyrics = false },
-                        modifier = Modifier.fillMaxSize()
-                    )
+                if (flipRotation <= 90f) {
+                    if (showLyrics) {
+                        com.zune.player.ui.components.SynchronizedLyricsView(
+                            lyrics = lyrics,
+                            currentLyricIndex = activeLyricIndex,
+                            onLyricClick = { timestamp -> player.seekTo(timestamp) },
+                            onDismiss = { showLyrics = false },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        val sharedTransitionScope = LocalSharedTransitionScope.current
+                        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+                        val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                            with(sharedTransitionScope) {
+                                Modifier.sharedElement(
+                                    rememberSharedContentState(key = "now_playing_art"),
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                )
+                            }
+                        } else {
+                            Modifier
+                        }
+
+                        AsyncImage(
+                            model = currentItem?.albumArtUri,
+                            contentDescription = "Album Art",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize().then(sharedModifier)
+                        )
+                        
+                        if (isBuffering) {
+                            androidx.compose.material.CircularProgressIndicator(
+                                color = accent,
+                                modifier = Modifier.align(Alignment.Center).size(48.dp)
+                            )
+                        }
+                    }
                 } else {
-                    AsyncImage(
-                        model = currentItem?.albumArtUri,
-                        contentDescription = "Album Art",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    
-                    if (isBuffering) {
-                        androidx.compose.material.CircularProgressIndicator(
-                            color = accent,
-                            modifier = Modifier.align(Alignment.Center).size(48.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(accent)
+                            .graphicsLayer {
+                                rotationY = 180f
+                            }
+                            .padding(16.dp),
+                        contentAlignment = Alignment.BottomStart
+                    ) {
+                        Text(
+                            text = "PAUSED",
+                            color = Color.Black,
+                            fontFamily = SegoeUiBoldFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp,
+                            letterSpacing = (-1.5).sp
                         )
                     }
                 }

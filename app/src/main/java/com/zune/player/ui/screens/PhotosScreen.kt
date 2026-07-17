@@ -74,6 +74,8 @@ import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import com.zune.player.ui.components.PivotLayout
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.metroTilt
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
@@ -100,6 +102,8 @@ fun PhotosScreen(
     isAeroTheme: Boolean = false,
     pinnedIds: List<Long> = emptyList(),
     initialPhotoId: Long? = null,
+    initialPage: Int = 0,
+    onPageChanged: (Int) -> Unit = {},
     onPin: (Long) -> Unit = {},
     onUnpin: (Long) -> Unit = {},
     onAlbumClick: (String) -> Unit = {},
@@ -344,7 +348,10 @@ fun PhotosScreen(
                         )
                     }
                     val pages = listOf("all", "albums", "search")
-                    val pagerState = rememberPagerState(initialPage = 0) { pages.size }
+                    val pagerState = rememberPagerState(initialPage = initialPage) { pages.size }
+                    LaunchedEffect(pagerState.currentPage) {
+                        onPageChanged(pagerState.currentPage)
+                    }
                     val tabWidths = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
 
                     // Sliding giant tabs
@@ -1067,15 +1074,33 @@ fun PhotoGridCard(
         Modifier.background(Color(0xFF1E1E1E))
     }
 
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
+    val prefs = remember(context) { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
             .then(cardGlassModifier)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
+            .metroTilt(interactionSource)
+            .pointerInput(photo) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() },
+                    onLongPress = {
+                        if (prefs.getBoolean("haptic_feedback_enabled", true)) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        onLongClick()
+                    }
+                )
+            }
     ) {
         if (photo.uri != null) {
             if (thumbnail != null) {
@@ -1083,7 +1108,7 @@ fun PhotoGridCard(
                     bitmap = thumbnail.asImageBitmap(),
                     contentDescription = photo.title,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().paperTexture()
                 )
             } else {
                 Box(
@@ -1115,10 +1140,23 @@ fun AlbumFolderCard(
     isAeroTheme: Boolean,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .metroTilt(interactionSource)
+            .pointerInput(albumName) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() }
+                )
+            }
             .padding(4.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -1193,6 +1231,19 @@ fun AlbumFolderCard(
                     .align(Alignment.BottomStart)
                     .padding(12.dp)
             ) {
+                val sharedTransitionScope = LocalSharedTransitionScope.current
+                val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+                val sharedNameModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "photo_album_title_$albumName"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
+                    }
+                } else {
+                    Modifier
+                }
+
                 Text(
                     text = albumName.uppercase(),
                     style = ZuneTypography.h2.copy(
@@ -1202,7 +1253,8 @@ fun AlbumFolderCard(
                     ),
                     color = Color.White,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = sharedNameModifier
                 )
 
                 val subtitleText = remember(photos) {
@@ -1226,7 +1278,7 @@ fun AlbumImageOrFallback(photo: PhotoItem) {
             model = photo.uri,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().paperTexture()
         )
     } else {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -1246,13 +1298,25 @@ fun OnlineAlbumTile(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     tint: Color
 ) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Row(
         modifier = Modifier
             .width(140.dp)
             .background(Color(0xFF1E1E1E))
             .border(1.dp, Color.White.copy(alpha = 0.1f))
-            .padding(12.dp)
-            .clickable { /* Online action */ },
+            .metroTilt(interactionSource)
+            .pointerInput(name) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { /* Online action */ }
+                )
+            }
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -2813,6 +2877,17 @@ fun PhotoAlbumDetailScreen(
             Column(
                 modifier = Modifier.padding(start = 24.dp, bottom = 12.dp)
             ) {
+                val sharedNameModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "photo_album_title_$albumName"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
                 Text(
                     text = albumName.uppercase(),
                     style = ZuneTypography.h1.copy(
@@ -2822,7 +2897,8 @@ fun PhotoAlbumDetailScreen(
                     ),
                     color = LocalZuneAccent.current,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = sharedNameModifier
                 )
                 Text(
                     text = "${currentViewPhotos.size} PHOTOS",

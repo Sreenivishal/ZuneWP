@@ -43,6 +43,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Canvas
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
@@ -502,11 +504,23 @@ fun FeaturedSectionView(
                         contentAlignment = Alignment.BottomStart
                     ) {
                         if (item.albumArtUri != null) {
+                            val sharedTransitionScope = LocalSharedTransitionScope.current
+                            val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+                            val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                                with(sharedTransitionScope) {
+                                    Modifier.sharedElement(
+                                        rememberSharedContentState(key = "album_art_${item.album}"),
+                                        animatedVisibilityScope = animatedVisibilityScope
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            }
                             AsyncImage(
                                 model = item.albumArtUri,
                                 contentDescription = "Album Art",
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize().then(sharedModifier)
                             )
                         }
                     }

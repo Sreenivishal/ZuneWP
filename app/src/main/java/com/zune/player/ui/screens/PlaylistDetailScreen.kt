@@ -119,7 +119,7 @@ fun PlaylistDetailScreen(
                 }
 
                 Text(
-                    text = "playlists",
+                    text = "PLAYLISTS",
                     style = androidx.compose.ui.text.TextStyle(
                         fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
                         fontSize = 170.sp
@@ -143,6 +143,17 @@ fun PlaylistDetailScreen(
                     .padding(start = 24.dp, top = 8.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val sharedNameModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "playlist_title_$playlistName"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
                 Text(
                     text = playlistName.uppercase(),
                     style = ZuneTypography.h1.copy(
@@ -152,7 +163,8 @@ fun PlaylistDetailScreen(
                     ),
                     color = LocalZuneAccent.current,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = sharedNameModifier
                 )
             }
 
@@ -168,17 +180,17 @@ fun PlaylistDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     HeaderAction(
-                        text = "play",
+                        text = "PLAY",
                         icon = ZuneIcons.Play,
                         onClick = onPlayAll
                     )
                     HeaderAction(
-                        text = "shuffle",
+                        text = "SHUFFLE",
                         icon = ZuneIcons.Shuffle,
                         onClick = onShuffleAll
                     )
                     HeaderAction(
-                        text = "play next",
+                        text = "PLAY NEXT",
                         icon = ZuneIcons.ArrowForward,
                         onClick = onPlayNextPlaylist
                     )
@@ -188,12 +200,12 @@ fun PlaylistDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     HeaderAction(
-                        text = "add to queue",
+                        text = "ADD TO QUEUE",
                         icon = ZuneIcons.ArrowDownward,
                         onClick = onAddToQueuePlaylist
                     )
                     HeaderAction(
-                        text = "rename",
+                        text = "RENAME",
                         icon = ZuneIcons.Edit,
                         onClick = {
                             newPlaylistName = playlistName
@@ -218,7 +230,7 @@ fun PlaylistDetailScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
-                                text = "rename playlist",
+                                text = "RENAME PLAYLIST",
                                 style = ZuneTypography.h2.copy(
                                     fontFamily = SegoeUiLightFontFamily,
                                     fontSize = 28.sp,
@@ -250,7 +262,7 @@ fun PlaylistDetailScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "cancel",
+                                    text = "CANCEL",
                                     style = ZuneTypography.body1.copy(fontFamily = SegoeUiFontFamily, color = ZuneTextSecondary),
                                     modifier = Modifier
                                         .clickable { showRenameDialog = false }
@@ -258,7 +270,7 @@ fun PlaylistDetailScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "rename",
+                                    text = "RENAME",
                                     style = ZuneTypography.body1.copy(fontFamily = SegoeUiFontFamily, color = LocalZuneAccent.current, fontWeight = FontWeight.Bold),
                                     modifier = Modifier
                                         .clickable {
@@ -280,7 +292,7 @@ fun PlaylistDetailScreen(
             // Track List
             if (items.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("no tracks in this playlist", color = ZuneTextSecondary, style = ZuneTypography.body1)
+                    Text("NO TRACKS IN THIS PLAYLIST", color = ZuneTextSecondary, style = ZuneTypography.body1)
                 }
             } else {
                 LazyColumn(
@@ -359,7 +371,7 @@ fun PlaylistTrackItem(
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = track.title.lowercase(),
+                    text = track.title.uppercase(),
                     style = ZuneTypography.h4.copy(fontSize = 18.sp),
                     color = if (isCurrentlyPlaying) {
                         val accent = LocalZuneAccent.current
@@ -369,7 +381,7 @@ fun PlaylistTrackItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = track.artist.lowercase(),
+                    text = track.artist.uppercase(),
                     style = ZuneTypography.body2.copy(fontSize = 13.sp),
                     color = ZuneTextSecondary,
                     maxLines = 1,

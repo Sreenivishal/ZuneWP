@@ -53,6 +53,8 @@ import com.zune.player.R
 import com.zune.player.data.AudioItem
 import com.zune.player.player.AudioPlayer
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.LocalSharedTransitionScope
+import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.LocalZuneAccent
 import com.zune.player.ui.theme.ZuneAccent
 import com.zune.player.ui.theme.AeroBlueOrbGradient
@@ -708,11 +710,34 @@ fun PinnedTileView(
                             }
                     ) {
                         if (imageModel != null) {
+                            val sharedTransitionScope = LocalSharedTransitionScope.current
+                            val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+                            val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                                val transitionKey = when {
+                                    tileItem.type == "album" -> "album_art_${tileItem.title}"
+                                    tileItem.type == "app" && tileItem.title.lowercase() == "now playing" -> "now_playing_art"
+                                    else -> null
+                                }
+                                if (transitionKey != null) {
+                                    with(sharedTransitionScope) {
+                                        Modifier.sharedElement(
+                                            rememberSharedContentState(key = transitionKey),
+                                            animatedVisibilityScope = animatedVisibilityScope
+                                        )
+                                    }
+                                } else {
+                                    Modifier
+                                }
+                            } else {
+                                Modifier
+                            }
+
                             AsyncImage(
                                 model = imageModel,
                                 contentDescription = tileItem.title,
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier.fillMaxSize().then(sharedModifier),
                                 alpha = if (isEditMode && !isHovered) 0.7f else 1f
                             )
                         } else {

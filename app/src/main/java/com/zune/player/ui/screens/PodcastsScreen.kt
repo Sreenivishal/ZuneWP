@@ -47,6 +47,8 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.player.AudioPlayer
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.metroTilt
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
@@ -719,18 +721,30 @@ fun PodcastGridCard(
     podcast: PodcastInfo,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clickable { onClick() }
             .border(1.dp, Color.White.copy(alpha = 0.08f))
+            .metroTilt(interactionSource)
+            .pointerInput(podcast) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() }
+                )
+            }
     ) {
         AsyncImage(
             model = podcast.artworkUrl,
             contentDescription = podcast.title,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize().background(Color(0xFF1C1C1C))
+            modifier = Modifier.fillMaxSize().background(Color(0xFF1C1C1C)).paperTexture()
         )
         
         Box(
@@ -785,10 +799,23 @@ fun PodcastCard(
         Modifier.background(Color(0xFF1E1E1E))
     }
 
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .metroTilt(interactionSource)
+            .pointerInput(podcast) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                        interactionSource.emit(press)
+                        tryAwaitRelease()
+                        interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                    },
+                    onTap = { onClick() }
+                )
+            }
             .then(cardGlassModifier)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -800,6 +827,7 @@ fun PodcastCard(
             modifier = Modifier
                 .size(60.dp)
                 .background(Color(0xFF1C1C1C))
+                .paperTexture()
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {

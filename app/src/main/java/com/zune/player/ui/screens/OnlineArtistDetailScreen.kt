@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.DropdownMenu
@@ -37,6 +38,8 @@ import com.zune.player.data.OnlineSong
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.metroTilt
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -60,11 +63,55 @@ fun OnlineArtistDetailScreen(
     isFollowed: Boolean = false,
     onFollowToggle: () -> Unit = {},
     singles: List<OnlineAlbum> = emptyList(),
-    albumTracksCache: androidx.compose.runtime.snapshots.SnapshotStateMap<String, List<String>> = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateMapOf() }
+    albumTracksCache: androidx.compose.runtime.snapshots.SnapshotStateMap<String, List<String>> = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateMapOf() },
+    initialPage: Int = 0,
+    onPageChanged: (Int) -> Unit = {},
+    songsListScrollIndex: Int = 0,
+    songsListScrollOffset: Int = 0,
+    onSongsListScrollChanged: (Int, Int) -> Unit = { _, _ -> },
+    albumsListScrollIndex: Int = 0,
+    albumsListScrollOffset: Int = 0,
+    onAlbumsListScrollChanged: (Int, Int) -> Unit = { _, _ -> },
+    singlesListScrollIndex: Int = 0,
+    singlesListScrollOffset: Int = 0,
+    onSinglesListScrollChanged: (Int, Int) -> Unit = { _, _ -> }
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pages = listOf("songs", "albums", "singles & EPs")
-    val pagerState = rememberPagerState(initialPage = 0) { pages.size }
+    val pagerState = rememberPagerState(initialPage = initialPage) { pages.size }
+    LaunchedEffect(pagerState.currentPage) {
+        onPageChanged(pagerState.currentPage)
+    }
+
+    val songsScrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = songsListScrollIndex,
+        initialFirstVisibleItemScrollOffset = songsListScrollOffset
+    )
+    val albumsScrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = albumsListScrollIndex,
+        initialFirstVisibleItemScrollOffset = albumsListScrollOffset
+    )
+    val singlesScrollState = rememberLazyListState(
+        initialFirstVisibleItemIndex = singlesListScrollIndex,
+        initialFirstVisibleItemScrollOffset = singlesListScrollOffset
+    )
+
+    // Save scroll state on change or dispose
+    DisposableEffect(songsScrollState) {
+        onDispose {
+            onSongsListScrollChanged(songsScrollState.firstVisibleItemIndex, songsScrollState.firstVisibleItemScrollOffset)
+        }
+    }
+    DisposableEffect(albumsScrollState) {
+        onDispose {
+            onAlbumsListScrollChanged(albumsScrollState.firstVisibleItemIndex, albumsScrollState.firstVisibleItemScrollOffset)
+        }
+    }
+    DisposableEffect(singlesScrollState) {
+        onDispose {
+            onSinglesListScrollChanged(singlesScrollState.firstVisibleItemIndex, singlesScrollState.firstVisibleItemScrollOffset)
+        }
+    }
     val tabWidths = remember { mutableStateMapOf<Int, Float>() }
     var songToAddToPlaylist by remember { mutableStateOf<AudioItem?>(null) }
 
@@ -142,7 +189,7 @@ fun OnlineArtistDetailScreen(
                 }
 
                 Text(
-                    text = "artists",
+                    text = "ARTISTS",
                     style = androidx.compose.ui.text.TextStyle(
                         fontFamily = com.zune.player.ui.theme.SegoeUiLightFontFamily,
                         fontSize = 170.sp
@@ -169,6 +216,17 @@ fun OnlineArtistDetailScreen(
                     .padding(start = 24.dp, top = 24.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val sharedNameModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                    with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = "artist_name_$artistName"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ).skipToLookaheadSize()
+                    }
+                } else {
+                    Modifier
+                }
+
                 Text(
                     text = artistName.uppercase(),
                     style = ZuneTypography.h1.copy(
@@ -192,7 +250,7 @@ fun OnlineArtistDetailScreen(
                             artistReadyToDraw = true
                         }
                     },
-                    modifier = Modifier.drawWithContent {
+                    modifier = Modifier.then(sharedNameModifier).drawWithContent {
                         if (artistReadyToDraw) {
                             drawContent()
                         }
@@ -291,10 +349,11 @@ fun OnlineArtistDetailScreen(
                         // Songs List
                         if (topSongs.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("no songs found", style = ZuneTypography.body1, color = ZuneTextSecondary)
+                                Text("NO SONGS FOUND", style = ZuneTypography.body1, color = ZuneTextSecondary)
                             }
                         } else {
                             LazyColumn(
+                                state = songsScrollState,
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
                                 contentPadding = PaddingValues(bottom = 32.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -329,10 +388,11 @@ fun OnlineArtistDetailScreen(
                         // Albums List
                         if (albums.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("no albums found", style = ZuneTypography.body1, color = ZuneTextSecondary)
+                                Text("NO ALBUMS FOUND", style = ZuneTypography.body1, color = ZuneTextSecondary)
                             }
                         } else {
                             LazyColumn(
+                                state = albumsScrollState,
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
                                 contentPadding = PaddingValues(bottom = 32.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -353,10 +413,11 @@ fun OnlineArtistDetailScreen(
                         // Singles List
                         if (singles.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("no singles found", style = ZuneTypography.body1, color = ZuneTextSecondary)
+                                Text("NO SINGLES FOUND", style = ZuneTypography.body1, color = ZuneTextSecondary)
                             }
                         } else {
                             LazyColumn(
+                                state = singlesScrollState,
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
                                 contentPadding = PaddingValues(bottom = 32.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -496,7 +557,7 @@ fun ArtistSongCard(
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
-                    text = song.album.lowercase(),
+                    text = song.album,
                     style = ZuneTypography.body2,
                     color = ZuneTextSecondary,
                     maxLines = 1,
@@ -514,33 +575,33 @@ fun ArtistSongCard(
                 showMenu = false
                 onClick()
             }) {
-                Text("play", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                Text("PLAY", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
             if (onDownload != null) {
                 DropdownMenuItem(onClick = {
                     showMenu = false
                     onDownload()
                 }) {
-                    Text("download", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                    Text("DOWNLOAD", style = ZuneTypography.body1, color = ZuneTextPrimary)
                 }
             }
             DropdownMenuItem(onClick = {
                 showMenu = false
                 onAddToQueue()
             }) {
-                Text("add to queue", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                Text("ADD TO QUEUE", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
             DropdownMenuItem(onClick = {
                 showMenu = false
                 onPlayNext()
             }) {
-                Text("play next", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                Text("PLAY NEXT", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
             DropdownMenuItem(onClick = {
                 showMenu = false
                 onAddToPlaylist()
             }) {
-                Text("add to playlist", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                Text("ADD TO PLAYLIST", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
         }
     }
@@ -574,12 +635,34 @@ fun ArtistAlbumCard(
         }
     }
 
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(key = "album_art_${album.title}"),
+                animatedVisibilityScope = animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Box(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .metroTilt(interactionSource)
                 .pointerInput(album) {
                     detectTapGestures(
+                        onPress = { offset ->
+                            val press = androidx.compose.foundation.interaction.PressInteraction.Press(offset)
+                            interactionSource.emit(press)
+                            tryAwaitRelease()
+                            interactionSource.emit(androidx.compose.foundation.interaction.PressInteraction.Release(press))
+                        },
                         onTap = { onClick() },
                         onLongPress = {
                             if (prefs.getBoolean("haptic_feedback_enabled", true)) {
@@ -596,7 +679,7 @@ fun ArtistAlbumCard(
                 AsyncImage(
                     model = album.artworkUrl,
                     contentDescription = null,
-                    modifier = Modifier.size(110.dp),
+                    modifier = Modifier.size(110.dp).then(sharedModifier).paperTexture(),
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -650,14 +733,14 @@ fun ArtistAlbumCard(
                 showMenu = false
                 onClick()
             }) {
-                Text("view album", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                Text("VIEW ALBUM", style = ZuneTypography.body1, color = ZuneTextPrimary)
             }
             if (onDownloadAlbum != null) {
                 DropdownMenuItem(onClick = {
                     showMenu = false
                     onDownloadAlbum()
                 }) {
-                    Text("download album", style = ZuneTypography.body1, color = ZuneTextPrimary)
+                    Text("DOWNLOAD ALBUM", style = ZuneTypography.body1, color = ZuneTextPrimary)
                 }
             }
         }

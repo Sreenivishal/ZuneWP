@@ -112,6 +112,8 @@ fun HomeScreen(
     val prefs = remember { context.getSharedPreferences("zune_prefs", android.content.Context.MODE_PRIVATE) }
     var selectedBg by remember { mutableStateOf(prefs.getInt("bg_selection", 0)) }
     var showFeaturedSection by remember { mutableStateOf(prefs.getBoolean("show_featured_section", true)) }
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     var activePinnedSongForOptions by remember { mutableStateOf<AudioItem?>(null) }
 
     var historyEnabled by remember { mutableStateOf(prefs.getBoolean("history_enabled", true)) }
@@ -795,6 +797,8 @@ fun NowPlayingPanel(
     onOpenQueue: () -> Unit,
     isAeroTheme: Boolean = false
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     val currentItem by player.currentAudio.collectAsState()
     val isBuffering by player.isBuffering.collectAsState()
     val accent = LocalZuneAccent.current
@@ -839,11 +843,22 @@ fun NowPlayingPanel(
         ) {
             if (currentItem?.albumArtUri != null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                        with(sharedTransitionScope) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = "now_playing_art"),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            )
+                        }
+                    } else {
+                        Modifier
+                    }
+
                     AsyncImage(
                         model = currentItem?.albumArtUri,
                         contentDescription = "Album Art",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().then(sharedModifier)
                     )
                     if (isBuffering) {
                         androidx.compose.material.CircularProgressIndicator(
@@ -1043,6 +1058,8 @@ fun FeaturedAlbumsPage(
     getScrollPosition: (String) -> Pair<Int, Int> = { Pair(0, 0) },
     onScrollPositionChanged: (String, Int, Int) -> Unit = { _, _, _ -> }
 ) {
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
     val initialPos = remember { getScrollPosition("home_featured") }
     val scrollState = androidx.compose.foundation.lazy.grid.rememberLazyGridState(
         initialFirstVisibleItemIndex = initialPos.first,
@@ -1102,11 +1119,22 @@ fun FeaturedAlbumsPage(
                 contentAlignment = Alignment.BottomStart
             ) {
                 if (item.albumArtUri != null) {
+                    val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+                        with(sharedTransitionScope) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = "album_art_${item.album}"),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            )
+                        }
+                    } else {
+                        Modifier
+                    }
+
                     AsyncImage(
                         model = item.albumArtUri,
                         contentDescription = "Album Art",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().then(sharedModifier)
                     )
                 }
                 if (isAeroTheme) {

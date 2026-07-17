@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import com.zune.player.data.AudioItem
 import com.zune.player.ui.components.HeaderAction
 import com.zune.player.ui.components.metroClickable
+import com.zune.player.ui.components.paperTexture
 import com.zune.player.LocalSharedTransitionScope
 import com.zune.player.LocalAnimatedVisibilityScope
 import com.zune.player.ui.theme.*
@@ -53,13 +54,25 @@ fun AlbumDetailScreen(
     isPinnedTrack: (String) -> Boolean = { false },
     onPinTrack: (String) -> Unit = {},
     onDownloadAlbum: (() -> Unit)? = null,
-    onDownloadTrack: ((AudioItem) -> Unit)? = null
+    onDownloadTrack: ((AudioItem) -> Unit)? = null,
+    albumArtUri: android.net.Uri? = null
 ) {
     var songToAddToPlaylist by remember { mutableStateOf<com.zune.player.data.AudioItem?>(null) } // songToAddToPlaylist
 
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         val sharedTransitionScope = LocalSharedTransitionScope.current
         val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+
+        val sharedModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+            with(sharedTransitionScope) {
+                Modifier.sharedElement(
+                    rememberSharedContentState(key = "album_art_${albumName}"),
+                    animatedVisibilityScope = animatedVisibilityScope
+                )
+            }
+        } else {
+            Modifier
+        }
 
         Column(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
             Box(
@@ -68,12 +81,12 @@ fun AlbumDetailScreen(
                     .height(240.dp)
                     .metroClickable { onBack() }
             ) {
-                val firstTrackArt = tracks.firstOrNull()?.albumArtUri
-                if (firstTrackArt != null) {
+                val artModel = albumArtUri ?: tracks.firstOrNull()?.albumArtUri
+                if (artModel != null) {
                     AsyncImage(
-                        model = firstTrackArt,
+                        model = artModel,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().then(sharedModifier).paperTexture(),
                         contentScale = ContentScale.Crop,
                         alignment = Alignment.BottomCenter
                     )
