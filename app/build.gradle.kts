@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.work.runtime.ktx)
 
     // Compose foundational dependencies
+    implementation(platform(libs.compose.bom))
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material")
     implementation("androidx.compose.material:material-icons-core")

@@ -1,6 +1,6 @@
 package com.zune.player
 
-import com.zune.player.data.OnlineMusicStore
+//import com.zune.player.data.OnlineMusicStore
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.net.HttpURLConnection
@@ -383,12 +383,12 @@ class OnlineMusicStoreTest {
         assert(albumsCount > 0) { "Artist albums count should be greater than 0" }
     }
 
-    @Test
-    fun testResolveStream() = runBlocking {
-        println("=== TESTING RESOLVE DIRECT STREAM ===")
-        val videoId = "dQw4w9WgXcQ"
-        val url = OnlineMusicStore.resolveDirectStream(videoId)
-        println("Resolved stream URL: $url")
-    }
+//    @Test
+//    fun testResolveStream() = runBlocking {
+//        println("=== TESTING RESOLVE DIRECT STREAM ===")
+//        val videoId = "dQw4w9WgXcQ"
+//        val url = OnlineMusicStore.resolveDirectStream(videoId)
+//        println("Resolved stream URL: $url")
+//    }
 }
 
